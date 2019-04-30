@@ -34,7 +34,7 @@ BMRepeater::BMRepeater(const BMRepeater &other)
 {
     m_copies = other.m_copies;
     m_offset = other.m_offset;
-    m_transform = m_transform;
+    m_transform = other.m_transform;
 }
 
 BMRepeater::BMRepeater(const QJsonObject &definition, BMBase *parent)
