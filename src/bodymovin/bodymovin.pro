@@ -76,4 +76,10 @@ HEADERS += \
     bmpathtrimmer_p.h \
     bmglobal.h
 
+SOURCES += \
+    bmnulllayer.cpp
+
+HEADERS += \
+    bmnulllayer_p.h
+
 load(qt_module)

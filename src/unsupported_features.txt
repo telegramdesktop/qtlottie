@@ -18,7 +18,7 @@
 
 3. Layers
 
-- Only the shape layer supported
+- Only the shape layer and null layer are supported
 - Only alpha mask adjustment layer supported
 - unsupported properties
     - ao (auto-orientation)

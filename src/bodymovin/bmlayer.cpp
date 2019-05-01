@@ -35,6 +35,7 @@
 #include <QLoggingCategory>
 
 #include "bmshapelayer_p.h"
+#include "bmnulllayer_p.h"
 #include "bmfilleffect_p.h"
 #include "bmbasictransform_p.h"
 
@@ -82,6 +83,10 @@ BMLayer *BMLayer::construct(QJsonObject definition)
     case 4:
         qCDebug(lcLottieQtBodymovinParser) << "Parse shape layer";
         layer = new BMShapeLayer(definition);
+        break;
+    case 3:
+        qCDebug(lcLottieQtBodymovinParser) << "Parse null layer";
+        layer = new BMNullLayer(definition);
         break;
     default:
         qCWarning(lcLottieQtBodymovinParser) << "Unsupported layer type:" << type;
