@@ -95,7 +95,13 @@ void BMBase::setType(int type)
 
 void BMBase::prependChild(BMBase *child)
 {
-    m_children.push_front(child);
+    m_children.push_back(child);
+    if (const auto length = m_children.size(); length > 1) {
+        qSwap(m_children[length - 1], m_children[length - 2]);
+    } else {
+        qCWarning(lcLottieQtBodymovinParser)
+            << "Mask layer found in the end of layers list";
+    }
 }
 
 void BMBase::appendChild(BMBase *child)
