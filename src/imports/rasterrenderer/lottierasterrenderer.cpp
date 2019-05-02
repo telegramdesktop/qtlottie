@@ -188,7 +188,9 @@ void LottieRasterRenderer::render(const BMFill &fill)
     if (m_fillEffect)
         return;
 
-    m_painter->setBrush(fill.color());
+    QColor color(fill.color());
+    color.setAlphaF(color.alphaF() * fill.opacity() / 100.);
+    m_painter->setBrush(color);
 }
 
 void LottieRasterRenderer::render(const BMGFill &gradient)

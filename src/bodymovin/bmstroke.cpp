@@ -123,7 +123,9 @@ QPen BMStroke::pen() const
     if (qFuzzyIsNull(width))
         return QPen(Qt::NoPen);
     QPen pen;
-    pen.setColor(getColor());
+    QColor color(getColor());
+    color.setAlphaF(color.alphaF() * (opacity() / 100.));
+    pen.setColor(color);
     pen.setWidthF(width);
     pen.setCapStyle(m_capStyle);
     pen.setJoinStyle(m_joinStyle);
