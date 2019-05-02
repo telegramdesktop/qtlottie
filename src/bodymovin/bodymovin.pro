@@ -79,11 +79,13 @@ HEADERS += \
 SOURCES += \
     bmasset.cpp \
     bmprecompasset.cpp \
-    bmnulllayer.cpp
+    bmnulllayer.cpp \
+    bmprecomplayer.cpp
 
 HEADERS += \
     bmasset_p.h \
     bmprecompasset_p.h \
-    bmnulllayer_p.h
+    bmnulllayer_p.h \
+    bmprecomplayer_p.h
 
 load(qt_module)

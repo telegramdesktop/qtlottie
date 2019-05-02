@@ -37,7 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 
-BMBase *BMPreCompAsset::clone() const
+BMPreCompAsset *BMPreCompAsset::clone() const
 {
     return new BMPreCompAsset(*this);
 }

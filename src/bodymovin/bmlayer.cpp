@@ -35,9 +35,11 @@
 #include <QLoggingCategory>
 
 #include "bmshapelayer_p.h"
-#include "bmnulllayer_p.h"
 #include "bmfilleffect_p.h"
 #include "bmbasictransform_p.h"
+
+#include "bmnulllayer_p.h"
+#include "bmprecomplayer_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -87,6 +89,10 @@ BMLayer *BMLayer::construct(QJsonObject definition)
     case 3:
         qCDebug(lcLottieQtBodymovinParser) << "Parse null layer";
         layer = new BMNullLayer(definition);
+        break;
+    case 0:
+        qCDebug(lcLottieQtBodymovinParser) << "Parse precomp layer";
+        layer = new BMPreCompLayer(definition);
         break;
     default:
         qCWarning(lcLottieQtBodymovinParser) << "Unsupported layer type:" << type;

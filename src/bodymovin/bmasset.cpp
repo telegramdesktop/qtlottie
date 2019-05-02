@@ -38,7 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 
-BMBase *BMAsset::clone() const
+BMAsset *BMAsset::clone() const
 {
     return new BMAsset(*this);
 }
@@ -64,6 +64,13 @@ void BMAsset::parse(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMAsset::parse():" << m_name;
 
     m_id = definition.value(QLatin1String("id")).toVariant().toString();
+}
+
+void BMAsset::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
+	if (!m_resolved) {
+		m_resolved = true;
+		BMBase::resolveAssets(resolver);
+	}
 }
 
 QString BMAsset::id() const

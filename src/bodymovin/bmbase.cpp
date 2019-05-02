@@ -98,9 +98,6 @@ void BMBase::prependChild(BMBase *child)
     m_children.push_back(child);
     if (const auto length = m_children.size(); length > 1) {
         qSwap(m_children[length - 1], m_children[length - 2]);
-    } else {
-        qCWarning(lcLottieQtBodymovinParser)
-            << "Mask layer found in the end of layers list";
     }
 }
 
@@ -144,6 +141,17 @@ void BMBase::render(LottieRenderer &renderer) const
         child->render(renderer);
     }
     renderer.restoreState();
+}
+
+void BMBase::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
+    if (m_hidden)
+        return;
+
+    for (BMBase *child : qAsConst(m_children)) {
+        if (child->m_hidden)
+            continue;
+        child->resolveAssets(resolver);
+    }
 }
 
 void BMBase::resolveTopRoot()
