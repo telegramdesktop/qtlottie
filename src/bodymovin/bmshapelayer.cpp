@@ -46,8 +46,10 @@ BMShapeLayer::BMShapeLayer(const BMShapeLayer &other)
     : BMLayer(other)
 {
     m_maskProperties = other.m_maskProperties;
-    m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
-    m_layerTransform->setParent(this);
+	if (other.m_layerTransform) {
+		m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
+		m_layerTransform->setParent(this);
+	}
     m_appliedTrim = other.m_appliedTrim;
 }
 
