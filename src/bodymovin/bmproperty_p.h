@@ -159,7 +159,7 @@ protected:
             // The end value has to be hand picked to the
             // previous easing segment, as the json data does
             // not contain end values for segments
-            prevEase.endFrame = easing.startFrame - 1;
+            prevEase.endFrame = easing.startFrame;
             if (prevEase.state == EasingSegmentState::Incomplete) {
                 prevEase.endValue = easing.startValue;
                 prevEase.state = EasingSegmentState::Complete;
