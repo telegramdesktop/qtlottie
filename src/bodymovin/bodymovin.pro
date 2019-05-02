@@ -77,9 +77,13 @@ HEADERS += \
     bmglobal.h
 
 SOURCES += \
+    bmasset.cpp \
+    bmprecompasset.cpp \
     bmnulllayer.cpp
 
 HEADERS += \
+    bmasset_p.h \
+    bmprecompasset_p.h \
     bmnulllayer_p.h
 
 load(qt_module)
