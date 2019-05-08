@@ -48,7 +48,7 @@ BMPreCompLayer::BMPreCompLayer(const BMPreCompLayer &other)
     m_layerTransform->setParent(this);
 	if (other.m_layers) {
 		m_layers = other.m_layers->clone();
-		m_layers->setParent(this);
+		m_layers->setParent(nullptr);
 	}
 }
 
@@ -113,8 +113,8 @@ void BMPreCompLayer::render(LottieRenderer &renderer) const
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
-    if (BMLayer *ll = linkedLayer())
-        renderer.render(*ll->transform());
+    if (BMLayer * ll = linkedLayer())
+        ll->renderFullTransform(renderer);
 
     renderer.render(*this);
 
@@ -131,7 +131,7 @@ void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(QString)> &resol
 		return;
 	m_layers = resolver(m_refId);
 	if (m_layers)
-		m_layers->setParent(this);
+		m_layers->setParent(nullptr);
 	else
 		qCWarning(lcLottieQtBodymovinParser)
 			<< "BM PreComp Layer: asset not found: "

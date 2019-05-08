@@ -102,6 +102,8 @@ BMBase *BMShapeLayer::clone() const
 
 void BMShapeLayer::updateProperties(int frame)
 {
+    if (m_hidden)
+        return;
     BMLayer::updateProperties(frame);
 
     m_layerTransform->updateProperties(frame);
@@ -136,8 +138,8 @@ void BMShapeLayer::render(LottieRenderer &renderer) const
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
-    if (BMLayer *ll = linkedLayer())
-        renderer.render(*ll->transform());
+    if (BMLayer * ll = linkedLayer())
+        ll->renderFullTransform(renderer);
 
     renderer.render(*this);
 

@@ -90,8 +90,8 @@ void BMNullLayer::render(LottieRenderer &renderer) const
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
-    if (BMLayer *ll = linkedLayer())
-        renderer.render(*ll->transform());
+    if (BMLayer * ll = linkedLayer())
+        ll->renderFullTransform(renderer);
 
     renderer.render(*this);
 

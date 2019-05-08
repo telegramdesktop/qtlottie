@@ -231,6 +231,14 @@ BMBasicTransform *BMLayer::transform() const
     return m_layerTransform;
 }
 
+void BMLayer::renderFullTransform(LottieRenderer &renderer) const {
+	// In case there is a linked layer, apply its transform first
+	// as it affects tranforms of this layer too
+	if (BMLayer *ll = linkedLayer())
+		ll->renderFullTransform(renderer);
+	m_layerTransform->render(renderer);
+}
+
 void BMLayer::renderEffects(LottieRenderer &renderer) const
 {
     if (!m_effects)
