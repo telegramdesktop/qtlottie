@@ -33,6 +33,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+#include "bmscene_p.h"
+
 QT_BEGIN_NAMESPACE
 
 Q_LOGGING_CATEGORY(lcLottieQtBodymovinParser, "qt.lottieqt.bodymovin.parser");
@@ -145,20 +147,16 @@ void BMBase::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
     }
 }
 
-void BMBase::resolveTopRoot()
+BMScene *BMBase::resolveTopRoot() const
 {
-    if (!m_topRoot) {
-        BMBase *p = this;
-        while (p) {
-            m_topRoot = p;
-            p = p->parent();
-        }
-    }
-    Q_ASSERT(m_topRoot);
+	return m_parent->topRoot();
 }
 
-BMBase *BMBase::topRoot() const
+BMScene *BMBase::topRoot() const
 {
+	if (!m_topRoot) {
+		m_topRoot = resolveTopRoot();
+	}
     return m_topRoot;
 }
 
@@ -208,9 +206,6 @@ const QJsonObject BMBase::resolveExpression(const QJsonObject &definition)
     if (expr.isEmpty())
         return definition;
 
-    // Find out layer handle
-    resolveTopRoot();
-
     QRegularExpression re(QStringLiteral("effect\\(\\'(.*?)\\'\\)\\(\\'(.*?)\\'\\)"));
     QRegularExpressionMatch match = re.match(expr);
     if (!match.hasMatch())
@@ -221,7 +216,7 @@ const QJsonObject BMBase::resolveExpression(const QJsonObject &definition)
 
     QJsonObject retVal = definition;
 
-    if (BMBase *source = m_topRoot->findChild(effect)) {
+    if (BMBase *source = topRoot()->findChild(effect)) {
         if (source->children().length())
             retVal = source->children().at(0)->definition().value(QLatin1String("v")).toObject();
         else

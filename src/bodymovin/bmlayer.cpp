@@ -38,6 +38,7 @@
 #include "bmfilleffect_p.h"
 #include "bmbasictransform_p.h"
 
+#include "bmscene_p.h"
 #include "bmnulllayer_p.h"
 #include "bmprecomplayer_p.h"
 
@@ -188,11 +189,7 @@ BMLayer *BMLayer::resolveLinkedLayer()
     if (m_linkedLayer)
         return m_linkedLayer;
 
-    resolveTopRoot();
-
-    Q_ASSERT(topRoot());
-
-    for (BMBase *child : topRoot()->children()) {
+    for (BMBase *child : parent()->children()) {
         BMLayer *layer = static_cast<BMLayer*>(child);
         if (layer->layerId() == m_parentLayer) {
             m_linkedLayer = layer;

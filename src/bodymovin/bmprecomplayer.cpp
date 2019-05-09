@@ -32,11 +32,12 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-
 #include "bmconstants_p.h"
 #include "bmasset_p.h"
 #include "bmbasictransform_p.h"
 #include "lottierenderer_p.h"
+
+#include "bmscene_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -48,7 +49,7 @@ BMPreCompLayer::BMPreCompLayer(const BMPreCompLayer &other)
     m_layerTransform->setParent(this);
 	if (other.m_layers) {
 		m_layers = other.m_layers->clone();
-		m_layers->setParent(nullptr);
+		m_layers->setParent(this);
 	}
 }
 
@@ -100,7 +101,7 @@ void BMPreCompLayer::updateProperties(int frame)
 
     m_layerTransform->updateProperties(frame);
 
-	const auto layersFrame = frame - m_startFrame;
+	const auto layersFrame = topRoot()->startFrame() + frame - m_startFrame;
 	if (m_layers && m_layers->active(layersFrame))
 		m_layers->updateProperties(layersFrame);
 }
@@ -120,7 +121,7 @@ void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
 
     m_layerTransform->render(renderer, frame);
 
-	const auto layersFrame = frame - m_startFrame;
+	const auto layersFrame = topRoot()->startFrame() + frame - m_startFrame;
 	if (m_layers && m_layers->active(layersFrame))
 		m_layers->render(renderer, layersFrame);
 
@@ -132,7 +133,7 @@ void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(QString)> &resol
 		return;
 	m_layers = resolver(m_refId);
 	if (m_layers)
-		m_layers->setParent(nullptr);
+		m_layers->setParent(this);
 	else
 		qCWarning(lcLottieQtBodymovinParser)
 			<< "BM PreComp Layer: asset not found: "
