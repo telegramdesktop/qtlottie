@@ -94,7 +94,7 @@ void BMPathTrimmer::updateProperties(int frame)
 //    }
 }
 
-void BMPathTrimmer::render(LottieRenderer &renderer) const
+void BMPathTrimmer::render(LottieRenderer &renderer, int frame) const
 {
     Q_UNUSED(renderer);
 //    if (m_appliedTrim) {

@@ -112,7 +112,7 @@ void BMStroke::updateProperties(int frame)
     m_color.update(frame);
 }
 
-void BMStroke::render(LottieRenderer &renderer) const
+void BMStroke::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

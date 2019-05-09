@@ -146,7 +146,7 @@ void BMGFill::updateProperties(int frame)
     setGradient();
 }
 
-void BMGFill::render(LottieRenderer &renderer) const
+void BMGFill::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

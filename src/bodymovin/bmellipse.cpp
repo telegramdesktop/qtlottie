@@ -97,7 +97,7 @@ void BMEllipse::updateProperties(int frame)
         m_path = m_path.toReversed();
 }
 
-void BMEllipse::render(LottieRenderer &renderer) const
+void BMEllipse::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

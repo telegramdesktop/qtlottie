@@ -85,7 +85,7 @@ void BMShapeTransform::updateProperties(int frame)
     m_shearAngle = qTan(tan);
 }
 
-void BMShapeTransform::render(LottieRenderer &renderer) const
+void BMShapeTransform::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

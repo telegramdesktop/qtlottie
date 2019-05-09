@@ -102,14 +102,12 @@ BMBase *BMShapeLayer::clone() const
 
 void BMShapeLayer::updateProperties(int frame)
 {
-    if (m_hidden)
-        return;
     BMLayer::updateProperties(frame);
 
     m_layerTransform->updateProperties(frame);
 
     for (BMBase *child : children()) {
-        if (child->hidden())
+        if (!child->active(frame))
             continue;
 
         BMShape *shape = dynamic_cast<BMShape*>(child);
@@ -130,29 +128,27 @@ void BMShapeLayer::updateProperties(int frame)
     }
 }
 
-void BMShapeLayer::render(LottieRenderer &renderer) const
+void BMShapeLayer::render(LottieRenderer &renderer, int frame) const
 {
     renderer.saveState();
 
-    renderEffects(renderer);
+    renderEffects(renderer, frame);
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
     if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer);
+        ll->renderFullTransform(renderer, frame);
 
     renderer.render(*this);
 
-    m_layerTransform->render(renderer);
+    m_layerTransform->render(renderer, frame);
 
-    for (BMBase *child : children()) {
-        if (child->hidden())
-            continue;
-        child->render(renderer);
-    }
+    for (BMBase *child : children())
+        if (child->active(frame))
+            child->render(renderer, frame);
 
-    if (m_appliedTrim && !m_appliedTrim->hidden())
-        m_appliedTrim->render(renderer);
+    if (m_appliedTrim && m_appliedTrim->active(frame))
+        m_appliedTrim->render(renderer, frame);
 
     renderer.restoreState();
 }

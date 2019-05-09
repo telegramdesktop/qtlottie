@@ -76,7 +76,7 @@ void BMRepeater::updateProperties(int frame)
     m_transform.updateProperties(frame);
 }
 
-void BMRepeater::render(LottieRenderer &renderer) const
+void BMRepeater::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

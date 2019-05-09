@@ -90,7 +90,7 @@ void BMRound::updateProperties(int frame)
         m_path = m_path.toReversed();
 }
 
-void BMRound::render(LottieRenderer &renderer) const
+void BMRound::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

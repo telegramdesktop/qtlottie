@@ -66,7 +66,7 @@ void BMFill::updateProperties(int frame)
     m_opacity.update(frame);
 }
 
-void BMFill::render(LottieRenderer &renderer) const
+void BMFill::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

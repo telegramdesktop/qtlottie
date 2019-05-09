@@ -155,18 +155,19 @@ void BMLayer::updateProperties(int frame)
     // Update first effects, as they are not children of the layer
     if (m_effects) {
         for (BMBase* effect : m_effects->children())
-            effect->updateProperties(frame);
+            if (effect->active(frame))
+                effect->updateProperties(frame);
     }
 
     BMBase::updateProperties(frame);
 }
 
-void BMLayer::render(LottieRenderer &renderer) const
+void BMLayer::render(LottieRenderer &renderer, int frame) const
 {
     // Render first effects, as they affect the children
-    renderEffects(renderer);
+    renderEffects(renderer, frame);
 
-    BMBase::render(renderer);
+    BMBase::render(renderer, frame);
 }
 
 BMBase *BMLayer::findChild(const QString &childName)
@@ -231,24 +232,22 @@ BMBasicTransform *BMLayer::transform() const
     return m_layerTransform;
 }
 
-void BMLayer::renderFullTransform(LottieRenderer &renderer) const {
+void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
 	// In case there is a linked layer, apply its transform first
 	// as it affects tranforms of this layer too
 	if (BMLayer *ll = linkedLayer())
-		ll->renderFullTransform(renderer);
-	m_layerTransform->render(renderer);
+		ll->renderFullTransform(renderer, frame);
+	m_layerTransform->render(renderer, frame);
 }
 
-void BMLayer::renderEffects(LottieRenderer &renderer) const
+void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const
 {
     if (!m_effects)
         return;
 
-    for (BMBase* effect : m_effects->children()) {
-        if (effect->hidden())
-            continue;
-        effect->render(renderer);
-    }
+    for (BMBase* effect : m_effects->children())
+        if (effect->active(frame))
+            effect->render(renderer, frame);
 }
 
 void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)

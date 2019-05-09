@@ -80,7 +80,7 @@ void BMGroup::updateProperties(int frame)
     BMShape::updateProperties(frame);
 
     for (BMBase *child : children()) {
-        if (child->hidden())
+        if (!child->active(frame))
             continue;
 
         BMShape *shape = static_cast<BMShape*>(child);
@@ -95,7 +95,7 @@ void BMGroup::updateProperties(int frame)
     }
 }
 
-void BMGroup::render(LottieRenderer &renderer) const
+void BMGroup::render(LottieRenderer &renderer, int frame) const
 {
     qCDebug(lcLottieQtBodymovinRender) << "Group:" << name();
 
@@ -109,15 +109,13 @@ void BMGroup::render(LottieRenderer &renderer) const
     } else
         renderer.setTrimmingState(LottieRenderer::Off);
 
-   for (BMBase *child : children()) {
-        if (child->hidden())
-            continue;
-        child->render(renderer);
-   }
+   for (BMBase *child : children())
+       if (child->active(frame))
+            child->render(renderer, frame);
 
    if (m_appliedTrim && !m_appliedTrim->hidden()
            && !m_appliedTrim->simultaneous())
-       m_appliedTrim->render(renderer);
+       m_appliedTrim->render(renderer, frame);
 
     renderer.restoreState();
 }

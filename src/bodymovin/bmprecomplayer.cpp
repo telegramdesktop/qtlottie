@@ -100,28 +100,29 @@ void BMPreCompLayer::updateProperties(int frame)
 
     m_layerTransform->updateProperties(frame);
 
-	m_layersFrame = frame - m_startFrame;
-	if (m_layers && m_layers->active(m_layersFrame))
-		m_layers->updateProperties(m_layersFrame);
+	const auto layersFrame = frame - m_startFrame;
+	if (m_layers && m_layers->active(layersFrame))
+		m_layers->updateProperties(layersFrame);
 }
 
-void BMPreCompLayer::render(LottieRenderer &renderer) const
+void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
 {
     renderer.saveState();
 
-    renderEffects(renderer);
+    renderEffects(renderer, frame);
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
     if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer);
+        ll->renderFullTransform(renderer, frame);
 
     renderer.render(*this);
 
-    m_layerTransform->render(renderer);
+    m_layerTransform->render(renderer, frame);
 
-	if (m_layers && m_layers->active(m_layersFrame))
-		m_layers->render(renderer);
+	const auto layersFrame = frame - m_startFrame;
+	if (m_layers && m_layers->active(layersFrame))
+		m_layers->render(renderer, layersFrame);
 
     renderer.restoreState();
 }

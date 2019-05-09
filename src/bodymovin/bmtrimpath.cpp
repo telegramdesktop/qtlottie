@@ -110,7 +110,7 @@ void BMTrimPath::updateProperties(int frame)
     BMShape::updateProperties(frame);
 }
 
-void BMTrimPath::render(LottieRenderer &renderer) const
+void BMTrimPath::render(LottieRenderer &renderer, int frame) const
 {
     if (m_appliedTrim) {
         if (m_appliedTrim->simultaneous())

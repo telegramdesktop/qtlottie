@@ -117,7 +117,7 @@ void BMBasicTransform::updateProperties(int frame)
     m_opacity.update(frame);
 }
 
-void BMBasicTransform::render(LottieRenderer &renderer) const
+void BMBasicTransform::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

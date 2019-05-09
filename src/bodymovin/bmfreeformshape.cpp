@@ -92,7 +92,7 @@ void BMFreeFormShape::updateProperties(int frame)
     }
 }
 
-void BMFreeFormShape::render(LottieRenderer &renderer) const
+void BMFreeFormShape::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

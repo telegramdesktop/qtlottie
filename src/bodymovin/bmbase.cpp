@@ -122,25 +122,16 @@ BMBase *BMBase::findChild(const QString &childName)
 
 void BMBase::updateProperties(int frame)
 {
-    if (m_hidden)
-        return;
-
     for (BMBase *child : qAsConst(m_children))
-        child->updateProperties(frame);
+        if (child->active(frame))
+            child->updateProperties(frame);
 }
 
-void BMBase::render(LottieRenderer &renderer) const
+void BMBase::render(LottieRenderer &renderer, int frame) const
 {
-    if (m_hidden)
-        return;
-
-    renderer.saveState();
-    for (BMBase *child : qAsConst(m_children)) {
-        if (child->m_hidden)
-            continue;
-        child->render(renderer);
-    }
-    renderer.restoreState();
+    for (BMBase *child : qAsConst(m_children))
+        if (child->active(frame))
+            child->render(renderer, frame);
 }
 
 void BMBase::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {

@@ -109,7 +109,7 @@ void BMRect::updateProperties(int frame)
         m_path = m_path.toReversed();
 }
 
-void BMRect::render(LottieRenderer &renderer) const
+void BMRect::render(LottieRenderer &renderer, int frame) const
 {
     renderer.render(*this);
 }

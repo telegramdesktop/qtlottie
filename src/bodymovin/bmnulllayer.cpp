@@ -82,20 +82,20 @@ void BMNullLayer::updateProperties(int frame)
     m_layerTransform->updateProperties(frame);
 }
 
-void BMNullLayer::render(LottieRenderer &renderer) const
+void BMNullLayer::render(LottieRenderer &renderer, int frame) const
 {
     renderer.saveState();
 
-    renderEffects(renderer);
+    renderEffects(renderer, frame);
 
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
     if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer);
+        ll->renderFullTransform(renderer, frame);
 
     renderer.render(*this);
 
-    m_layerTransform->render(renderer);
+    m_layerTransform->render(renderer, frame);
 
     renderer.restoreState();
 }
