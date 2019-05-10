@@ -101,7 +101,7 @@ void BMPreCompLayer::updateProperties(int frame)
 
     m_layerTransform->updateProperties(frame);
 
-	const auto layersFrame = topRoot()->startFrame() + frame - m_startFrame;
+	const auto layersFrame = frame - m_startTime;
 	if (m_layers && m_layers->active(layersFrame))
 		m_layers->updateProperties(layersFrame);
 }
@@ -121,7 +121,7 @@ void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
 
     m_layerTransform->render(renderer, frame);
 
-	const auto layersFrame = topRoot()->startFrame() + frame - m_startFrame;
+	const auto layersFrame = frame - m_startTime;
 	if (m_layers && m_layers->active(layersFrame))
 		m_layers->render(renderer, layersFrame);
 

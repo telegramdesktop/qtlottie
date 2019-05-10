@@ -103,7 +103,7 @@ BMLayer *BMLayer::construct(QJsonObject definition)
 
 bool BMLayer::active(int frame) const
 {
-    return (!m_hidden && (frame >= m_startFrame && frame <= m_endFrame));
+    return (!m_hidden && (frame >= m_startFrame && frame < m_endFrame));
 }
 
 void BMLayer::parse(const QJsonObject &definition)
