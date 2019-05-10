@@ -71,11 +71,6 @@ BMLayer::~BMLayer()
         delete m_effects;
 }
 
-BMBase *BMLayer::clone() const
-{
-    return new BMLayer(*this);
-}
-
 BMLayer *BMLayer::construct(QJsonObject definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMLayer::construct()";
@@ -109,8 +104,6 @@ bool BMLayer::active(int frame) const
 void BMLayer::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
-    if (m_hidden)
-        return;
 
     qCDebug(lcLottieQtBodymovinParser) << "BMLayer::parse():" << m_name;
 
@@ -127,6 +120,12 @@ void BMLayer::parse(const QJsonObject &definition)
     int clipMode = definition.value(QLatin1String("tt")).toInt(-1);
     if (clipMode > -1 && clipMode < 5)
         m_clipMode = static_cast<MatteClipMode>(clipMode);
+
+    QJsonObject trans = definition.value(QLatin1String("ks")).toObject();
+    m_layerTransform = new BMBasicTransform(trans, this);
+
+    if (m_hidden)
+        return;
 
     QJsonArray effects = definition.value(QLatin1String("ef")).toArray();
     parseEffects(effects);
@@ -150,8 +149,16 @@ void BMLayer::parse(const QJsonObject &definition)
 
 void BMLayer::updateProperties(int frame)
 {
-    if (m_parentLayer)
+    if (m_updated)
+        return;
+    m_updated = true;
+
+    if (m_parentLayer) {
         resolveLinkedLayer();
+        if (m_linkedLayer) {
+            m_linkedLayer->updateProperties(frame);
+        }
+    }
 
     // Update first effects, as they are not children of the layer
     if (m_effects) {
@@ -161,6 +168,8 @@ void BMLayer::updateProperties(int frame)
     }
 
     BMBase::updateProperties(frame);
+
+    m_layerTransform->updateProperties(frame);
 }
 
 void BMLayer::render(LottieRenderer &renderer, int frame) const
@@ -230,11 +239,11 @@ BMBasicTransform *BMLayer::transform() const
 }
 
 void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
-	// In case there is a linked layer, apply its transform first
-	// as it affects tranforms of this layer too
-	if (BMLayer *ll = linkedLayer())
-		ll->renderFullTransform(renderer, frame);
-	m_layerTransform->render(renderer, frame);
+    // In case there is a linked layer, apply its transform first
+    // as it affects tranforms of this layer too
+    if (BMLayer *ll = linkedLayer())
+        ll->renderFullTransform(renderer, frame);
+    m_layerTransform->render(renderer, frame);
 }
 
 void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const

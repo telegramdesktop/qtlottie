@@ -54,14 +54,9 @@ BMNullLayer::BMNullLayer(const QJsonObject &definition)
     m_type = BM_LAYER_NULL_IX;
 
     BMLayer::parse(definition);
-    if (m_hidden)
-        return;
 
     qCDebug(lcLottieQtBodymovinParser) << "BMNullLayer::BMNullLayer()"
                                        << m_name;
-
-    QJsonObject trans = definition.value(QLatin1String("ks")).toObject();
-    m_layerTransform = new BMBasicTransform(trans, this);
 }
 
 BMNullLayer::~BMNullLayer()
@@ -73,13 +68,6 @@ BMNullLayer::~BMNullLayer()
 BMBase *BMNullLayer::clone() const
 {
     return new BMNullLayer(*this);
-}
-
-void BMNullLayer::updateProperties(int frame)
-{
-    BMLayer::updateProperties(frame);
-
-    m_layerTransform->updateProperties(frame);
 }
 
 void BMNullLayer::render(LottieRenderer &renderer, int frame) const

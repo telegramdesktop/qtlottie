@@ -71,9 +71,6 @@ BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
         ++propIt;
     }
 
-    QJsonObject trans = definition.value(QLatin1String("ks")).toObject();
-    m_layerTransform = new BMBasicTransform(trans, this);
-
     QJsonArray items = definition.value(QLatin1String("shapes")).toArray();
     QJsonArray::const_iterator itemIt = items.constEnd();
     while (itemIt != items.constBegin()) {
@@ -102,9 +99,10 @@ BMBase *BMShapeLayer::clone() const
 
 void BMShapeLayer::updateProperties(int frame)
 {
-    BMLayer::updateProperties(frame);
+    if (m_updated)
+        return;
 
-    m_layerTransform->updateProperties(frame);
+    BMLayer::updateProperties(frame);
 
     for (BMBase *child : children()) {
         if (!child->active(frame))
