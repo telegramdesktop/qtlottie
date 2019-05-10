@@ -103,81 +103,77 @@ void LottieRasterRenderer::render(const BMLayer &layer)
     }
 }
 
-void LottieRasterRenderer::render(const BMRect &rect)
-{
-    m_painter->save();
+void LottieRasterRenderer::renderGeometry(const BMShape &geometry) {
+    const auto withTransforms = (m_repeatCount > 1);
+    if (withTransforms) {
+        m_painter->save();
+    }
 
     for (int i = 0; i < m_repeatCount; i++) {
-        qCDebug(lcLottieQtBodymovinRender) << rect.name()
-                                           << rect.position() << rect.size();
         applyRepeaterTransform(i);
         if (trimmingState() == LottieRenderer::Individual) {
             QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(rect.path());
+            QPainterPath tp = t.map(geometry.path());
             tp.addPath(m_unitedPath);
             m_unitedPath = tp;
         } else if (m_buildingClipRegion) {
             QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(rect.path());
+            QPainterPath tp = t.map(geometry.path());
             tp.addPath(m_clipPath);
             m_clipPath = tp;
+        } else if (m_buildingMergedGeometry) {
+            QPainterPath p = geometry.path();
+            p.addPath(m_mergedGeometry);
+            m_mergedGeometry = p;
         } else
-            m_painter->drawPath(rect.path());
+            m_painter->drawPath(geometry.path());
     }
 
-    m_painter->restore();
+    if (withTransforms) {
+        m_painter->restore();
+    }
+}
+
+void LottieRasterRenderer::startMergeGeometry() {
+    if (m_buildingMergedGeometry++) {
+        m_mergedGeometryStack.push_back(std::move(m_mergedGeometry));
+        m_mergedGeometry = QPainterPath();
+    }
+}
+
+void LottieRasterRenderer::renderMergedGeometry() {
+    Q_ASSERT(m_buildingMergedGeometry > 0);
+
+    if (!m_mergedGeometry.isEmpty())
+        m_painter->drawPath(m_mergedGeometry);
+
+    if (--m_buildingMergedGeometry) {
+        m_mergedGeometry = m_mergedGeometryStack.pop();
+    } else {
+        m_mergedGeometry = QPainterPath();
+    }
+}
+
+void LottieRasterRenderer::render(const BMRect &rect)
+{
+    qCDebug(lcLottieQtBodymovinRender) << rect.name()
+        << rect.position() << rect.size();
+    renderGeometry(rect);
 }
 
 void LottieRasterRenderer::render(const BMEllipse &ellipse)
 {
-    m_painter->save();
-
-    for (int i = 0; i < m_repeatCount; i++) {
-        qCDebug(lcLottieQtBodymovinRender) << "Ellipse:" << ellipse.name()
-                                           << ellipse.position()
-                                           << ellipse.size();
-
-        applyRepeaterTransform(i);
-        if (trimmingState() == LottieRenderer::Individual) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(ellipse.path());
-            tp.addPath(m_unitedPath);
-            m_unitedPath = tp;
-        } else if (m_buildingClipRegion) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(ellipse.path());
-            tp.addPath(m_clipPath);
-            m_clipPath = tp;
-        } else
-            m_painter->drawPath(ellipse.path());
-    }
-
-    m_painter->restore();
+    qCDebug(lcLottieQtBodymovinRender) << "Ellipse:" << ellipse.name()
+        << ellipse.position()
+        << ellipse.size();
+    renderGeometry(ellipse);
 }
 
 void LottieRasterRenderer::render(const BMRound &round)
 {
-    m_painter->save();
-
-    for (int i = 0; i < m_repeatCount; i++) {
-        qCDebug(lcLottieQtBodymovinRender) << "Round:" << round.name()
-                                           << round.position() << round.radius();
-
-        if (trimmingState() == LottieRenderer::Individual) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(round.path());
-            tp.addPath(m_unitedPath);
-            m_unitedPath = tp;
-        } else if (m_buildingClipRegion) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(round.path());
-            tp.addPath(m_clipPath);
-            m_clipPath = tp;
-        } else
-            m_painter->drawPath(round.path());
-    }
-
-    m_painter->restore();
+    qCDebug(lcLottieQtBodymovinRender) << "Round:" << round.name()
+        << round.position() << round.radius();
+    renderGeometry(round);
 }
 
 void LottieRasterRenderer::render(const BMFill &fill)
@@ -275,28 +271,10 @@ void LottieRasterRenderer::render(const BMShapeTransform &transform)
 
 void LottieRasterRenderer::render(const BMFreeFormShape &shape)
 {
-    m_painter->save();
-
-    for (int i = 0; i < m_repeatCount; i ++) {
-        qCDebug(lcLottieQtBodymovinRender) << "Render shape:"
-                                           << shape.name() << "of"
-                                           << shape.parent()->name();
-        applyRepeaterTransform(i);
-        if (trimmingState() == LottieRenderer::Individual) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(shape.path());
-            tp.addPath(m_unitedPath);
-            m_unitedPath = tp;
-        } else if (m_buildingClipRegion) {
-            QTransform t = m_painter->transform();
-            QPainterPath tp = t.map(shape.path());
-            tp.addPath(m_clipPath);
-            m_clipPath = tp;
-        } else
-            m_painter->drawPath(shape.path());
-    }
-
-    m_painter->restore();
+    qCDebug(lcLottieQtBodymovinRender) << "Render shape:"
+        << shape.name() << "of"
+        << shape.parent()->name();
+    renderGeometry(shape);
 }
 
 void LottieRasterRenderer::render(const BMTrimPath &trimPath)

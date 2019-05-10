@@ -39,6 +39,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class BMShape;
+
 class QPainter;
 
 class LottieRasterRenderer : public LottieRenderer
@@ -46,6 +48,9 @@ class LottieRasterRenderer : public LottieRenderer
 public:
     explicit LottieRasterRenderer(QPainter *m_painter);
     ~LottieRasterRenderer() override = default;
+
+    void startMergeGeometry() override;
+    void renderMergedGeometry() override;
 
     void saveState() override;
     void restoreState() override;
@@ -77,9 +82,13 @@ protected:
     qreal m_repeatOffset = 0.0;
     bool m_buildingClipRegion = false;
     QPainterPath m_clipPath;
+    int m_buildingMergedGeometry = 0;
+    QPainterPath m_mergedGeometry;
+    QStack<QPainterPath> m_mergedGeometryStack;
 
 private:
     void applyRepeaterTransform(int instance);
+    void renderGeometry(const BMShape &geometry);
 };
 
 QT_END_NAMESPACE

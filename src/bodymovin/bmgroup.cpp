@@ -109,13 +109,15 @@ void BMGroup::render(LottieRenderer &renderer, int frame) const
     } else
         renderer.setTrimmingState(LottieRenderer::Off);
 
-   for (BMBase *child : children())
-       if (child->active(frame))
+    renderer.startMergeGeometry();
+    for (BMBase *child : children())
+        if (child->active(frame))
             child->render(renderer, frame);
+    renderer.renderMergedGeometry();
 
-   if (m_appliedTrim && !m_appliedTrim->hidden()
+    if (m_appliedTrim && !m_appliedTrim->hidden()
            && !m_appliedTrim->simultaneous())
-       m_appliedTrim->render(renderer, frame);
+        m_appliedTrim->render(renderer, frame);
 
     renderer.restoreState();
 }
