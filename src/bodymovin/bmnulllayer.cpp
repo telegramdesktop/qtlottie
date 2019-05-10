@@ -55,6 +55,8 @@ BMNullLayer::BMNullLayer(const QJsonObject &definition)
 
     BMLayer::parse(definition);
 
+    m_layerTransform->clearOpacity();
+
     qCDebug(lcLottieQtBodymovinParser) << "BMNullLayer::BMNullLayer()"
                                        << m_name;
 }

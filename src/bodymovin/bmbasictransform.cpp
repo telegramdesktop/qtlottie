@@ -122,6 +122,12 @@ void BMBasicTransform::render(LottieRenderer &renderer, int frame) const
     renderer.render(*this);
 }
 
+void BMBasicTransform::clearOpacity()
+{
+	m_opacity = BMProperty<qreal>();
+	m_opacity.setValue(100.);
+}
+
 QPointF BMBasicTransform::anchorPoint() const
 {
     return m_anchorPoint.value();
