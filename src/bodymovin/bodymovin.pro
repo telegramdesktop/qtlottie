@@ -80,12 +80,18 @@ SOURCES += \
     bmasset.cpp \
     bmprecompasset.cpp \
     bmnulllayer.cpp \
-    bmprecomplayer.cpp
+    bmprecomplayer.cpp \
+    bmscene.cpp \
+    bmmasks.cpp \
+    bmmaskshape.cpp
 
 HEADERS += \
     bmasset_p.h \
     bmprecompasset_p.h \
     bmnulllayer_p.h \
-    bmprecomplayer_p.h
+    bmprecomplayer_p.h\
+    bmscene_p.h \
+    bmmasks_p.h \
+    bmmaskshape_p.h
 
 load(qt_module)

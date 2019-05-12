@@ -38,15 +38,13 @@
 #include "lottierenderer_p.h"
 
 #include "bmscene_p.h"
+#include "bmmasks_p.h"
 
 QT_BEGIN_NAMESPACE
 
 BMPreCompLayer::BMPreCompLayer(const BMPreCompLayer &other)
     : BMLayer(other)
 {
-    m_maskProperties = other.m_maskProperties;
-    m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
-    m_layerTransform->setParent(this);
     if (other.m_layers) {
         m_layers = other.m_layers->clone();
         m_layers->setParent(this);
@@ -64,25 +62,11 @@ BMPreCompLayer::BMPreCompLayer(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMPreCompLayer::BMPreCompLayer()"
                                        << m_name;
 
-    QJsonArray maskProps = definition.value(QLatin1String("maskProperties")).toArray();
-    QJsonArray::const_iterator propIt = maskProps.constBegin();
-    while (propIt != maskProps.constEnd()) {
-        m_maskProperties.append((*propIt).toVariant().toInt());
-        ++propIt;
-    }
-
     m_refId = definition.value(QLatin1String("refId")).toString();
-
-    if (m_maskProperties.length())
-        qCWarning(lcLottieQtBodymovinParser)
-            << "BM Shape Layer: mask properties found, but not supported"
-            << m_maskProperties;
 }
 
 BMPreCompLayer::~BMPreCompLayer()
 {
-    if (m_layerTransform)
-        delete m_layerTransform;
     if (m_layers)
         delete m_layers;
 }
@@ -118,6 +102,10 @@ void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
     renderer.render(*this);
 
     m_layerTransform->render(renderer, frame);
+
+    if (m_masks) {
+        m_masks->render(renderer, frame);
+    }
 
     const auto layersFrame = frame - m_startTime;
     if (m_layers && m_layers->active(layersFrame))

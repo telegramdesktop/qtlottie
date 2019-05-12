@@ -69,6 +69,9 @@ public:
     void render(const BMFillEffect &effect) override;
     void render(const BMRepeater &repeater) override;
 
+    void render(const BMMaskShape &shape) override;
+    void render(const BMMasks &masks) override;
+
 protected:
     QPainter *m_painter = nullptr;
     QPainterPath m_unitedPath;
@@ -85,6 +88,8 @@ protected:
     int m_buildingMergedGeometry = 0;
     QPainterPath m_mergedGeometry;
     QStack<QPainterPath> m_mergedGeometryStack;
+    bool m_buildingMaskRegion = false;
+    QPainterPath m_maskPath;
 
 private:
     void applyRepeaterTransform(int instance);

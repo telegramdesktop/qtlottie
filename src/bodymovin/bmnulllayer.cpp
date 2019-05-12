@@ -42,12 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 
-BMNullLayer::BMNullLayer(const BMNullLayer &other)
-    : BMLayer(other)
-{
-    m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
-    m_layerTransform->setParent(this);
-}
+BMNullLayer::BMNullLayer(const BMNullLayer &other) = default;
 
 BMNullLayer::BMNullLayer(const QJsonObject &definition)
 {
@@ -61,11 +56,7 @@ BMNullLayer::BMNullLayer(const QJsonObject &definition)
                                        << m_name;
 }
 
-BMNullLayer::~BMNullLayer()
-{
-    if (m_layerTransform)
-        delete m_layerTransform;
-}
+BMNullLayer::~BMNullLayer() = default;
 
 BMBase *BMNullLayer::clone() const
 {
@@ -74,20 +65,6 @@ BMBase *BMNullLayer::clone() const
 
 void BMNullLayer::render(LottieRenderer &renderer, int frame) const
 {
-    renderer.saveState();
-
-    renderEffects(renderer, frame);
-
-    // In case there is a linked layer, apply its transform first
-    // as it affects tranforms of this layer too
-    if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer, frame);
-
-    renderer.render(*this);
-
-    m_layerTransform->render(renderer, frame);
-
-    renderer.restoreState();
 }
 
 QT_END_NAMESPACE

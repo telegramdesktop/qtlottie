@@ -27,54 +27,24 @@
 **
 ****************************************************************************/
 
-#ifndef BMPRECOMPLAYER_P_H
-#define BMPRECOMPLAYER_P_H
+#include "bmmasks_p.h"
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include <QtBodymovin/private/bmlayer_p.h>
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 
-class QJsonObject;
-
-class LottieRenderer;
-class BMShape;
-class BMTrimPath;
-class BMBasicTransform;
-
-class BODYMOVIN_EXPORT BMPreCompLayer final : public BMLayer
+BMBase *BMMasks::clone() const
 {
-public:
-	BMPreCompLayer() = default;
-    explicit BMPreCompLayer(const BMPreCompLayer &other);
-	BMPreCompLayer(const QJsonObject &definition);
-    ~BMPreCompLayer() override;
+    return new BMMasks(*this);
+}
 
-    BMBase *clone() const override;
+void BMMasks::render(LottieRenderer &renderer, int frame) const
+{
+	for (BMBase *child : children())
+		if (child->active(frame))
+			child->render(renderer, frame);
 
-    void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
-	void resolveAssets(const std::function<BMAsset*(QString)> &resolver) override;
-
-	QString refId() const;
-
-private:
-	QString m_refId;
-	BMBase *m_layers = nullptr;
-	bool m_resolving = false;
-
-};
+	renderer.render(*this);
+}
 
 QT_END_NAMESPACE
-
-#endif // BMPRECOMPLAYER_P_H

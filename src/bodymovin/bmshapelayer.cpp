@@ -40,16 +40,13 @@
 #include "bmbasictransform_p.h"
 #include "lottierenderer_p.h"
 
+#include "bmmasks_p.h"
+
 QT_BEGIN_NAMESPACE
 
 BMShapeLayer::BMShapeLayer(const BMShapeLayer &other)
     : BMLayer(other)
 {
-    m_maskProperties = other.m_maskProperties;
-	if (other.m_layerTransform) {
-		m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
-		m_layerTransform->setParent(this);
-	}
     m_appliedTrim = other.m_appliedTrim;
 }
 
@@ -64,13 +61,6 @@ BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMShapeLayer::BMShapeLayer()"
                                        << m_name;
 
-    QJsonArray maskProps = definition.value(QLatin1String("maskProperties")).toArray();
-    QJsonArray::const_iterator propIt = maskProps.constBegin();
-    while (propIt != maskProps.constEnd()) {
-        m_maskProperties.append((*propIt).toVariant().toInt());
-        ++propIt;
-    }
-
     QJsonArray items = definition.value(QLatin1String("shapes")).toArray();
     QJsonArray::const_iterator itemIt = items.constEnd();
     while (itemIt != items.constBegin()) {
@@ -79,18 +69,9 @@ BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
         if (shape)
             appendChild(shape);
     }
-
-    if (m_maskProperties.length())
-        qCWarning(lcLottieQtBodymovinParser)
-            << "BM Shape Layer: mask properties found, but not supported"
-            << m_maskProperties;
 }
 
-BMShapeLayer::~BMShapeLayer()
-{
-    if (m_layerTransform)
-        delete m_layerTransform;
-}
+BMShapeLayer::~BMShapeLayer() = default;
 
 BMBase *BMShapeLayer::clone() const
 {
@@ -140,6 +121,10 @@ void BMShapeLayer::render(LottieRenderer &renderer, int frame) const
     renderer.render(*this);
 
     m_layerTransform->render(renderer, frame);
+
+    if (m_masks) {
+        m_masks->render(renderer, frame);
+    }
 
     for (BMBase *child : children())
         if (child->active(frame))

@@ -50,6 +50,8 @@
 #include <QtBodymovin/private/bmfilleffect_p.h>
 #include <QtBodymovin/private/bmrepeater_p.h>
 
+#include <QtBodymovin/private/bmmaskshape_p.h>
+
 QT_BEGIN_NAMESPACE
 
 LottieRasterRenderer::LottieRasterRenderer(QPainter *painter)
@@ -354,6 +356,33 @@ void LottieRasterRenderer::applyRepeaterTransform(int instance)
     qreal o =m_repeaterTransform->opacityAtInstance(instance);
 
     m_painter->setOpacity(m_painter->opacity() * o);
+}
+
+void LottieRasterRenderer::render(const BMMasks &masks) {
+    if (m_buildingMaskRegion) {
+        m_buildingMaskRegion = false;
+        m_painter->setClipPath(m_maskPath);
+    }
+}
+
+void LottieRasterRenderer::render(const BMMaskShape &shape) {
+    QPainterPath path;
+    if (shape.inverted()) {
+        QPainterPath screen;
+        screen.addRect(0, 0, m_painter->device()->width(),
+            m_painter->device()->height());
+        path = screen - shape.path();
+    } else {
+        path = shape.path();
+    }
+    if (!m_buildingMaskRegion) {
+        m_buildingMaskRegion = true;
+        m_maskPath = path;
+    } else if (shape.mode() == BMMaskShape::Mode::Additive) {
+        m_maskPath = m_maskPath.united(path);
+    } else if (shape.mode() == BMMaskShape::Mode::Intersect) {
+        m_maskPath = m_maskPath.intersected(path);
+    }
 }
 
 QT_END_NAMESPACE

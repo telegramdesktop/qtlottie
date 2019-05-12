@@ -41,6 +41,8 @@
 #include "bmscene_p.h"
 #include "bmnulllayer_p.h"
 #include "bmprecomplayer_p.h"
+#include "bmmasks_p.h"
+#include "bmmaskshape_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -62,13 +64,23 @@ BMLayer::BMLayer(const BMLayer &other)
         for (BMBase *effect : other.m_effects->children())
             m_effects->appendChild(effect->clone());
     }
+    if (other.m_masks) {
+        m_masks = new BMMasks(*other.m_masks);
+        m_masks->setParent(this);
+    }
+    m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
+    m_layerTransform->setParent(this);
     //m_transformAtFirstFrame = other.m_transformAtFirstFrame;
 }
 
 BMLayer::~BMLayer()
 {
+    if (m_layerTransform)
+        delete m_layerTransform;
     if (m_effects)
         delete m_effects;
+    if (m_masks)
+        delete m_masks;
 }
 
 BMLayer *BMLayer::construct(QJsonObject definition)
@@ -127,6 +139,9 @@ void BMLayer::parse(const QJsonObject &definition)
     if (m_hidden)
         return;
 
+    QJsonArray maskProps = definition.value(QLatin1String("masksProperties")).toArray();
+    parseMasks(maskProps);
+
     QJsonArray effects = definition.value(QLatin1String("ef")).toArray();
     parseEffects(effects);
 
@@ -167,17 +182,13 @@ void BMLayer::updateProperties(int frame)
                 effect->updateProperties(frame);
     }
 
+    if (m_masks) {
+        m_masks->updateProperties(frame);
+    }
+
     BMBase::updateProperties(frame);
 
     m_layerTransform->updateProperties(frame);
-}
-
-void BMLayer::render(LottieRenderer &renderer, int frame) const
-{
-    // Render first effects, as they affect the children
-    renderEffects(renderer, frame);
-
-    BMBase::render(renderer, frame);
 }
 
 BMBase *BMLayer::findChild(const QString &childName)
@@ -297,6 +308,18 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
             qCWarning(lcLottieQtBodymovinParser)
                 << "BMLayer: Unsupported effect" << type;
         }
+    }
+}
+
+void BMLayer::parseMasks(const QJsonArray &definition) {
+    QJsonArray::const_iterator it = definition.constBegin();
+    while (it != definition.constEnd()) {
+        QJsonObject mask = (*it).toObject();
+        if (mask.value(QLatin1String("mode")).toString() != QLatin1String("n")) {
+            if (!m_masks) m_masks = new BMMasks();
+            m_masks->appendChild(new BMMaskShape(mask, m_masks));
+        }
+        ++it;
     }
 }
 
