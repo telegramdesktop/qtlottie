@@ -52,7 +52,7 @@ qreal BezierEasing::tForX(qreal x) const
     qreal t0 = 0.0;
     qreal t1 = 1.0;
 
-    for (int i = 0; i < 10; i++) {  // 10 iterations gives error smaller than 0.001
+    for (int i = 0; i < 20; i++) {  // 10 iterations gives error smaller than 0.001
         qreal t = qreal(0.5) * (t0 + t1);
         qreal a, b, c, d;
         QBezier::coefficients(t, a, b, c, d);
