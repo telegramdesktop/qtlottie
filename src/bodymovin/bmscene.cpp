@@ -40,6 +40,10 @@ BMScene::BMScene()
 {
 }
 
+BMScene::BMScene(const QJsonObject &definition) {
+	parse(definition);
+}
+
 BMScene::~BMScene()
 {
 }
