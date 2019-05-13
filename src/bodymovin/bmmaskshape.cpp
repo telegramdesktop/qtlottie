@@ -266,7 +266,7 @@ void BMMaskShape::parseEasedVertices(const QJsonObject &keyframe, int startFrame
     QJsonObject easingIn = keyframe.value(QLatin1String("i")).toObject();
     QJsonObject easingOut = keyframe.value(QLatin1String("o")).toObject();
 
-    // if there are no vertices for this keyframe, they keyframe
+    // if there are no vertices for this keyframe, the keyframe
     // is the last one, and it must be processed differently
     if (!startVertices.isEmpty()) {
         for (int i = 0; i < startVertices.count(); i++) {
