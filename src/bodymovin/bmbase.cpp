@@ -41,16 +41,19 @@ Q_LOGGING_CATEGORY(lcLottieQtBodymovinParser, "qt.lottieqt.bodymovin.parser");
 Q_LOGGING_CATEGORY(lcLottieQtBodymovinUpdate, "qt.lottieqt.bodymovin.update");
 Q_LOGGING_CATEGORY(lcLottieQtBodymovinRender, "qt.lottieqt.bodymovin.render");
 
-BMBase::BMBase(const BMBase &other)
-{
-    m_definition = other.m_definition;
-    m_type = other.m_type;
-    m_hidden = other.m_hidden;
-    m_name = other.m_name;
-    m_autoOrient = other.m_autoOrient;
+BMBase::BMBase(BMBase *parent) : m_parent(parent) {
+}
+
+BMBase::BMBase(BMBase *parent, const BMBase &other)
+: m_definition(other.m_definition)
+, m_type(other.m_type)
+, m_hidden(other.m_hidden)
+, m_name(other.m_name)
+, m_matchName(other.m_matchName)
+, m_autoOrient(other.m_autoOrient)
+, m_parent(parent) {
     for (BMBase *child : other.m_children) {
-        BMBase *clone = child->clone();
-        clone->setParent(this);
+        BMBase *clone = child->clone(this);
         appendChild(clone);
     }
 }
@@ -60,9 +63,9 @@ BMBase::~BMBase()
     qDeleteAll(m_children);
 }
 
-BMBase *BMBase::clone() const
+BMBase *BMBase::clone(BMBase *parent) const
 {
-    return new BMBase(*this);
+    return new BMBase(parent, *this);
 }
 
 QString BMBase::name() const
@@ -136,7 +139,7 @@ void BMBase::render(LottieRenderer &renderer, int frame) const
             child->render(renderer, frame);
 }
 
-void BMBase::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
+void BMBase::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
     if (m_hidden)
         return;
 
@@ -191,12 +194,6 @@ bool BMBase::hidden() const
 {
     return m_hidden;
 }
-
-void BMBase::setParent(BMBase *parent)
-{
-    m_parent = parent;
-}
-
 
 const QJsonObject BMBase::resolveExpression(const QJsonObject &definition)
 {

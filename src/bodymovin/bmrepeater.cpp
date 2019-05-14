@@ -29,27 +29,25 @@
 
 #include "bmrepeater_p.h"
 
-BMRepeater::BMRepeater(const BMRepeater &other)
-    : BMShape(other)
-{
-    m_copies = other.m_copies;
-    m_offset = other.m_offset;
-    m_transform = other.m_transform;
+BMRepeater::BMRepeater(BMBase *parent, const BMRepeater &other)
+: BMShape(parent, other)
+, m_copies(other.m_copies)
+, m_offset(other.m_offset)
+, m_transform(this, other.m_transform) {
 }
 
-BMRepeater::BMRepeater(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    m_transform.setParent(this);
-    construct(definition);
+BMRepeater::BMRepeater(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent)
+, m_transform(this) {
+    parse(definition);
 }
 
-BMBase *BMRepeater::clone() const
+BMBase *BMRepeater::clone(BMBase *parent) const
 {
-    return new BMRepeater(*this);
+    return new BMRepeater(parent, *this);
 }
 
-void BMRepeater::construct(const QJsonObject &definition)
+void BMRepeater::parse(const QJsonObject &definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMRepeater::construct():" << m_name;
 
@@ -65,7 +63,7 @@ void BMRepeater::construct(const QJsonObject &definition)
     offset = resolveExpression(offset);
     m_offset.construct(offset);
 
-    m_transform.construct(definition.value(QLatin1String("tr")).toObject());
+    m_transform.parse(definition.value(QLatin1String("tr")).toObject());
 }
 
 void BMRepeater::updateProperties(int frame)

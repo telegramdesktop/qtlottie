@@ -44,14 +44,16 @@
 
 QT_BEGIN_NAMESPACE
 
-BMShapeLayer::BMShapeLayer(const BMShapeLayer &other)
-    : BMLayer(other)
-{
-    m_appliedTrim = other.m_appliedTrim;
+BMShapeLayer::BMShapeLayer(BMBase *parent) : BMLayer(parent) {
 }
 
-BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
-{
+BMShapeLayer::BMShapeLayer(BMBase *parent, const BMShapeLayer &other)
+: BMLayer(parent, other)
+, m_appliedTrim(other.m_appliedTrim) {
+}
+
+BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
+: BMLayer(parent) {
     m_type = BM_LAYER_SHAPE_IX;
 
     BMLayer::parse(definition);
@@ -65,7 +67,7 @@ BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
     QJsonArray::const_iterator itemIt = items.constEnd();
     while (itemIt != items.constBegin()) {
         itemIt--;
-        BMShape *shape = BMShape::construct((*itemIt).toObject(), this);
+        BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
         if (shape)
             appendChild(shape);
     }
@@ -73,9 +75,9 @@ BMShapeLayer::BMShapeLayer(const QJsonObject &definition)
 
 BMShapeLayer::~BMShapeLayer() = default;
 
-BMBase *BMShapeLayer::clone() const
+BMBase *BMShapeLayer::clone(BMBase *parent) const
 {
-    return new BMShapeLayer(*this);
+    return new BMShapeLayer(parent, *this);
 }
 
 void BMShapeLayer::updateProperties(int frame)
@@ -120,7 +122,7 @@ void BMShapeLayer::render(LottieRenderer &renderer, int frame) const
 
     renderer.render(*this);
 
-    m_layerTransform->render(renderer, frame);
+    m_layerTransform.render(renderer, frame);
 
     if (m_masks) {
         m_masks->render(renderer, frame);

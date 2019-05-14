@@ -46,44 +46,42 @@
 
 QT_BEGIN_NAMESPACE
 
-BMLayer::BMLayer(const BMLayer &other)
-    : BMBase(other)
-{
-    m_layerIndex = other.m_layerIndex;
-    m_startFrame = other.m_startFrame;
-    m_endFrame = other.m_endFrame;
-    m_startTime = other.m_startTime;
-    m_blendMode = other.m_blendMode;
-    m_3dLayer = other.m_3dLayer;
-    m_stretch = other.m_stretch;
-    m_parentLayer = other.m_parentLayer;
-    m_td = other.m_td;
-    m_clipMode = other.m_clipMode;
+BMLayer::BMLayer(BMBase *parent) : BMBase(parent), m_layerTransform(this) {
+}
+
+BMLayer::BMLayer(BMBase *parent, const BMLayer &other)
+: BMBase(parent, other)
+, m_layerIndex(other.m_layerIndex)
+, m_startFrame(other.m_startFrame)
+, m_endFrame(other.m_endFrame)
+, m_startTime(other.m_startTime)
+, m_blendMode(other.m_blendMode)
+, m_3dLayer(other.m_3dLayer)
+, m_stretch(other.m_stretch)
+, m_layerTransform(this, other.m_layerTransform)
+, m_parentLayer(other.m_parentLayer)
+, m_td(other.m_td)
+, m_clipMode(other.m_clipMode) {
     if (other.m_effects) {
-        m_effects = new BMBase;
+        m_effects = new BMBase(this);
         for (BMBase *effect : other.m_effects->children())
-            m_effects->appendChild(effect->clone());
+            m_effects->appendChild(effect->clone(m_effects));
     }
     if (other.m_masks) {
-        m_masks = new BMMasks(*other.m_masks);
-        m_masks->setParent(this);
+        m_masks = new BMMasks(this, *other.m_masks);
     }
-    m_layerTransform = new BMBasicTransform(*other.m_layerTransform);
-    m_layerTransform->setParent(this);
     //m_transformAtFirstFrame = other.m_transformAtFirstFrame;
 }
 
 BMLayer::~BMLayer()
 {
-    if (m_layerTransform)
-        delete m_layerTransform;
     if (m_effects)
         delete m_effects;
     if (m_masks)
         delete m_masks;
 }
 
-BMLayer *BMLayer::construct(QJsonObject definition)
+BMLayer *BMLayer::construct(BMBase *parent, QJsonObject definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMLayer::construct()";
 
@@ -92,15 +90,15 @@ BMLayer *BMLayer::construct(QJsonObject definition)
     switch (type) {
     case 4:
         qCDebug(lcLottieQtBodymovinParser) << "Parse shape layer";
-        layer = new BMShapeLayer(definition);
+        layer = new BMShapeLayer(parent, definition);
         break;
     case 3:
         qCDebug(lcLottieQtBodymovinParser) << "Parse null layer";
-        layer = new BMNullLayer(definition);
+        layer = new BMNullLayer(parent, definition);
         break;
     case 0:
         qCDebug(lcLottieQtBodymovinParser) << "Parse precomp layer";
-        layer = new BMPreCompLayer(definition);
+        layer = new BMPreCompLayer(parent, definition);
         break;
     default:
         qCWarning(lcLottieQtBodymovinParser) << "Unsupported layer type:" << type;
@@ -134,7 +132,7 @@ void BMLayer::parse(const QJsonObject &definition)
         m_clipMode = static_cast<MatteClipMode>(clipMode);
 
     QJsonObject trans = definition.value(QLatin1String("ks")).toObject();
-    m_layerTransform = new BMBasicTransform(trans, this);
+	m_layerTransform.parse(trans);
 
     if (m_hidden)
         return;
@@ -188,7 +186,7 @@ void BMLayer::updateProperties(int frame)
 
     BMBase::updateProperties(frame);
 
-    m_layerTransform->updateProperties(frame);
+    m_layerTransform.updateProperties(frame);
 }
 
 BMBase *BMLayer::findChild(const QString &childName)
@@ -244,17 +242,12 @@ int BMLayer::layerId() const
     return m_layerIndex;
 }
 
-BMBasicTransform *BMLayer::transform() const
-{
-    return m_layerTransform;
-}
-
 void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
     // In case there is a linked layer, apply its transform first
     // as it affects tranforms of this layer too
     if (BMLayer *ll = linkedLayer())
         ll->renderFullTransform(renderer, frame);
-    m_layerTransform->render(renderer, frame);
+    m_layerTransform.render(renderer, frame);
 }
 
 void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const
@@ -273,7 +266,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
     while (it != definition.constBegin()) {
         // Create effects container if at least one effect found
         if (!m_effects) {
-            m_effects = new BMBase;
+            m_effects = new BMBase(this);
             effectRoot = m_effects;
         }
         it--;
@@ -282,7 +275,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
         switch (type) {
         case 0:
         {
-            BMBase *slider = new BMBase;
+            BMBase *slider = new BMBase(effectRoot);
             slider->parse(effect);
             effectRoot->appendChild(slider);
             break;
@@ -290,7 +283,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
         case 5:
         {
             if (effect.value(QLatin1String("en")).toInt()) {
-                BMBase *group = new BMBase;
+                BMBase *group = new BMBase(effectRoot);
                 group->parse(effect);
                 effectRoot->appendChild(group);
                 parseEffects(effect.value(QLatin1String("ef")).toArray(), group);
@@ -299,8 +292,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
         }
         case 21:
         {
-            BMFillEffect *fill = new BMFillEffect;
-            fill->construct(effect);
+            BMFillEffect *fill = new BMFillEffect(effectRoot, effect);
             effectRoot->appendChild(fill);
             break;
         }
@@ -316,8 +308,8 @@ void BMLayer::parseMasks(const QJsonArray &definition) {
     while (it != definition.constEnd()) {
         QJsonObject mask = (*it).toObject();
         if (mask.value(QLatin1String("mode")).toString() != QLatin1String("n")) {
-            if (!m_masks) m_masks = new BMMasks();
-            m_masks->appendChild(new BMMaskShape(mask, m_masks));
+            if (!m_masks) m_masks = new BMMasks(this);
+            m_masks->appendChild(new BMMaskShape(m_masks, mask));
         }
         ++it;
     }

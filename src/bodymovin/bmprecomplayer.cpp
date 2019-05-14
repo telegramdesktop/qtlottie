@@ -42,17 +42,18 @@
 
 QT_BEGIN_NAMESPACE
 
-BMPreCompLayer::BMPreCompLayer(const BMPreCompLayer &other)
-    : BMLayer(other)
-{
+BMPreCompLayer::BMPreCompLayer(BMBase *parent) : BMLayer(parent) {
+}
+
+BMPreCompLayer::BMPreCompLayer(BMBase *parent, const BMPreCompLayer &other)
+: BMLayer(parent, other) {
     if (other.m_layers) {
-        m_layers = other.m_layers->clone();
-        m_layers->setParent(this);
+        m_layers = other.m_layers->clone(this);
     }
 }
 
-BMPreCompLayer::BMPreCompLayer(const QJsonObject &definition)
-{
+BMPreCompLayer::BMPreCompLayer(BMBase *parent, const QJsonObject &definition)
+: BMLayer(parent) {
     m_type = BM_LAYER_PRECOMP_IX;
 
     BMLayer::parse(definition);
@@ -71,9 +72,9 @@ BMPreCompLayer::~BMPreCompLayer()
         delete m_layers;
 }
 
-BMBase *BMPreCompLayer::clone() const
+BMBase *BMPreCompLayer::clone(BMBase *parent) const
 {
-    return new BMPreCompLayer(*this);
+    return new BMPreCompLayer(parent, *this);
 }
 
 void BMPreCompLayer::updateProperties(int frame)
@@ -101,7 +102,7 @@ void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
 
     renderer.render(*this);
 
-    m_layerTransform->render(renderer, frame);
+	m_layerTransform.render(renderer, frame);
 
     if (m_masks) {
         m_masks->render(renderer, frame);
@@ -114,13 +115,11 @@ void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
     renderer.restoreState();
 }
 
-void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
+void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
     if (m_layers)
         return;
-    m_layers = resolver(m_refId);
-    if (m_layers)
-        m_layers->setParent(this);
-    else
+    m_layers = resolver(this, m_refId);
+    if (!m_layers)
         qCWarning(lcLottieQtBodymovinParser)
             << "BM PreComp Layer: asset not found: "
             << m_refId;

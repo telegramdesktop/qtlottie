@@ -50,6 +50,7 @@
 #include <QtBodymovin/private/bmfilleffect_p.h>
 #include <QtBodymovin/private/bmrepeater_p.h>
 
+#include <QtBodymovin/private/bmlayer_p.h>
 #include <QtBodymovin/private/bmmaskshape_p.h>
 
 QT_BEGIN_NAMESPACE

@@ -35,21 +35,21 @@
 
 QT_BEGIN_NAMESPACE
 
-BMStroke::BMStroke(const BMStroke &other)
-    : BMShape(other)
-{
-    m_opacity = other.m_opacity;
-    m_width = other.m_width;
-    m_color = other.m_color;
-    m_capStyle = other.m_capStyle;
-    m_joinStyle = other.m_joinStyle;
-    m_miterLimit = other.m_miterLimit;
+BMStroke::BMStroke(BMBase *parent) : BMShape(parent) {
 }
 
-BMStroke::BMStroke(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
+BMStroke::BMStroke(BMBase *parent, const BMStroke &other)
+: BMShape(parent, other)
+, m_opacity(other.m_opacity)
+, m_width(other.m_width)
+, m_color(other.m_color)
+, m_capStyle(other.m_capStyle)
+, m_joinStyle(other.m_joinStyle)
+, m_miterLimit(other.m_miterLimit) {
+}
 
+BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
     BMBase::parse(definition);
     if (m_hidden)
         return;
@@ -100,9 +100,9 @@ BMStroke::BMStroke(const QJsonObject &definition, BMBase *parent)
     m_color.construct(color);
 }
 
-BMBase *BMStroke::clone() const
+BMBase *BMStroke::clone(BMBase *parent) const
 {
-    return new BMStroke(*this);
+    return new BMStroke(parent, *this);
 }
 
 void BMStroke::updateProperties(int frame)

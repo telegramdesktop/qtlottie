@@ -35,28 +35,27 @@
 
 QT_BEGIN_NAMESPACE
 
-BMMaskShape::BMMaskShape() = default;
-
-BMMaskShape::BMMaskShape(const BMMaskShape &other)
-    : BMShape(other)
-{
-    m_vertexList = other.m_vertexList;
-    m_closedShape = other.m_closedShape;
-    m_vertexMap = other.m_vertexMap;
+BMMaskShape::BMMaskShape(BMBase *parent) : BMShape(parent) {
 }
 
-BMMaskShape::BMMaskShape(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMMaskShape::BMMaskShape(BMBase *parent, const BMMaskShape &other)
+: BMShape(parent, other)
+, m_vertexMap(other.m_vertexMap)
+, m_vertexList(other.m_vertexList)
+, m_closedShape(other.m_closedShape) {
 }
 
-BMBase *BMMaskShape::clone() const
-{
-    return new BMMaskShape(*this);
+BMMaskShape::BMMaskShape(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
 }
 
-void BMMaskShape::construct(const QJsonObject &definition)
+BMBase *BMMaskShape::clone(BMBase *parent) const
+{
+    return new BMMaskShape(parent, *this);
+}
+
+void BMMaskShape::parse(const QJsonObject &definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMMaskShape::construct():" << m_name;
 

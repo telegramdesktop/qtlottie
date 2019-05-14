@@ -39,18 +39,24 @@
 
 QT_BEGIN_NAMESPACE
 
-BMGroup::BMGroup(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMGroup::BMGroup(BMBase *parent) : BMShape(parent) {
 }
 
-BMBase *BMGroup::clone() const
-{
-    return new BMGroup(*this);
+BMGroup::BMGroup(BMBase *parent, const BMGroup &other)
+: BMShape(parent, other) {
 }
 
-void BMGroup::construct(const QJsonObject &definition)
+BMGroup::BMGroup(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
+}
+
+BMBase *BMGroup::clone(BMBase *parent) const
+{
+    return new BMGroup(parent, *this);
+}
+
+void BMGroup::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
     if (m_hidden)
@@ -63,7 +69,7 @@ void BMGroup::construct(const QJsonObject &definition)
     QJsonArray::const_iterator itemIt = groupItems.constEnd();
     while (itemIt != groupItems.constBegin()) {
         itemIt--;
-        BMShape *shape = BMShape::construct((*itemIt).toObject(), this);
+        BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
         if (shape) {
             // Transform affects how group contents are drawn.
             // It must be traversed first when drawing
@@ -131,7 +137,7 @@ void BMGroup::applyTrim(const BMTrimPath &trimmer)
 {
     Q_ASSERT_X(!m_appliedTrim, "BMGroup", "A trim already assigned");
 
-    m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone());
+    m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone(this));
     // Setting a friendly name helps in testing
     m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
 

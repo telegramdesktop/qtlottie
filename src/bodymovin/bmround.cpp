@@ -35,25 +35,26 @@
 
 QT_BEGIN_NAMESPACE
 
-BMRound::BMRound(const BMRound &other)
-    : BMShape(other)
-{
-    m_position = other.m_position;
-    m_radius = other.m_radius;
+BMRound::BMRound(BMBase *parent) : BMShape(parent) {
 }
 
-BMRound::BMRound(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMRound::BMRound(BMBase *parent, const BMRound &other)
+: BMShape(parent, other)
+, m_position(other.m_position)
+, m_radius(other.m_radius) {
 }
 
-BMBase *BMRound::clone() const
-{
-    return new BMRound(*this);
+BMRound::BMRound(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
 }
 
-void BMRound::construct(const QJsonObject &definition)
+BMBase *BMRound::clone(BMBase *parent) const
+{
+    return new BMRound(parent, *this);
+}
+
+void BMRound::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
     if (m_hidden)

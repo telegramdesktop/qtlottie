@@ -35,32 +35,32 @@
 
 QT_BEGIN_NAMESPACE
 
-BMBasicTransform::BMBasicTransform(const BMBasicTransform &other)
-    : BMShape(other)
-{
-    m_direction = other.m_direction;
-    m_anchorPoint = other.m_anchorPoint;
-    m_splitPosition = other.m_splitPosition;
-    m_position = other.m_position;
-    m_xPos = other.m_xPos;
-    m_yPos = other.m_yPos;
-    m_scale = other.m_scale;
-    m_rotation = other.m_rotation;
-    m_opacity = other.m_opacity;
+BMBasicTransform::BMBasicTransform(BMBase *parent) : BMShape(parent) {
 }
 
-BMBasicTransform::BMBasicTransform(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMBasicTransform::BMBasicTransform(BMBase *parent, const BMBasicTransform &other)
+: BMShape(parent, other)
+, m_anchorPoint(other.m_anchorPoint)
+, m_splitPosition(other.m_splitPosition)
+, m_position(other.m_position)
+, m_xPos(other.m_xPos)
+, m_yPos(other.m_yPos)
+, m_scale(other.m_scale)
+, m_rotation(other.m_rotation)
+, m_opacity(other.m_opacity) {
 }
 
-BMBase *BMBasicTransform::clone() const
-{
-    return new BMBasicTransform(*this);
+BMBasicTransform::BMBasicTransform(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
 }
 
-void BMBasicTransform::construct(const QJsonObject &definition)
+BMBase *BMBasicTransform::clone(BMBase *parent) const
+{
+    return new BMBasicTransform(parent, *this);
+}
+
+void BMBasicTransform::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
 

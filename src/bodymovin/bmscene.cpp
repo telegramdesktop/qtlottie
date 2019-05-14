@@ -36,11 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 
-BMScene::BMScene()
-{
-}
-
-BMScene::BMScene(const QJsonObject &definition) {
+BMScene::BMScene(const QJsonObject &definition) : BMBase(nullptr) {
 	parse(definition);
 }
 
@@ -48,7 +44,7 @@ BMScene::~BMScene()
 {
 }
 
-BMBase *BMScene::clone() const
+BMBase *BMScene::clone(BMBase *parent) const
 {
     return nullptr;
 }
@@ -99,8 +95,7 @@ void BMScene::parse(const QJsonObject &definition)
 
 	const auto assets = definition.value(QLatin1String("assets")).toArray();
 	for (const auto &entry : assets) {
-		if (const auto asset = BMAsset::construct(entry.toObject())) {
-			asset->setParent(this);
+		if (const auto asset = BMAsset::construct(this, entry.toObject())) {
 			_assetIndexById.insert(asset->id(), _assets.size());
 			_assets.emplace_back(asset);
 		} else {
@@ -112,14 +107,11 @@ void BMScene::parse(const QJsonObject &definition)
 		_unsupported = true;
 	}
 
-	_blueprint = std::make_unique<BMBase>();
-	_blueprint->setParent(this);
+	_blueprint = std::make_unique<BMBase>(this);
 	const auto layers = definition.value(QLatin1String("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
-		if (const auto layer = BMLayer::construct(entry.toObject())) {
-			layer->setParent(_blueprint.get());
-
+		if (const auto layer = BMLayer::construct(_blueprint.get(), entry.toObject())) {
 			// Mask layers must be rendered before the layers they affect to
 			// although they appear before in layer hierarchy. For this reason
 			// move a mask after the affected layers, so it will be rendered first
@@ -137,8 +129,7 @@ void BMScene::parse(const QJsonObject &definition)
 }
 
 void BMScene::updateProperties(int frame) {
-	_current.reset(_blueprint->clone());
-	_current->setParent(this);
+	_current.reset(_blueprint->clone(this));
 	_current->updateProperties(frame);
 }
 
@@ -152,7 +143,7 @@ void BMScene::resolveAllAssets() {
 		return;
 	}
 
-	std::function<BMAsset*(QString)> resolver = [&](const QString & refId)
+	std::function<BMAsset*(BMBase*, QString)> resolver = [&](BMBase *parent, const QString &refId)
 		-> BMAsset * {
 		const auto i = _assetIndexById.constFind(refId);
 		if (i == _assetIndexById.constEnd()) {
@@ -160,16 +151,16 @@ void BMScene::resolveAllAssets() {
 		}
 		const auto result = _assets[i.value()].get();
 		result->resolveAssets(resolver);
-		return result->clone();
+		return result->clone(parent);
 	};
 	for (const auto &asset : _assets) {
 		asset->resolveAssets(resolver);
 	}
 
-	_blueprint->resolveAssets([&](const QString &refId) {
+	_blueprint->resolveAssets([&](BMBase *parent, const QString &refId) {
 		const auto i = _assetIndexById.constFind(refId);
 		return (i != _assetIndexById.constEnd())
-			? _assets[i.value()]->clone()
+			? _assets[i.value()]->clone(parent)
 			: nullptr;
 	});
 }

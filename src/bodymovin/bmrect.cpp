@@ -39,17 +39,18 @@
 
 QT_BEGIN_NAMESPACE
 
-BMRect::BMRect(const BMRect &other)
-    : BMShape(other)
-{
-    m_position = other.m_position;
-    m_size = other.m_size;
-    m_roundness = other.m_roundness;
+BMRect::BMRect(BMBase *parent) : BMShape(parent) {
 }
 
-BMRect::BMRect(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
+BMRect::BMRect(BMBase *parent, const BMRect &other)
+: BMShape(parent, other)
+, m_position(other.m_position)
+, m_size(other.m_size)
+, m_roundness(other.m_roundness) {
+}
+
+BMRect::BMRect(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
     BMBase::parse(definition);
     if (m_hidden)
         return;
@@ -72,9 +73,9 @@ BMRect::BMRect(const QJsonObject &definition, BMBase *parent)
 }
 
 
-BMBase *BMRect::clone() const
+BMBase *BMRect::clone(BMBase *parent) const
 {
-    return new BMRect(*this);
+    return new BMRect(parent, *this);
 }
 
 bool BMRect::setProperty(BMLiteral::PropertyType propertyType, QVariant value)

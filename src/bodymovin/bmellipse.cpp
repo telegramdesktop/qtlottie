@@ -36,26 +36,27 @@
 
 QT_BEGIN_NAMESPACE
 
-BMEllipse::BMEllipse(const BMEllipse &other)
-    : BMShape(other)
-{
-    m_position = other.m_position;
-    m_size = other.m_size;
+BMEllipse::BMEllipse(BMBase *parent) : BMShape(parent) {
 }
 
-BMEllipse::BMEllipse(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMEllipse::BMEllipse(BMBase *parent, const BMEllipse &other)
+: BMShape(parent, other)
+, m_position(other.m_position)
+, m_size(other.m_size) {
 }
 
-BMBase *BMEllipse::clone() const
+BMEllipse::BMEllipse(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
+}
+
+BMBase *BMEllipse::clone(BMBase *parent) const
 {
-    return new BMEllipse(*this);
+    return new BMEllipse(parent, *this);
 }
 
 
-void BMEllipse::construct(const QJsonObject &definition)
+void BMEllipse::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
     if (m_hidden)

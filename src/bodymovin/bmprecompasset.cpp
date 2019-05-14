@@ -37,13 +37,19 @@
 
 QT_BEGIN_NAMESPACE
 
-BMPreCompAsset *BMPreCompAsset::clone() const
-{
-    return new BMPreCompAsset(*this);
+BMPreCompAsset::BMPreCompAsset(BMBase *parent) : BMAsset(parent) {
 }
 
-BMPreCompAsset::BMPreCompAsset(const QJsonObject &definition)
+BMPreCompAsset::BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other) : BMAsset(parent, other) {
+}
+
+BMPreCompAsset *BMPreCompAsset::clone(BMBase *parent) const
 {
+    return new BMPreCompAsset(parent, *this);
+}
+
+BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
+: BMAsset(parent) {
     BMAsset::parse(definition);
     if (m_hidden)
         return;
@@ -54,9 +60,7 @@ BMPreCompAsset::BMPreCompAsset(const QJsonObject &definition)
 	QJsonArray layers = definition.value(QLatin1String("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
-		if (const auto layer = BMLayer::construct(entry.toObject())) {
-			layer->setParent(this);
-
+		if (const auto layer = BMLayer::construct(this, entry.toObject())) {
 			// Mask layers must be rendered before the layers they affect to
 			// although they appear before in layer hierarchy. For this reason
 			// move a mask after the affected layers, so it will be rendered first

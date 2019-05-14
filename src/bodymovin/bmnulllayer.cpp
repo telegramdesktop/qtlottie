@@ -42,15 +42,20 @@
 
 QT_BEGIN_NAMESPACE
 
-BMNullLayer::BMNullLayer(const BMNullLayer &other) = default;
+BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
+}
 
-BMNullLayer::BMNullLayer(const QJsonObject &definition)
-{
+BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
+: BMLayer(parent, other) {
+}
+
+BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
+: BMLayer(parent) {
     m_type = BM_LAYER_NULL_IX;
 
     BMLayer::parse(definition);
 
-    m_layerTransform->clearOpacity();
+    m_layerTransform.clearOpacity();
 
     qCDebug(lcLottieQtBodymovinParser) << "BMNullLayer::BMNullLayer()"
                                        << m_name;
@@ -58,9 +63,9 @@ BMNullLayer::BMNullLayer(const QJsonObject &definition)
 
 BMNullLayer::~BMNullLayer() = default;
 
-BMBase *BMNullLayer::clone() const
+BMBase *BMNullLayer::clone(BMBase *parent) const
 {
-    return new BMNullLayer(*this);
+    return new BMNullLayer(parent, *this);
 }
 
 void BMNullLayer::render(LottieRenderer &renderer, int frame) const

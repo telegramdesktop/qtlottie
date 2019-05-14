@@ -33,9 +33,15 @@
 
 QT_BEGIN_NAMESPACE
 
-BMBase *BMMasks::clone() const
+BMMasks::BMMasks(BMBase *parent) : BMBase(parent) {
+}
+
+BMMasks::BMMasks(BMBase *parent, const BMMasks &other) : BMBase(parent, other) {
+}
+
+BMBase *BMMasks::clone(BMBase *parent) const
 {
-    return new BMMasks(*this);
+    return new BMMasks(parent, *this);
 }
 
 void BMMasks::render(LottieRenderer &renderer, int frame) const

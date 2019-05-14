@@ -36,15 +36,17 @@
 
 QT_BEGIN_NAMESPACE
 
-BMGFill::BMGFill(const BMGFill &other)
-    : BMShape(other)
-{
-    m_opacity = other.m_opacity;
-    m_startPoint = other.m_startPoint;
-    m_endPoint = other.m_endPoint;
-    m_highlightLength = other.m_highlightLength;
-    m_highlightAngle = other.m_highlightAngle;
-    m_colors = other.m_colors;
+BMGFill::BMGFill(BMBase *parent) : BMShape(parent) {
+}
+
+BMGFill::BMGFill(BMBase *parent, const BMGFill &other)
+: BMShape(parent, other)
+, m_opacity(other.m_opacity)
+, m_startPoint(other.m_startPoint)
+, m_endPoint(other.m_endPoint)
+, m_highlightLength(other.m_highlightLength)
+, m_highlightAngle(other.m_highlightAngle)
+, m_colors(other.m_colors) {
     if (other.gradientType() == QGradient::LinearGradient)
         m_gradient = new QLinearGradient;
     else if (other.gradientType() == QGradient::RadialGradient)
@@ -60,15 +62,13 @@ BMGFill::~BMGFill()
         delete m_gradient;
 }
 
-BMBase *BMGFill::clone() const
+BMBase *BMGFill::clone(BMBase *parent) const
 {
-    return new BMGFill(*this);
+    return new BMGFill(parent, *this);
 }
 
-BMGFill::BMGFill(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-
+BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
     BMBase::parse(definition);
     if (m_hidden)
         return;

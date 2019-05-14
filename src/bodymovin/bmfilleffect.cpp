@@ -36,19 +36,26 @@
 
 QT_BEGIN_NAMESPACE
 
-BMFillEffect::BMFillEffect(const BMFillEffect &other)
-    : BMBase(other)
-{
-    m_color = other.m_color;
-    m_opacity = other.m_opacity;
+BMFillEffect::BMFillEffect(BMBase *parent) : BMBase(parent) {
 }
 
-BMBase *BMFillEffect::clone() const
-{
-    return new BMFillEffect(*this);
+BMFillEffect::BMFillEffect(BMBase *parent, const BMFillEffect &other)
+: BMBase(parent, other)
+, m_color(other.m_color)
+, m_opacity(other.m_opacity) {
 }
 
-void BMFillEffect::construct(const QJsonObject &definition)
+BMFillEffect::BMFillEffect(BMBase *parent, const QJsonObject &definition)
+: BMBase(parent) {
+	parse(definition);
+}
+
+BMBase *BMFillEffect::clone(BMBase *parent) const
+{
+    return new BMFillEffect(parent, *this);
+}
+
+void BMFillEffect::parse(const QJsonObject &definition)
 {
     m_type = BM_EFFECT_FILL;
 

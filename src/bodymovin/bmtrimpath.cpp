@@ -36,34 +36,31 @@
 #include "bmconstants_p.h"
 #include "trimpath_p.h"
 
-BMTrimPath::BMTrimPath()
+BMTrimPath::BMTrimPath(BMBase *parent) : BMShape(parent)
 {
     m_appliedTrim = this;
 }
 
-BMTrimPath::BMTrimPath(const QJsonObject &definition, BMBase *parent)
-{
+BMTrimPath::BMTrimPath(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
     m_appliedTrim = this;
-
-    setParent(parent);
-    construct(definition);
+    parse(definition);
 }
 
-BMTrimPath::BMTrimPath(const BMTrimPath &other)
-    : BMShape(other)
+BMTrimPath::BMTrimPath(BMBase *parent, const BMTrimPath &other)
+: BMShape(parent, other)
+, m_start(other.m_start)
+, m_end(other.m_end)
+, m_offset(other.m_offset)
+, m_simultaneous(other.m_simultaneous) {
+}
+
+BMBase *BMTrimPath::clone(BMBase *parent) const
 {
-    m_start = other.m_start;
-    m_end = other.m_end;
-    m_offset = other.m_offset;
-    m_simultaneous = other.m_simultaneous;
+    return new BMTrimPath(parent, *this);
 }
 
-BMBase *BMTrimPath::clone() const
-{
-    return new BMTrimPath(*this);
-}
-
-void BMTrimPath::construct(const QJsonObject &definition)
+void BMTrimPath::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
     if (m_hidden)

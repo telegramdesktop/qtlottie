@@ -35,30 +35,28 @@
 #include "bmconstants_p.h"
 #include "bmbasictransform_p.h"
 
-BMShapeTransform::BMShapeTransform(const BMShapeTransform &other)
-    : BMBasicTransform(other)
-{
-    m_skew = other.m_skew;
-    m_skewAxis = other.m_skewAxis;
-    m_shearX = other.m_shearX;
-    m_shearY = other.m_shearY;
-    m_shearAngle = other.m_shearAngle;
+BMShapeTransform::BMShapeTransform(BMBase *parent, const BMShapeTransform &other)
+: BMBasicTransform(parent, other)
+, m_skew(other.m_skew)
+, m_skewAxis(other.m_skewAxis)
+, m_shearX(other.m_shearX)
+, m_shearY(other.m_shearY)
+, m_shearAngle(other.m_shearAngle) {
 }
 
-BMShapeTransform::BMShapeTransform(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMShapeTransform::BMShapeTransform(BMBase *parent, const QJsonObject &definition)
+: BMBasicTransform(parent) {
+    parse(definition);
 }
 
-BMBase *BMShapeTransform::clone() const
+BMBase *BMShapeTransform::clone(BMBase *parent) const
 {
-    return new BMShapeTransform(*this);
+    return new BMShapeTransform(parent, *this);
 }
 
-void BMShapeTransform::construct(const QJsonObject &definition)
+void BMShapeTransform::parse(const QJsonObject &definition)
 {
-    BMBasicTransform::construct(definition);
+    BMBasicTransform::parse(definition);
 
     qCDebug(lcLottieQtBodymovinParser) << "BMShapeTransform::construct():" << BMShape::name();
 

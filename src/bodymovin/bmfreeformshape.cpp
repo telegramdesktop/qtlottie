@@ -35,28 +35,27 @@
 
 QT_BEGIN_NAMESPACE
 
-BMFreeFormShape::BMFreeFormShape() = default;
-
-BMFreeFormShape::BMFreeFormShape(const BMFreeFormShape &other)
-    : BMShape(other)
-{
-    m_vertexList = other.m_vertexList;
-    m_closedShape = other.m_closedShape;
-    m_vertexMap = other.m_vertexMap;
+BMFreeFormShape::BMFreeFormShape(BMBase *parent) : BMShape(parent) {
 }
 
-BMFreeFormShape::BMFreeFormShape(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMFreeFormShape::BMFreeFormShape(BMBase *parent, const BMFreeFormShape &other)
+: BMShape(parent, other)
+, m_vertexMap(other.m_vertexMap)
+, m_vertexList(other.m_vertexList)
+, m_closedShape(other.m_closedShape) {
 }
 
-BMBase *BMFreeFormShape::clone() const
-{
-    return new BMFreeFormShape(*this);
+BMFreeFormShape::BMFreeFormShape(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
+    parse(definition);
 }
 
-void BMFreeFormShape::construct(const QJsonObject &definition)
+BMBase *BMFreeFormShape::clone(BMBase *parent) const
+{
+    return new BMFreeFormShape(parent, *this);
+}
+
+void BMFreeFormShape::parse(const QJsonObject &definition)
 {
     BMBase::parse(definition);
     if (m_hidden)

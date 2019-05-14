@@ -38,19 +38,28 @@
 
 QT_BEGIN_NAMESPACE
 
-BMAsset *BMAsset::clone() const
-{
-    return new BMAsset(*this);
+BMAsset::BMAsset(BMBase *parent) : BMBase(parent) {
 }
 
-BMAsset *BMAsset::construct(QJsonObject definition)
+BMAsset::BMAsset(BMBase *parent, const BMAsset &other)
+: BMBase(parent, other)
+, m_id(other.m_id)
+, m_resolved(other.m_resolved) {
+}
+
+BMAsset *BMAsset::clone(BMBase *parent) const
+{
+    return new BMAsset(parent, *this);
+}
+
+BMAsset *BMAsset::construct(BMBase *parent, QJsonObject definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMAsset::construct()";
 
 	BMAsset *asset = nullptr;
 	if (definition.contains(QLatin1String("layers"))) {
 		qCDebug(lcLottieQtBodymovinParser) << "Parse precomp asset";
-		asset = new BMPreCompAsset(definition);
+		asset = new BMPreCompAsset(parent, definition);
 	}
     return asset;
 }
@@ -66,7 +75,7 @@ void BMAsset::parse(const QJsonObject &definition)
     m_id = definition.value(QLatin1String("id")).toVariant().toString();
 }
 
-void BMAsset::resolveAssets(const std::function<BMAsset*(QString)> &resolver) {
+void BMAsset::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
 	if (!m_resolved) {
 		m_resolved = true;
 		BMBase::resolveAssets(resolver);

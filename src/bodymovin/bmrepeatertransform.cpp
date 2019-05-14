@@ -31,30 +31,31 @@
 
 QT_BEGIN_NAMESPACE
 
-BMRepeaterTransform::BMRepeaterTransform(const BMRepeaterTransform &other)
-    : BMBasicTransform(other)
-{
-    m_startOpacity = other.m_startOpacity;
-    m_endOpacity = other.m_endOpacity;
-    m_opacities = other.m_opacities;
+BMRepeaterTransform::BMRepeaterTransform(BMBase *parent) : BMBasicTransform(parent) {
 }
 
-BMRepeaterTransform::BMRepeaterTransform(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
-    construct(definition);
+BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const BMRepeaterTransform &other)
+: BMBasicTransform(parent, other)
+, m_startOpacity(other.m_startOpacity)
+, m_endOpacity(other.m_endOpacity)
+, m_opacities(other.m_opacities) {
 }
 
-BMBase *BMRepeaterTransform::clone() const
-{
-    return new BMRepeaterTransform(*this);
+BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const QJsonObject &definition)
+: BMBasicTransform(parent) {
+    parse(definition);
 }
 
-void BMRepeaterTransform::construct(const QJsonObject &definition)
+BMBase *BMRepeaterTransform::clone(BMBase *parent) const
+{
+    return new BMRepeaterTransform(parent, *this);
+}
+
+void BMRepeaterTransform::parse(const QJsonObject &definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMRepeaterTransform::construct():" << name();
 
-    BMBasicTransform::construct(definition);
+    BMBasicTransform::parse(definition);
     if (m_hidden)
         return;
 

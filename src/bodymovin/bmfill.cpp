@@ -31,16 +31,17 @@
 
 QT_BEGIN_NAMESPACE
 
-BMFill::BMFill(const BMFill &other)
-    : BMShape(other)
-{
-    m_color = other.m_color;
-    m_opacity = other.m_opacity;
+BMFill::BMFill(BMBase *parent) : BMShape(parent) {
 }
 
-BMFill::BMFill(const QJsonObject &definition, BMBase *parent)
-{
-    setParent(parent);
+BMFill::BMFill(BMBase *parent, const BMFill &other)
+: BMShape(parent, other)
+, m_color(other.m_color)
+, m_opacity(other.m_opacity) {
+}
+
+BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
+: BMShape(parent) {
     BMBase::parse(definition);
     if (m_hidden)
         return;
@@ -55,9 +56,9 @@ BMFill::BMFill(const QJsonObject &definition, BMBase *parent)
     m_opacity.construct(opacity);
 }
 
-BMBase *BMFill::clone() const
+BMBase *BMFill::clone(BMBase *parent) const
 {
-    return new BMFill(*this);
+    return new BMFill(parent, *this);
 }
 
 void BMFill::updateProperties(int frame)

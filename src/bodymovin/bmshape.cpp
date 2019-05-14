@@ -48,20 +48,22 @@
 
 QT_BEGIN_NAMESPACE
 
-BMShape::BMShape(const BMShape &other)
-    : BMBase(other)
-{
-    m_direction = other.m_direction;
-    m_path = other.m_path;
-    m_appliedTrim = other.m_appliedTrim;
+BMShape::BMShape(BMBase *parent) : BMBase(parent) {
 }
 
-BMBase *BMShape::clone() const
-{
-    return new BMShape(*this);
+BMShape::BMShape(BMBase *parent, const BMShape &other)
+: BMBase(parent, other)
+, m_path(other.m_path)
+, m_appliedTrim(other.m_appliedTrim)
+, m_direction(other.m_direction) {
 }
 
-BMShape *BMShape::construct(QJsonObject definition, BMBase *parent)
+BMBase *BMShape::clone(BMBase *parent) const
+{
+    return new BMShape(parent, *this);
+}
+
+BMShape *BMShape::construct(BMBase *parent, QJsonObject definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMShape::construct()";
 
@@ -82,77 +84,77 @@ BMShape *BMShape::construct(QJsonObject definition, BMBase *parent)
     case BM_SHAPE_TAG('g', 'r'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse group";
-        shape = new BMGroup(definition, parent);
+        shape = new BMGroup(parent, definition);
         shape->setType(BM_SHAPE_GROUP_IX);
         break;
     }
     case BM_SHAPE_TAG('r', 'c'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse m_rect";
-        shape = new BMRect(definition, parent);
+        shape = new BMRect(parent, definition);
         shape->setType(BM_SHAPE_RECT_IX);
         break;
     }
     case BM_SHAPE_TAG('f', 'l'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse fill";
-        shape = new BMFill(definition, parent);
+        shape = new BMFill(parent, definition);
         shape->setType(BM_SHAPE_FILL_IX);
         break;
     }
     case BM_SHAPE_TAG('g', 'f'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse group fill";
-        shape = new BMGFill(definition, parent);
+        shape = new BMGFill(parent, definition);
         shape->setType(BM_SHAPE_GFILL_IX);
         break;
     }
     case BM_SHAPE_TAG('s', 't'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse stroke";
-        shape = new BMStroke(definition, parent);
+        shape = new BMStroke(parent, definition);
         shape->setType(BM_SHAPE_STROKE_IX);
         break;
     }
     case BM_SHAPE_TAG('t', 'r'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse shape transform";
-        shape = new BMShapeTransform(definition, parent);
+        shape = new BMShapeTransform(parent, definition);
         shape->setType(BM_SHAPE_TRANS_IX);
         break;
     }
     case BM_SHAPE_TAG('e', 'l'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse ellipse";
-        shape = new BMEllipse(definition, parent);
+        shape = new BMEllipse(parent, definition);
         shape->setType(BM_SHAPE_ELLIPSE_IX);
         break;
     }
     case BM_SHAPE_TAG('r', 'd'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse round";
-        shape = new BMRound(definition, parent);
+        shape = new BMRound(parent, definition);
         shape->setType(BM_SHAPE_ROUND_IX);
         break;
     }
     case BM_SHAPE_TAG('s', 'h'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse shape";
-        shape = new BMFreeFormShape(definition, parent);
+        shape = new BMFreeFormShape(parent, definition);
         shape->setType(BM_SHAPE_SHAPE_IX);
         break;
     }
     case BM_SHAPE_TAG('t', 'm'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse trim path";
-        shape = new BMTrimPath(definition, parent);
+        shape = new BMTrimPath(parent, definition);
         shape->setType(BM_SHAPE_TRIM_IX);
         break;
     }
     case BM_SHAPE_TAG('r', 'p'):
     {
         qCDebug(lcLottieQtBodymovinParser) << "Parse trim path";
-        shape = new BMRepeater(definition, parent);
+        shape = new BMRepeater(parent, definition);
         shape->setType(BM_SHAPE_REPEATER_IX);
         break;
     }
