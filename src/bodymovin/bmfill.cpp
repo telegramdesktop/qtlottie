@@ -52,7 +52,6 @@ BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
     m_color.construct(color);
 
     QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
-    opacity = resolveExpression(opacity);
     m_opacity.construct(opacity);
 }
 

@@ -75,6 +75,8 @@ int BMScene::height() const {
 
 void BMScene::parse(const QJsonObject &definition)
 {
+	_parsing = true;
+
 	_startFrame = definition.value(QLatin1String("ip")).toVariant().toInt();
 	_endFrame = definition.value(QLatin1String("op")).toVariant().toInt();
 	_frameRate = definition.value(QLatin1String("fr")).toVariant().toInt();
@@ -126,6 +128,8 @@ void BMScene::parse(const QJsonObject &definition)
 	}
 
 	resolveAllAssets();
+
+	_parsing = false;
 }
 
 void BMScene::updateProperties(int frame) {

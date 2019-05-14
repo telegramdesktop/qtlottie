@@ -56,11 +56,9 @@ void BMRepeater::parse(const QJsonObject &definition)
         return;
 
     QJsonObject copies = definition.value(QLatin1String("c")).toObject();
-    copies = resolveExpression(copies);
     m_copies.construct(copies);
 
     QJsonObject offset = definition.value(QLatin1String("o")).toObject();
-    offset = resolveExpression(offset);
     m_offset.construct(offset);
 
     m_transform.parse(definition.value(QLatin1String("tr")).toObject());

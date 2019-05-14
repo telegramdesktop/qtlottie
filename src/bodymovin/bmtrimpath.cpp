@@ -69,15 +69,12 @@ void BMTrimPath::parse(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMTrimPath::construct():" << m_name;
 
     QJsonObject start = definition.value(QLatin1String("s")).toObject();
-    start = resolveExpression(start);
     m_start.construct(start);
 
     QJsonObject end = definition.value(QLatin1String("e")).toObject();
-    end = resolveExpression(end);
     m_end.construct(end);
 
     QJsonObject offset = definition.value(QLatin1String("o")).toObject();
-    offset = resolveExpression(offset);
     m_offset.construct(offset);
 
     int simultaneous = true;

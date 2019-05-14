@@ -67,7 +67,6 @@ void BMMaskShape::parse(const QJsonObject &definition)
 	if (opacity.isEmpty()) {
 		m_opacity.setValue(100.);
 	} else {
-		opacity = resolveExpression(opacity);
 		m_opacity.construct(opacity);
 	}
 

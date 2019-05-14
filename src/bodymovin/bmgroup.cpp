@@ -139,7 +139,7 @@ void BMGroup::applyTrim(const BMTrimPath &trimmer)
 
     m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone(this));
     // Setting a friendly name helps in testing
-    m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
+    //m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
 
     for (BMBase *child : children()) {
         BMShape *shape = static_cast<BMShape*>(child);

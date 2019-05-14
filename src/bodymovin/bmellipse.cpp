@@ -65,11 +65,9 @@ void BMEllipse::parse(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMEllipse::construct():" << m_name;
 
     QJsonObject position = definition.value(QLatin1String("p")).toObject();
-    position = resolveExpression(position);
     m_position.construct(position);
 
     QJsonObject size = definition.value(QLatin1String("s")).toObject();
-    size = resolveExpression(size);
     m_size.construct(size);
 
     m_direction = definition.value(QLatin1String("d")).toInt();

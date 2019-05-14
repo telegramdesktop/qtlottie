@@ -45,8 +45,7 @@ BMBase::BMBase(BMBase *parent) : m_parent(parent) {
 }
 
 BMBase::BMBase(BMBase *parent, const BMBase &other)
-: m_definition(other.m_definition)
-, m_type(other.m_type)
+: m_type(other.m_type)
 , m_hidden(other.m_hidden)
 , m_name(other.m_name)
 , m_matchName(other.m_matchName)
@@ -71,11 +70,6 @@ BMBase *BMBase::clone(BMBase *parent) const
 QString BMBase::name() const
 {
     return m_name;
-}
-
-void BMBase::setName(const QString &name)
-{
-    m_name = name;
 }
 
 bool BMBase::setProperty(BMLiteral::PropertyType propertyName, QVariant value)
@@ -167,8 +161,6 @@ void BMBase::parse(const QJsonObject &definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMBase::parse()";
 
-    m_definition = definition;
-
     m_hidden = definition.value(QLatin1String("hd")).toBool(false);
     m_name = definition.value(QLatin1String("nm")).toString();
     m_matchName = definition.value(QLatin1String("mn")).toString();
@@ -177,11 +169,6 @@ void BMBase::parse(const QJsonObject &definition)
     if (m_autoOrient)
         qCWarning(lcLottieQtBodymovinParser)
                 << "Element has auto-orientation set, but it is not supported";
-}
-
-const QJsonObject &BMBase::definition() const
-{
-    return m_definition;
 }
 
 bool BMBase::active(int frame) const
@@ -193,45 +180,6 @@ bool BMBase::active(int frame) const
 bool BMBase::hidden() const
 {
     return m_hidden;
-}
-
-const QJsonObject BMBase::resolveExpression(const QJsonObject &definition)
-{
-    QString expr = definition.value(QLatin1String("x")).toString();
-
-    // If there is no expression, return the original object definition
-    if (expr.isEmpty())
-        return definition;
-
-    QRegularExpression re(QStringLiteral("effect\\(\\'(.*?)\\'\\)\\(\\'(.*?)\\'\\)"));
-    QRegularExpressionMatch match = re.match(expr);
-    if (!match.hasMatch())
-        return definition;
-
-    QString effect = match.captured(1);
-    QString elementName = match.captured(2);
-
-    QJsonObject retVal = definition;
-
-    if (BMBase *source = topRoot()->findChild(effect)) {
-        if (source->children().length())
-            retVal = source->children().at(0)->definition().value(QLatin1String("v")).toObject();
-        else
-            retVal = source->definition().value(QLatin1String("v")).toObject();
-        if (source->children().length() > 1)
-            qCWarning(lcLottieQtBodymovinParser) << "Effect source points"
-                                                "to a group that has"
-                                                "many children. The"
-                                                "first is be picked";
-    } else {
-        qCWarning(lcLottieQtBodymovinParser) << "Failed to find specified effect" << effect;
-    }
-
-    // Let users of the json know that it is originated from expression,
-    // so they can adjust their behavior accordingly
-    retVal.insert(QLatin1String("fromExpression"), true);
-
-    return retVal;
 }
 
 QT_END_NAMESPACE

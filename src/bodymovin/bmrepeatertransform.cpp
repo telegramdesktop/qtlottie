@@ -60,11 +60,9 @@ void BMRepeaterTransform::parse(const QJsonObject &definition)
         return;
 
     QJsonObject startOpacity = definition.value(QLatin1String("so")).toObject();
-    startOpacity = resolveExpression(startOpacity);
     m_startOpacity.construct(startOpacity);
 
     QJsonObject endOpacity = definition.value(QLatin1String("eo")).toObject();
-    endOpacity = resolveExpression(endOpacity);
     m_endOpacity.construct(endOpacity);
 }
 

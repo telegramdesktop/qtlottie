@@ -88,15 +88,12 @@ BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
     }
 
     QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
-    opacity = resolveExpression(opacity);
     m_opacity.construct(opacity);
 
     QJsonObject width = definition.value(QLatin1String("w")).toObject();
-    width = resolveExpression(width);
     m_width.construct(width);
 
     QJsonObject color = definition.value(QLatin1String("c")).toObject();
-    color = resolveExpression(color);
     m_color.construct(color);
 }
 

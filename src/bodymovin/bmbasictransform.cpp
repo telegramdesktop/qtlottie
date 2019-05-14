@@ -68,38 +68,31 @@ void BMBasicTransform::parse(const QJsonObject &definition)
             << "BMBasicTransform::construct():" << m_name;
 
     QJsonObject anchors = definition.value(QLatin1String("a")).toObject();
-    anchors = resolveExpression(anchors);
     m_anchorPoint.construct(anchors);
 
     if (definition.value(QLatin1String("p")).toObject().contains(QLatin1String("s"))) {
         QJsonObject posX = definition.value(QLatin1String("p")).toObject().value(QLatin1String("x")).toObject();
-        posX = resolveExpression(posX);
         m_xPos.construct(posX);
 
         QJsonObject posY = definition.value(QLatin1String("p")).toObject().value(QLatin1String("y")).toObject();
-        posY = resolveExpression(posY);
         m_yPos.construct(posY);
 
         m_splitPosition = true;
     } else {
         QJsonObject position = definition.value(QLatin1String("p")).toObject();
-        position = resolveExpression(position);
         m_position.construct(position);
     }
 
     QJsonObject scale = definition.value(QLatin1String("s")).toObject();
-    scale = resolveExpression(scale);
     m_scale.construct(scale);
 
     QJsonObject rotation = definition.value(QLatin1String("r")).toObject();
-    rotation = resolveExpression(rotation);
     m_rotation.construct(rotation);
 
     // If this is the base class for BMRepeaterTransform,
     // opacity is not present
     if (definition.contains(QLatin1String("o"))) {
         QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
-        opacity = resolveExpression(opacity);
         m_opacity.construct(opacity);
     }
 }
