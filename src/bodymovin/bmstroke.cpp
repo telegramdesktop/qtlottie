@@ -56,7 +56,7 @@ BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMStroke::BMStroke()" << m_name;
 
-    int lineCap = definition.value(QLatin1String("lc")).toVariant().toInt();
+    int lineCap = definition.value(QStringLiteral("lc")).toVariant().toInt();
     switch (lineCap) {
     case 1:
         m_capStyle = Qt::FlatCap;
@@ -71,11 +71,11 @@ BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
         qCDebug(lcLottieQtBodymovinParser) << "Unknown line cap style in BMStroke";
     }
 
-    int lineJoin = definition.value(QLatin1String("lj")).toVariant().toInt();
+    int lineJoin = definition.value(QStringLiteral("lj")).toVariant().toInt();
     switch (lineJoin) {
     case 1:
         m_joinStyle = Qt::MiterJoin;
-        m_miterLimit = definition.value(QLatin1String("ml")).toVariant().toReal();
+        m_miterLimit = definition.value(QStringLiteral("ml")).toVariant().toReal();
         break;
     case 2:
         m_joinStyle = Qt::RoundJoin;
@@ -87,13 +87,13 @@ BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
         qCDebug(lcLottieQtBodymovinParser) << "Unknown line join style in BMStroke";
     }
 
-    QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
+    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
     m_opacity.construct(opacity);
 
-    QJsonObject width = definition.value(QLatin1String("w")).toObject();
+    QJsonObject width = definition.value(QStringLiteral("w")).toObject();
     m_width.construct(width);
 
-    QJsonObject color = definition.value(QLatin1String("c")).toObject();
+    QJsonObject color = definition.value(QStringLiteral("c")).toObject();
     m_color.construct(color);
 }
 

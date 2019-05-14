@@ -68,7 +68,7 @@ BMShape *BMShape::construct(BMBase *parent, QJsonObject definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMShape::construct()";
 
     BMShape *shape = nullptr;
-    const QByteArray type = definition.value(QLatin1String("ty")).toString().toLatin1();
+    const QByteArray type = definition.value(QStringLiteral("ty")).toString().toLatin1();
 
     if (Q_UNLIKELY(type.size() != 2)) {
         qCWarning(lcLottieQtBodymovinParser) << "Unsupported shape type:"

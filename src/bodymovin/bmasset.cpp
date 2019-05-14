@@ -57,7 +57,7 @@ BMAsset *BMAsset::construct(BMBase *parent, QJsonObject definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMAsset::construct()";
 
 	BMAsset *asset = nullptr;
-	if (definition.contains(QLatin1String("layers"))) {
+	if (definition.contains(QStringLiteral("layers"))) {
 		qCDebug(lcLottieQtBodymovinParser) << "Parse precomp asset";
 		asset = new BMPreCompAsset(parent, definition);
 	}
@@ -72,7 +72,7 @@ void BMAsset::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMAsset::parse():" << m_name;
 
-    m_id = definition.value(QLatin1String("id")).toVariant().toString();
+    m_id = definition.value(QStringLiteral("id")).toVariant().toString();
 }
 
 void BMAsset::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {

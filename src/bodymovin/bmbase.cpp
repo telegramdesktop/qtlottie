@@ -161,10 +161,10 @@ void BMBase::parse(const QJsonObject &definition)
 {
     qCDebug(lcLottieQtBodymovinParser) << "BMBase::parse()";
 
-    m_hidden = definition.value(QLatin1String("hd")).toBool(false);
-    m_name = definition.value(QLatin1String("nm")).toString();
-    m_matchName = definition.value(QLatin1String("mn")).toString();
-    m_autoOrient = definition.value(QLatin1String("ao")).toBool();
+    m_hidden = definition.value(QStringLiteral("hd")).toBool(false);
+    m_name = definition.value(QStringLiteral("nm")).toString();
+    m_matchName = definition.value(QStringLiteral("mn")).toString();
+    m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
 
     if (m_autoOrient)
         qCWarning(lcLottieQtBodymovinParser)

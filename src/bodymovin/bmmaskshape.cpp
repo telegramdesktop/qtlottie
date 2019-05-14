@@ -61,9 +61,9 @@ void BMMaskShape::parse(const QJsonObject &definition)
 
 	BMBase::parse(definition);
 
-	m_inverted = definition.value(QLatin1String("inv")).toBool();
+	m_inverted = definition.value(QStringLiteral("inv")).toBool();
 
-	QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
+	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
 	if (opacity.isEmpty()) {
 		m_opacity.setValue(100.);
 	} else {
@@ -74,20 +74,20 @@ void BMMaskShape::parse(const QJsonObject &definition)
 		qCWarning(lcLottieQtBodymovinParser) << "Transparent mask shapes are not supported.";
 	}
 
-	QString mode = definition.value(QLatin1String("mode")).toVariant().toString();
-	if (mode == QLatin1String("a")) {
+	QString mode = definition.value(QStringLiteral("mode")).toVariant().toString();
+	if (mode == QStringLiteral("a")) {
 		m_mode = Mode::Additive;
-	} else if (mode == QLatin1String("i")) {
+	} else if (mode == QStringLiteral("i")) {
 		m_mode = Mode::Intersect;
 	} else {
 		qCWarning(lcLottieQtBodymovinParser) << "Unsupported mask mode.";
 	}
 
-    QJsonObject vertexObj = definition.value(QLatin1String("pt")).toObject();
-    if (vertexObj.value(QLatin1String("a")).toInt())
+    QJsonObject vertexObj = definition.value(QStringLiteral("pt")).toObject();
+    if (vertexObj.value(QStringLiteral("a")).toInt())
         parseShapeKeyframes(vertexObj);
     else
-        buildShape(vertexObj.value(QLatin1String("k")).toObject());
+        buildShape(vertexObj.value(QStringLiteral("k")).toObject());
 }
 
 void BMMaskShape::updateProperties(int frame)
@@ -97,7 +97,7 @@ void BMMaskShape::updateProperties(int frame)
         QJsonObject keyframe = m_vertexMap.value(frame);
         // If this frame is a keyframe, so values must be updated
         if (!keyframe.isEmpty())
-            buildShape(keyframe.value(QLatin1String("s")).toArray().at(0).toObject());
+            buildShape(keyframe.value(QStringLiteral("s")).toArray().at(0).toObject());
     } else {
         for (int i =0; i < m_vertexList.count(); i++) {
             VertexInfo vi = m_vertexList.at(i);
@@ -125,13 +125,13 @@ bool BMMaskShape::inverted() const {
 
 void BMMaskShape::parseShapeKeyframes(QJsonObject &keyframes)
 {
-    QJsonArray vertexKeyframes = keyframes.value(QLatin1String("k")).toArray();
+    QJsonArray vertexKeyframes = keyframes.value(QStringLiteral("k")).toArray();
     for (int i = 0; i < vertexKeyframes.count(); i++) {
         QJsonObject keyframe = vertexKeyframes.at(i).toObject();
-        if (keyframe.value(QLatin1String("h")).toInt()) {
-            m_vertexMap.insert(keyframe.value(QLatin1String("t")).toVariant().toInt(), keyframe);
+        if (keyframe.value(QStringLiteral("h")).toInt()) {
+            m_vertexMap.insert(keyframe.value(QStringLiteral("t")).toVariant().toInt(), keyframe);
         } else
-            parseEasedVertices(keyframe, keyframe.value(QLatin1String("t")).toVariant().toInt());
+            parseEasedVertices(keyframe, keyframe.value(QStringLiteral("t")).toVariant().toInt());
     }
     if (m_vertexInfos.count())
         finalizeVertices();
@@ -139,10 +139,10 @@ void BMMaskShape::parseShapeKeyframes(QJsonObject &keyframes)
 
 void BMMaskShape::buildShape(const QJsonObject &shape)
 {
-    bool needToClose = shape.value(QLatin1String("c")).toBool();
-    QJsonArray bezierIn = shape.value(QLatin1String("i")).toArray();
-    QJsonArray bezierOut = shape.value(QLatin1String("o")).toArray();
-    QJsonArray vertices = shape.value(QLatin1String("v")).toArray();
+    bool needToClose = shape.value(QStringLiteral("c")).toBool();
+    QJsonArray bezierIn = shape.value(QStringLiteral("i")).toArray();
+    QJsonArray bezierOut = shape.value(QStringLiteral("o")).toArray();
+    QJsonArray vertices = shape.value(QStringLiteral("v")).toArray();
 
     // If there are less than two vertices, cannot make a bezier curve
     if (vertices.count() < 2)
@@ -251,18 +251,18 @@ void BMMaskShape::buildShape(int frame)
 
 void BMMaskShape::parseEasedVertices(const QJsonObject &keyframe, int startFrame)
 {
-    QJsonObject startValue = keyframe.value(QLatin1String("s")).toArray().at(0).toObject();
-    QJsonObject endValue = keyframe.value(QLatin1String("e")).toArray().at(0).toObject();
-    bool closedPathAtStart = keyframe.value(QLatin1String("s")).toArray().at(0).toObject().value(QLatin1String("c")).toBool();
-    //bool closedPathAtEnd = keyframe.value(QLatin1String("e")).toArray().at(0).toObject().value(QLatin1String("c")).toBool();
-    QJsonArray startVertices = startValue.value(QLatin1String("v")).toArray();
-    QJsonArray startBezierIn = startValue.value(QLatin1String("i")).toArray();
-    QJsonArray startBezierOut = startValue.value(QLatin1String("o")).toArray();
-    QJsonArray endVertices = endValue.value(QLatin1String("v")).toArray();
-    QJsonArray endBezierIn = endValue.value(QLatin1String("i")).toArray();
-    QJsonArray endBezierOut = endValue.value(QLatin1String("o")).toArray();
-    QJsonObject easingIn = keyframe.value(QLatin1String("i")).toObject();
-    QJsonObject easingOut = keyframe.value(QLatin1String("o")).toObject();
+    QJsonObject startValue = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject();
+    QJsonObject endValue = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject();
+    bool closedPathAtStart = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
+    //bool closedPathAtEnd = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
+    QJsonArray startVertices = startValue.value(QStringLiteral("v")).toArray();
+    QJsonArray startBezierIn = startValue.value(QStringLiteral("i")).toArray();
+    QJsonArray startBezierOut = startValue.value(QStringLiteral("o")).toArray();
+    QJsonArray endVertices = endValue.value(QStringLiteral("v")).toArray();
+    QJsonArray endBezierIn = endValue.value(QStringLiteral("i")).toArray();
+    QJsonArray endBezierOut = endValue.value(QStringLiteral("o")).toArray();
+    QJsonObject easingIn = keyframe.value(QStringLiteral("i")).toObject();
+    QJsonObject easingOut = keyframe.value(QStringLiteral("o")).toObject();
 
     // if there are no vertices for this keyframe, they keyframe
     // is the last one, and it must be processed differently
@@ -301,15 +301,15 @@ void BMMaskShape::parseEasedVertices(const QJsonObject &keyframe, int startFrame
                 m_vertexInfos.insert(i, buildInfo);
             }
             QJsonObject posKf;
-            posKf.insert(QLatin1String("t"), startFrame);
+            posKf.insert(QStringLiteral("t"), startFrame);
             buildInfo->posKeyframes.push_back(posKf);
 
             QJsonObject ciKf;
-            ciKf.insert(QLatin1String("t"), startFrame);
+            ciKf.insert(QStringLiteral("t"), startFrame);
             buildInfo->ciKeyframes.push_back(ciKf);
 
             QJsonObject coKf;
-            coKf.insert(QLatin1String("t"), startFrame);
+            coKf.insert(QStringLiteral("t"), startFrame);
             buildInfo->coKeyframes.push_back(coKf);
 
             m_closedShape.insert(startFrame, false);
@@ -322,16 +322,16 @@ void BMMaskShape::finalizeVertices()
 
     for (int i = 0; i < m_vertexInfos.count(); i++) {
         QJsonObject posObj;
-        posObj.insert(QLatin1String("a"), 1);
-        posObj.insert(QLatin1String("k"), m_vertexInfos.value(i)->posKeyframes);
+        posObj.insert(QStringLiteral("a"), 1);
+        posObj.insert(QStringLiteral("k"), m_vertexInfos.value(i)->posKeyframes);
 
         QJsonObject ciObj;
-        ciObj.insert(QLatin1String("a"), 1);
-        ciObj.insert(QLatin1String("k"), m_vertexInfos.value(i)->ciKeyframes);
+        ciObj.insert(QStringLiteral("a"), 1);
+        ciObj.insert(QStringLiteral("k"), m_vertexInfos.value(i)->ciKeyframes);
 
         QJsonObject coObj;
-        coObj.insert(QLatin1String("a"), 1);
-        coObj.insert(QLatin1String("k"), m_vertexInfos.value(i)->coKeyframes);
+        coObj.insert(QStringLiteral("a"), 1);
+        coObj.insert(QStringLiteral("k"), m_vertexInfos.value(i)->coKeyframes);
 
         VertexInfo vertexInfo;
         vertexInfo.pos.construct(posObj);
@@ -347,11 +347,11 @@ QJsonObject BMMaskShape::createKeyframe(QJsonArray startValue, QJsonArray endVal
                                             QJsonObject easingOut)
 {
     QJsonObject keyframe;
-    keyframe.insert(QLatin1String("t"), startFrame);
-    keyframe.insert(QLatin1String("s"), startValue);
-    keyframe.insert(QLatin1String("e"), endValue);
-    keyframe.insert(QLatin1String("i"), easingIn);
-    keyframe.insert(QLatin1String("o"), easingOut);
+    keyframe.insert(QStringLiteral("t"), startFrame);
+    keyframe.insert(QStringLiteral("s"), startValue);
+    keyframe.insert(QStringLiteral("e"), endValue);
+    keyframe.insert(QStringLiteral("i"), easingIn);
+    keyframe.insert(QStringLiteral("o"), easingOut);
     return keyframe;
 }
 

@@ -67,32 +67,32 @@ void BMBasicTransform::parse(const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser)
             << "BMBasicTransform::construct():" << m_name;
 
-    QJsonObject anchors = definition.value(QLatin1String("a")).toObject();
+    QJsonObject anchors = definition.value(QStringLiteral("a")).toObject();
     m_anchorPoint.construct(anchors);
 
-    if (definition.value(QLatin1String("p")).toObject().contains(QLatin1String("s"))) {
-        QJsonObject posX = definition.value(QLatin1String("p")).toObject().value(QLatin1String("x")).toObject();
+    if (definition.value(QStringLiteral("p")).toObject().contains(QStringLiteral("s"))) {
+        QJsonObject posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
         m_xPos.construct(posX);
 
-        QJsonObject posY = definition.value(QLatin1String("p")).toObject().value(QLatin1String("y")).toObject();
+        QJsonObject posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
         m_yPos.construct(posY);
 
         m_splitPosition = true;
     } else {
-        QJsonObject position = definition.value(QLatin1String("p")).toObject();
+        QJsonObject position = definition.value(QStringLiteral("p")).toObject();
         m_position.construct(position);
     }
 
-    QJsonObject scale = definition.value(QLatin1String("s")).toObject();
+    QJsonObject scale = definition.value(QStringLiteral("s")).toObject();
     m_scale.construct(scale);
 
-    QJsonObject rotation = definition.value(QLatin1String("r")).toObject();
+    QJsonObject rotation = definition.value(QStringLiteral("r")).toObject();
     m_rotation.construct(rotation);
 
     // If this is the base class for BMRepeaterTransform,
     // opacity is not present
-    if (definition.contains(QLatin1String("o"))) {
-        QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
+    if (definition.contains(QStringLiteral("o"))) {
+        QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
         m_opacity.construct(opacity);
     }
 }

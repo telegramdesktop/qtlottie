@@ -63,7 +63,7 @@ BMPreCompLayer::BMPreCompLayer(BMBase *parent, const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMPreCompLayer::BMPreCompLayer()"
                                        << m_name;
 
-    m_refId = definition.value(QLatin1String("refId")).toString();
+    m_refId = definition.value(QStringLiteral("refId")).toString();
 }
 
 BMPreCompLayer::~BMPreCompLayer()

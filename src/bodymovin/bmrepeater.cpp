@@ -55,13 +55,13 @@ void BMRepeater::parse(const QJsonObject &definition)
     if (m_hidden)
         return;
 
-    QJsonObject copies = definition.value(QLatin1String("c")).toObject();
+    QJsonObject copies = definition.value(QStringLiteral("c")).toObject();
     m_copies.construct(copies);
 
-    QJsonObject offset = definition.value(QLatin1String("o")).toObject();
+    QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
     m_offset.construct(offset);
 
-    m_transform.parse(definition.value(QLatin1String("tr")).toObject());
+    m_transform.parse(definition.value(QStringLiteral("tr")).toObject());
 }
 
 void BMRepeater::updateProperties(int frame)

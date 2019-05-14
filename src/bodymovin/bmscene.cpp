@@ -77,25 +77,25 @@ void BMScene::parse(const QJsonObject &definition)
 {
 	_parsing = true;
 
-	_startFrame = definition.value(QLatin1String("ip")).toVariant().toInt();
-	_endFrame = definition.value(QLatin1String("op")).toVariant().toInt();
-	_frameRate = definition.value(QLatin1String("fr")).toVariant().toInt();
-	_width = definition.value(QLatin1String("w")).toVariant().toInt();
-	_height = definition.value(QLatin1String("h")).toVariant().toInt();
+	_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
+	_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
+	_frameRate = definition.value(QStringLiteral("fr")).toVariant().toInt();
+	_width = definition.value(QStringLiteral("w")).toVariant().toInt();
+	_height = definition.value(QStringLiteral("h")).toVariant().toInt();
 
-	const auto markers = definition.value(QLatin1String("markers")).toArray();
+	const auto markers = definition.value(QStringLiteral("markers")).toArray();
 	for (const auto &entry : markers) {
 		const auto object = entry.toObject();
-		const auto name = object.value(QLatin1String("cm")).toString();
-		const auto frame = object.value(QLatin1String("tm")).toInt();
+		const auto name = object.value(QStringLiteral("cm")).toString();
+		const auto frame = object.value(QStringLiteral("tm")).toInt();
 		_markers.insert(name, frame);
 
-		if (object.value(QLatin1String("dr")).toInt()) {
+		if (object.value(QStringLiteral("dr")).toInt()) {
 			_unsupported = true;
 		}
 	}
 
-	const auto assets = definition.value(QLatin1String("assets")).toArray();
+	const auto assets = definition.value(QStringLiteral("assets")).toArray();
 	for (const auto &entry : assets) {
 		if (const auto asset = BMAsset::construct(this, entry.toObject())) {
 			_assetIndexById.insert(asset->id(), _assets.size());
@@ -105,12 +105,12 @@ void BMScene::parse(const QJsonObject &definition)
 		}
 	}
 
-	if (definition.value(QLatin1String("chars")).toArray().count()) {
+	if (definition.value(QStringLiteral("chars")).toArray().count()) {
 		_unsupported = true;
 	}
 
 	_blueprint = std::make_unique<BMBase>(this);
-	const auto layers = definition.value(QLatin1String("layers")).toArray();
+	const auto layers = definition.value(QStringLiteral("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
 		if (const auto layer = BMLayer::construct(_blueprint.get(), entry.toObject())) {

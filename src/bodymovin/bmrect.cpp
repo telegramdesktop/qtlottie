@@ -57,16 +57,16 @@ BMRect::BMRect(BMBase *parent, const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMRect::BMRect():" << m_name;
 
-    QJsonObject position = definition.value(QLatin1String("p")).toObject();
+    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
     m_position.construct(position);
 
-    QJsonObject size = definition.value(QLatin1String("s")).toObject();
+    QJsonObject size = definition.value(QStringLiteral("s")).toObject();
     m_size.construct(size);
 
-    QJsonObject roundness = definition.value(QLatin1String("r")).toObject();
+    QJsonObject roundness = definition.value(QStringLiteral("r")).toObject();
     m_roundness.construct(roundness);
 
-    m_direction = definition.value(QLatin1String("d")).toInt();
+    m_direction = definition.value(QStringLiteral("d")).toInt();
 }
 
 

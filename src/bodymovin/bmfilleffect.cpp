@@ -59,29 +59,29 @@ void BMFillEffect::parse(const QJsonObject &definition)
 {
     m_type = BM_EFFECT_FILL;
 
-    if (!definition.value(QLatin1String("hd")).toBool(true))
+    if (!definition.value(QStringLiteral("hd")).toBool(true))
         return;
 
-    QJsonArray properties = definition.value(QLatin1String("ef")).toArray();
+    QJsonArray properties = definition.value(QStringLiteral("ef")).toArray();
 
     // TODO: Check are property positions really fixed in the effect?
 
-    m_color.construct(properties.at(2).toObject().value(QLatin1String("v")).toObject());
-    m_opacity.construct(properties.at(6).toObject().value(QLatin1String("v")).toObject());
+    m_color.construct(properties.at(2).toObject().value(QStringLiteral("v")).toObject());
+    m_opacity.construct(properties.at(6).toObject().value(QStringLiteral("v")).toObject());
 
-    if (!qFuzzyCompare(properties.at(0).toObject().value(QLatin1String("v")).toObject().value(QLatin1String("k")).toDouble(), 0.0))
+    if (!qFuzzyCompare(properties.at(0).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
         qCWarning(lcLottieQtBodymovinParser)<< "BMFillEffect: Property 'Fill mask' not supported";
 
-    if (!qFuzzyCompare(properties.at(1).toObject().value(QLatin1String("v")).toObject().value(QLatin1String("k")).toDouble(), 0.0))
+    if (!qFuzzyCompare(properties.at(1).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
         qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'All masks' not supported";
 
-    if (!qFuzzyCompare(properties.at(3).toObject().value(QLatin1String("v")).toObject().value(QLatin1String("k")).toDouble(), 0.0))
+    if (!qFuzzyCompare(properties.at(3).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
         qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Invert' not supported";
 
-    if (!qFuzzyCompare(properties.at(4).toObject().value(QLatin1String("v")).toObject().value(QLatin1String("k")).toDouble(), 0.0))
+    if (!qFuzzyCompare(properties.at(4).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
         qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Horizontal feather' not supported";
 
-    if (!qFuzzyCompare(properties.at(5).toObject().value(QLatin1String("v")).toObject().value(QLatin1String("k")).toDouble(), 0.0))
+    if (!qFuzzyCompare(properties.at(5).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
         qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Vertical feather' not supported";
 
 }

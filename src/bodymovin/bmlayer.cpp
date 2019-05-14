@@ -86,7 +86,7 @@ BMLayer *BMLayer::construct(BMBase *parent, QJsonObject definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMLayer::construct()";
 
     BMLayer *layer = nullptr;
-    int type = definition.value(QLatin1String("ty")).toInt();
+    int type = definition.value(QStringLiteral("ty")).toInt();
     switch (type) {
     case 4:
         qCDebug(lcLottieQtBodymovinParser) << "Parse shape layer";
@@ -117,30 +117,30 @@ void BMLayer::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMLayer::parse():" << m_name;
 
-    m_layerIndex = definition.value(QLatin1String("ind")).toVariant().toInt();
-    m_startFrame = definition.value(QLatin1String("ip")).toVariant().toInt();
-    m_endFrame = definition.value(QLatin1String("op")).toVariant().toInt();
-    m_startTime = definition.value(QLatin1String("st")).toVariant().toReal();
-    m_blendMode = definition.value(QLatin1String("bm")).toVariant().toInt();
-    m_autoOrient = definition.value(QLatin1String("ao")).toBool();
-    m_3dLayer = definition.value(QLatin1String("ddd")).toBool();
-    m_stretch = definition.value(QLatin1String("sr")).toVariant().toReal();
-    m_parentLayer = definition.value(QLatin1String("parent")).toVariant().toInt();
-    m_td = definition.value(QLatin1String("td")).toInt();
-    int clipMode = definition.value(QLatin1String("tt")).toInt(-1);
+    m_layerIndex = definition.value(QStringLiteral("ind")).toVariant().toInt();
+    m_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
+    m_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
+    m_startTime = definition.value(QStringLiteral("st")).toVariant().toReal();
+    m_blendMode = definition.value(QStringLiteral("bm")).toVariant().toInt();
+    m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
+    m_3dLayer = definition.value(QStringLiteral("ddd")).toBool();
+    m_stretch = definition.value(QStringLiteral("sr")).toVariant().toReal();
+    m_parentLayer = definition.value(QStringLiteral("parent")).toVariant().toInt();
+    m_td = definition.value(QStringLiteral("td")).toInt();
+    int clipMode = definition.value(QStringLiteral("tt")).toInt(-1);
     if (clipMode > -1 && clipMode < 5)
         m_clipMode = static_cast<MatteClipMode>(clipMode);
 
-    QJsonObject trans = definition.value(QLatin1String("ks")).toObject();
+    QJsonObject trans = definition.value(QStringLiteral("ks")).toObject();
 	m_layerTransform.parse(trans);
 
     if (m_hidden)
         return;
 
-    QJsonArray maskProps = definition.value(QLatin1String("masksProperties")).toArray();
+    QJsonArray maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
     parseMasks(maskProps);
 
-    QJsonArray effects = definition.value(QLatin1String("ef")).toArray();
+    QJsonArray effects = definition.value(QStringLiteral("ef")).toArray();
     parseEffects(effects);
 
     if (m_td > 1)
@@ -271,7 +271,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
         }
         it--;
         QJsonObject effect = (*it).toObject();
-        int type = effect.value(QLatin1String("ty")).toInt();
+        int type = effect.value(QStringLiteral("ty")).toInt();
         switch (type) {
         case 0:
         {
@@ -282,11 +282,11 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
         }
         case 5:
         {
-            if (effect.value(QLatin1String("en")).toInt()) {
+            if (effect.value(QStringLiteral("en")).toInt()) {
                 BMBase *group = new BMBase(effectRoot);
                 group->parse(effect);
                 effectRoot->appendChild(group);
-                parseEffects(effect.value(QLatin1String("ef")).toArray(), group);
+                parseEffects(effect.value(QStringLiteral("ef")).toArray(), group);
             }
             break;
         }
@@ -307,7 +307,7 @@ void BMLayer::parseMasks(const QJsonArray &definition) {
     QJsonArray::const_iterator it = definition.constBegin();
     while (it != definition.constEnd()) {
         QJsonObject mask = (*it).toObject();
-        if (mask.value(QLatin1String("mode")).toString() != QLatin1String("n")) {
+        if (mask.value(QStringLiteral("mode")).toString() != QStringLiteral("n")) {
             if (!m_masks) m_masks = new BMMasks(this);
             m_masks->appendChild(new BMMaskShape(m_masks, mask));
         }

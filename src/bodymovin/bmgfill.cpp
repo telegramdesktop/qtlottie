@@ -75,7 +75,7 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMGFill::construct():" << m_name;
 
-    int type = definition.value(QLatin1String("t")).toVariant().toInt();
+    int type = definition.value(QStringLiteral("t")).toVariant().toInt();
     switch (type) {
     case 1:
         m_gradient = new QLinearGradient;
@@ -87,9 +87,9 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
         qCWarning(lcLottieQtBodymovinParser) << "Unknown gradient fill type";
     }
 
-    QJsonObject color = definition.value(QLatin1String("g")).toObject();
-    QJsonArray colorArr = color.value(QLatin1String("k")).toObject().value(QLatin1String("k")).toArray();
-    int elementCount = color.value(QLatin1String("p")).toInt();
+    QJsonObject color = definition.value(QStringLiteral("g")).toObject();
+    QJsonArray colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
+    int elementCount = color.value(QStringLiteral("p")).toInt();
     for (int i = 0; i < (elementCount) * 4; i += 4) {
         // p denotes the color stop percentage
         QVector4D colorVec;
@@ -103,19 +103,19 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
         m_colors.push_back(colorPos);
     }
 
-    QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
+    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
     m_opacity.construct(opacity);
 
-    QJsonObject startPoint = definition.value(QLatin1String("s")).toObject();
+    QJsonObject startPoint = definition.value(QStringLiteral("s")).toObject();
     m_startPoint.construct(startPoint);
 
-    QJsonObject endPoint = definition.value(QLatin1String("e")).toObject();
+    QJsonObject endPoint = definition.value(QStringLiteral("e")).toObject();
     m_endPoint.construct(endPoint);
 
-    QJsonObject highlight = definition.value(QLatin1String("h")).toObject();
+    QJsonObject highlight = definition.value(QStringLiteral("h")).toObject();
     m_highlightLength.construct(highlight);
 
-    QJsonObject angle = definition.value(QLatin1String("a")).toObject();
+    QJsonObject angle = definition.value(QStringLiteral("a")).toObject();
     m_highlightAngle.construct(angle);
 
     m_highlightAngle.setValue(0.0);

@@ -57,7 +57,7 @@ BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
 	qCDebug(lcLottieQtBodymovinParser) << "BMPreCompAsset::BMPreCompAsset()"
 		<< m_name;
 
-	QJsonArray layers = definition.value(QLatin1String("layers")).toArray();
+	QJsonArray layers = definition.value(QStringLiteral("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
 		if (const auto layer = BMLayer::construct(this, entry.toObject())) {

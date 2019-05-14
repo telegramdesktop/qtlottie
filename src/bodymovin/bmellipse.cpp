@@ -64,13 +64,13 @@ void BMEllipse::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMEllipse::construct():" << m_name;
 
-    QJsonObject position = definition.value(QLatin1String("p")).toObject();
+    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
     m_position.construct(position);
 
-    QJsonObject size = definition.value(QLatin1String("s")).toObject();
+    QJsonObject size = definition.value(QStringLiteral("s")).toObject();
     m_size.construct(size);
 
-    m_direction = definition.value(QLatin1String("d")).toInt();
+    m_direction = definition.value(QStringLiteral("d")).toInt();
 }
 
 bool BMEllipse::acceptsTrim() const

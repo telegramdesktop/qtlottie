@@ -62,10 +62,10 @@ void BMRound::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMRound::construct():" << m_name;
 
-    QJsonObject position = definition.value(QLatin1String("p")).toObject();
+    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
     m_position.construct(position);
 
-    QJsonObject radius = definition.value(QLatin1String("r")).toObject();
+    QJsonObject radius = definition.value(QStringLiteral("r")).toObject();
     m_radius.construct(radius);
 }
 

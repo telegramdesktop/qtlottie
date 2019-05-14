@@ -68,18 +68,18 @@ void BMTrimPath::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMTrimPath::construct():" << m_name;
 
-    QJsonObject start = definition.value(QLatin1String("s")).toObject();
+    QJsonObject start = definition.value(QStringLiteral("s")).toObject();
     m_start.construct(start);
 
-    QJsonObject end = definition.value(QLatin1String("e")).toObject();
+    QJsonObject end = definition.value(QStringLiteral("e")).toObject();
     m_end.construct(end);
 
-    QJsonObject offset = definition.value(QLatin1String("o")).toObject();
+    QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
     m_offset.construct(offset);
 
     int simultaneous = true;
-    if (definition.contains(QLatin1String("m"))) {
-        simultaneous = definition.value(QLatin1String("m")).toInt();
+    if (definition.contains(QStringLiteral("m"))) {
+        simultaneous = definition.value(QStringLiteral("m")).toInt();
     }
     m_simultaneous = (simultaneous == 1);
 

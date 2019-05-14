@@ -48,10 +48,10 @@ BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMFill::construct():" << m_name;
 
-    QJsonObject color = definition.value(QLatin1String("c")).toObject();
+    QJsonObject color = definition.value(QStringLiteral("c")).toObject();
     m_color.construct(color);
 
-    QJsonObject opacity = definition.value(QLatin1String("o")).toObject();
+    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
     m_opacity.construct(opacity);
 }
 

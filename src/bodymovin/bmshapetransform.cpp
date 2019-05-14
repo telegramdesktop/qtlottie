@@ -60,10 +60,10 @@ void BMShapeTransform::parse(const QJsonObject &definition)
 
     qCDebug(lcLottieQtBodymovinParser) << "BMShapeTransform::construct():" << BMShape::name();
 
-    QJsonObject skew = definition.value(QLatin1String("sk")).toObject();
+    QJsonObject skew = definition.value(QStringLiteral("sk")).toObject();
     m_skew.construct(skew);
 
-    QJsonObject skewAxis = definition.value(QLatin1String("sa")).toObject();
+    QJsonObject skewAxis = definition.value(QStringLiteral("sa")).toObject();
     m_skewAxis.construct(skewAxis);
 }
 

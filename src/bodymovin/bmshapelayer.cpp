@@ -63,7 +63,7 @@ BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
     qCDebug(lcLottieQtBodymovinParser) << "BMShapeLayer::BMShapeLayer()"
                                        << m_name;
 
-    QJsonArray items = definition.value(QLatin1String("shapes")).toArray();
+    QJsonArray items = definition.value(QStringLiteral("shapes")).toArray();
     QJsonArray::const_iterator itemIt = items.constEnd();
     while (itemIt != items.constBegin()) {
         itemIt--;
