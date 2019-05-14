@@ -72,16 +72,6 @@ QString BMBase::name() const
     return m_name;
 }
 
-bool BMBase::setProperty(BMLiteral::PropertyType propertyName, QVariant value)
-{
-    for (BMBase *child : qAsConst(m_children)) {
-        bool changed = child->setProperty(propertyName, value);
-        if (changed)
-            return true;
-    }
-    return false;
-}
-
 int BMBase::type() const
 {
     return m_type;

@@ -75,19 +75,6 @@ BMBase *BMRect::clone(BMBase *parent) const
     return new BMRect(parent, *this);
 }
 
-bool BMRect::setProperty(BMLiteral::PropertyType propertyType, QVariant value)
-{
-    switch (propertyType) {
-    case BMLiteral::RectPosition:
-        qCDebug(lcLottieQtBodymovinParser) << "Set position" << value.toPointF();
-        m_position.setValue(value.toPointF());
-        break;
-    default:
-        return false;
-    }
-    return true;
-}
-
 void BMRect::updateProperties(int frame)
 {
     m_size.update(frame);
