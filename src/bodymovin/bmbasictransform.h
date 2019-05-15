@@ -30,7 +30,6 @@
 
 #include "bmshape.h"
 #include "bmproperty.h"
-#include "bmspatialproperty.h"
 
 #include <QPointF>
 
@@ -60,12 +59,12 @@ public:
 	qreal opacity() const;
 
 protected:
-	BMSpatialProperty m_anchorPoint;
+	BMProperty<QPointF> m_anchorPoint;
 	bool m_splitPosition = false;
-	BMSpatialProperty m_position;
+	BMProperty<QPointF> m_position;
 	BMProperty<qreal> m_xPos;
 	BMProperty<qreal> m_yPos;
-	BMProperty2D<QPointF> m_scale;
+	BMProperty<QPointF> m_scale;
 	BMProperty<qreal> m_rotation;
 	BMProperty<qreal> m_opacity;
 

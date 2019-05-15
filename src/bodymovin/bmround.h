@@ -30,7 +30,6 @@
 
 #include "bmshape.h"
 #include "bmproperty.h"
-#include "bmspatialproperty.h"
 #include "bmfill.h"
 #include "bmstroke.h"
 
@@ -61,7 +60,7 @@ public:
 	qreal radius() const;
 
 protected:
-	BMSpatialProperty m_position;
+	BMProperty<QPointF> m_position;
 	BMProperty<qreal> m_radius;
 
 };

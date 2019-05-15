@@ -97,7 +97,7 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 		colorVec[2] = colorArr[i + 3].toVariant().toFloat();
 		// Set gradient stop position into w of the vector
 		colorVec[3] = colorArr[i + 0].toVariant().toFloat();
-		BMProperty4D<QVector4D> colorPos;
+		BMProperty<QVector4D> colorPos;
 		colorPos.setValue(colorVec);
 		m_colors.push_back(colorPos);
 	}
@@ -132,7 +132,7 @@ void BMGFill::updateProperties(int frame) {
 	m_highlightLength.update(frame);
 	m_highlightAngle.update(frame);
 	m_opacity.update(frame);
-	QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
+	QList<BMProperty<QVector4D>>::iterator colorIt = m_colors.begin();
 	while (colorIt != m_colors.end()) {
 		(*colorIt).update(frame);
 		++colorIt;
@@ -178,7 +178,7 @@ qreal BMGFill::opacity() const {
 }
 
 void BMGFill::setGradient() {
-	QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
+	QList<BMProperty<QVector4D>>::iterator colorIt = m_colors.begin();
 	while (colorIt != m_colors.end()) {
 		QVector4D colorPos = (*colorIt).value();
 		QColor color;

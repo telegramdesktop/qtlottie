@@ -57,7 +57,7 @@ public:
 	qreal opacity() const;
 
 protected:
-	BMProperty4D<QVector4D> m_color;
+	BMProperty<QVector4D> m_color;
 	BMProperty<qreal> m_opacity;
 
 };

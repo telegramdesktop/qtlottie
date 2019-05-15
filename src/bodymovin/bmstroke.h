@@ -56,7 +56,7 @@ protected:
 protected:
 	BMProperty<qreal> m_opacity;
 	BMProperty<qreal> m_width;
-	BMProperty4D<QVector4D> m_color;
+	BMProperty<QVector4D> m_color;
 	Qt::PenCapStyle m_capStyle;
 	Qt::PenJoinStyle m_joinStyle;
 	qreal m_miterLimit = 0.;

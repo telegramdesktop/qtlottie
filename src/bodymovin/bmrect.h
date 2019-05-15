@@ -30,7 +30,6 @@
 
 #include "bmshape.h"
 #include "bmproperty.h"
-#include "bmspatialproperty.h"
 #include "bmfill.h"
 #include "bmstroke.h"
 
@@ -58,8 +57,8 @@ public:
 	qreal roundness() const;
 
 protected:
-	BMSpatialProperty m_position;
-	BMProperty2D<QSizeF> m_size;
+	BMProperty<QPointF> m_position;
+	BMProperty<QSizeF> m_size;
 	BMProperty<qreal> m_roundness;
 
 };

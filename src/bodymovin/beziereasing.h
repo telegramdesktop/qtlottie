@@ -34,10 +34,12 @@ namespace Lottie {
 
 class BezierEasing {
 public:
-	void addCubicBezierSegment(
+	void set(
+		const QPointF &startPoint,
 		const QPointF &c1,
 		const QPointF &c2,
 		const QPointF &endPoint);
+	bool isHold() const;
 	qreal valueForProgress(qreal progress) const;
 
 private:

@@ -58,9 +58,9 @@ public:
 
 protected:
 	struct VertexInfo {
-		BMProperty2D<QPointF> pos;
-		BMProperty2D<QPointF> ci;
-		BMProperty2D<QPointF> co;
+		BMProperty<QPointF> pos;
+		BMProperty<QPointF> ci;
+		BMProperty<QPointF> co;
 	};
 
 	void parseShapeKeyframes(QJsonObject &keyframes);

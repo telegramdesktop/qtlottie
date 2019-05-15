@@ -30,11 +30,16 @@
 
 namespace Lottie {
 
-void BezierEasing::addCubicBezierSegment(
+void BezierEasing::set(
+		const QPointF &startPoint,
 		const QPointF &c1,
 		const QPointF &c2,
 		const QPointF &endPoint) {
-	mBezier = QBezier::fromPoints(QPointF(0.0, 0.0), c1, c2, endPoint);
+	mBezier = QBezier::fromPoints(startPoint, c1, c2, endPoint);
+}
+
+bool BezierEasing::isHold() const {
+	return (mBezier.y4 == 0.);
 }
 
 qreal BezierEasing::valueForProgress(qreal progress) const {

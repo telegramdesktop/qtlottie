@@ -30,8 +30,6 @@
 
 #include "bmgroup.h"
 #include "bmproperty.h"
-#include "bmproperty.h"
-#include "bmspatialproperty.h"
 
 #include <QVector4D>
 #include <QGradient>
@@ -63,11 +61,11 @@ private:
 
 protected:
 	BMProperty<qreal> m_opacity;
-	BMSpatialProperty m_startPoint;
-	BMSpatialProperty m_endPoint;
+	BMProperty<QPointF> m_startPoint;
+	BMProperty<QPointF> m_endPoint;
 	BMProperty<qreal> m_highlightLength;
 	BMProperty<qreal> m_highlightAngle;
-	QList<BMProperty4D<QVector4D>> m_colors;
+	QList<BMProperty<QVector4D>> m_colors;
 	QGradient *m_gradient = nullptr;
 
 };
