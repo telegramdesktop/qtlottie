@@ -26,23 +26,18 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmshapelayer.h"
 
-#include "bmshapelayer_p.h"
+#include "bmconstants.h"
+#include "bmbase.h"
+#include "bmshape.h"
+#include "bmtrimpath.h"
+#include "bmbasictransform.h"
+#include "bmmasks.h"
+#include "lottierenderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
-
-
-#include "bmconstants_p.h"
-#include "bmbase_p.h"
-#include "bmshape_p.h"
-#include "bmtrimpath_p.h"
-#include "bmbasictransform_p.h"
-#include "lottierenderer_p.h"
-
-#include "bmmasks_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMShapeLayer::BMShapeLayer(BMBase *parent) : BMLayer(parent) {
 }
@@ -54,88 +49,91 @@ BMShapeLayer::BMShapeLayer(BMBase *parent, const BMShapeLayer &other)
 
 BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
 : BMLayer(parent) {
-    m_type = BM_LAYER_SHAPE_IX;
+	m_type = BM_LAYER_SHAPE_IX;
 
-    BMLayer::parse(definition);
-    if (m_hidden)
-        return;
+	BMLayer::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMShapeLayer::BMShapeLayer()"
-                                       << m_name;
-
-    QJsonArray items = definition.value(QStringLiteral("shapes")).toArray();
-    QJsonArray::const_iterator itemIt = items.constEnd();
-    while (itemIt != items.constBegin()) {
-        itemIt--;
-        BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
-        if (shape)
-            appendChild(shape);
-    }
+	QJsonArray items = definition.value(QStringLiteral("shapes")).toArray();
+	QJsonArray::const_iterator itemIt = items.constEnd();
+	while (itemIt != items.constBegin()) {
+		itemIt--;
+		BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
+		if (shape) {
+			appendChild(shape);
+		}
+	}
 }
 
 BMShapeLayer::~BMShapeLayer() = default;
 
-BMBase *BMShapeLayer::clone(BMBase *parent) const
-{
-    return new BMShapeLayer(parent, *this);
+BMBase *BMShapeLayer::clone(BMBase *parent) const {
+	return new BMShapeLayer(parent, *this);
 }
 
-void BMShapeLayer::updateProperties(int frame)
-{
-    if (m_updated)
-        return;
+void BMShapeLayer::updateProperties(int frame) {
+	if (m_updated) {
+		return;
+	}
 
-    BMLayer::updateProperties(frame);
+	BMLayer::updateProperties(frame);
 
-    for (BMBase *child : children()) {
-        if (!child->active(frame))
-            continue;
+	for (BMBase *child : children()) {
+		if (!child->active(frame)) {
+			continue;
+		}
 
-        BMShape *shape = dynamic_cast<BMShape*>(child);
+		BMShape *shape = dynamic_cast<BMShape*>(child);
 
-        if (!shape)
-            continue;
+		if (!shape) {
+			continue;
+		}
 
-        if (shape->type() == BM_SHAPE_TRIM_IX) {
-            BMTrimPath *trim = static_cast<BMTrimPath*>(shape);
-            if (m_appliedTrim)
-                m_appliedTrim->applyTrim(*trim);
-            else
-                m_appliedTrim = trim;
-        } else if (m_appliedTrim) {
-            if (shape->acceptsTrim())
-                shape->applyTrim(*m_appliedTrim);
-        }
-    }
+		if (shape->type() == BM_SHAPE_TRIM_IX) {
+			BMTrimPath *trim = static_cast<BMTrimPath*>(shape);
+			if (m_appliedTrim) {
+				m_appliedTrim->applyTrim(*trim);
+			} else {
+				m_appliedTrim = trim;
+			}
+		} else if (m_appliedTrim) {
+			if (shape->acceptsTrim()) {
+				shape->applyTrim(*m_appliedTrim);
+			}
+		}
+	}
 }
 
-void BMShapeLayer::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.saveState();
+void BMShapeLayer::render(LottieRenderer &renderer, int frame) const {
+	renderer.saveState();
 
-    renderEffects(renderer, frame);
+	renderEffects(renderer, frame);
 
-    // In case there is a linked layer, apply its transform first
-    // as it affects tranforms of this layer too
-    if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer, frame);
+	// In case there is a linked layer, apply its transform first
+	// as it affects tranforms of this layer too
+	if (BMLayer *ll = linkedLayer()) {
+		ll->renderFullTransform(renderer, frame);
+	}
 
-    renderer.render(*this);
+	renderer.render(*this);
 
-    m_layerTransform.render(renderer, frame);
+	m_layerTransform.render(renderer, frame);
 
-    if (m_masks) {
-        m_masks->render(renderer, frame);
-    }
+	if (m_masks) {
+		m_masks->render(renderer, frame);
+	}
 
-    for (BMBase *child : children())
-        if (child->active(frame))
-            child->render(renderer, frame);
+	for (BMBase *child : children()) {
+		if (child->active(frame)) {
+			child->render(renderer, frame);
+		}
+	}
 
-    if (m_appliedTrim && m_appliedTrim->active(frame))
-        m_appliedTrim->render(renderer, frame);
+	if (m_appliedTrim && m_appliedTrim->active(frame)) {
+		m_appliedTrim->render(renderer, frame);
+	}
 
-    renderer.restoreState();
+	renderer.restoreState();
 }
-
-QT_END_NAMESPACE

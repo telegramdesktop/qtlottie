@@ -26,14 +26,11 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmbasictransform.h"
 
-#include "bmbasictransform_p.h"
+#include "bmconstants.h"
 
 #include <QJsonObject>
-
-#include "bmconstants_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMBasicTransform::BMBasicTransform(BMBase *parent) : BMShape(parent) {
 }
@@ -52,103 +49,90 @@ BMBasicTransform::BMBasicTransform(BMBase *parent, const BMBasicTransform &other
 
 BMBasicTransform::BMBasicTransform(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMBasicTransform::clone(BMBase *parent) const
-{
-    return new BMBasicTransform(parent, *this);
+BMBase *BMBasicTransform::clone(BMBase *parent) const {
+	return new BMBasicTransform(parent, *this);
 }
 
-void BMBasicTransform::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
+void BMBasicTransform::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
 
-    qCDebug(lcLottieQtBodymovinParser)
-            << "BMBasicTransform::construct():" << m_name;
+	QJsonObject anchors = definition.value(QStringLiteral("a")).toObject();
+	m_anchorPoint.construct(anchors);
 
-    QJsonObject anchors = definition.value(QStringLiteral("a")).toObject();
-    m_anchorPoint.construct(anchors);
+	if (definition.value(QStringLiteral("p")).toObject().contains(QStringLiteral("s"))) {
+		QJsonObject posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
+		m_xPos.construct(posX);
 
-    if (definition.value(QStringLiteral("p")).toObject().contains(QStringLiteral("s"))) {
-        QJsonObject posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
-        m_xPos.construct(posX);
+		QJsonObject posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
+		m_yPos.construct(posY);
 
-        QJsonObject posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
-        m_yPos.construct(posY);
+		m_splitPosition = true;
+	} else {
+		QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+		m_position.construct(position);
+	}
 
-        m_splitPosition = true;
-    } else {
-        QJsonObject position = definition.value(QStringLiteral("p")).toObject();
-        m_position.construct(position);
-    }
+	QJsonObject scale = definition.value(QStringLiteral("s")).toObject();
+	m_scale.construct(scale);
 
-    QJsonObject scale = definition.value(QStringLiteral("s")).toObject();
-    m_scale.construct(scale);
+	QJsonObject rotation = definition.value(QStringLiteral("r")).toObject();
+	m_rotation.construct(rotation);
 
-    QJsonObject rotation = definition.value(QStringLiteral("r")).toObject();
-    m_rotation.construct(rotation);
-
-    // If this is the base class for BMRepeaterTransform,
-    // opacity is not present
-    if (definition.contains(QStringLiteral("o"))) {
-        QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
-        m_opacity.construct(opacity);
-    }
+	// If this is the base class for BMRepeaterTransform,
+	// opacity is not present
+	if (definition.contains(QStringLiteral("o"))) {
+		QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+		m_opacity.construct(opacity);
+	}
 }
 
-void BMBasicTransform::updateProperties(int frame)
-{
-    if (m_splitPosition) {
-        m_xPos.update(frame);
-        m_yPos.update(frame);
-    } else
-        m_position.update(frame);
-    m_anchorPoint.update(frame);
-    m_scale.update(frame);
-    m_rotation.update(frame);
-    m_opacity.update(frame);
+void BMBasicTransform::updateProperties(int frame) {
+	if (m_splitPosition) {
+		m_xPos.update(frame);
+		m_yPos.update(frame);
+	} else {
+		m_position.update(frame);
+	}
+	m_anchorPoint.update(frame);
+	m_scale.update(frame);
+	m_rotation.update(frame);
+	m_opacity.update(frame);
 }
 
-void BMBasicTransform::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMBasicTransform::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-void BMBasicTransform::clearOpacity()
-{
+void BMBasicTransform::clearOpacity() {
 	m_opacity = BMProperty<qreal>();
 	m_opacity.setValue(100.);
 }
 
-QPointF BMBasicTransform::anchorPoint() const
-{
-    return m_anchorPoint.value();
+QPointF BMBasicTransform::anchorPoint() const {
+	return m_anchorPoint.value();
 }
 
-QPointF BMBasicTransform::position() const
-{
-    if (m_splitPosition)
-        return QPointF(m_xPos.value(), m_yPos.value());
-    else
-        return m_position.value();
+QPointF BMBasicTransform::position() const {
+	if (m_splitPosition) {
+		return QPointF(m_xPos.value(), m_yPos.value());
+	} else {
+		return m_position.value();
+	}
 }
 
-QPointF BMBasicTransform::scale() const
-{
-    // Scale the value to 0..1 to be suitable for Qt
-    return m_scale.value() / 100.0;
+QPointF BMBasicTransform::scale() const {
+	// Scale the value to 0..1 to be suitable for Qt
+	return m_scale.value() / 100.0;
 }
 
-qreal BMBasicTransform::rotation() const
-{
-    return m_rotation.value();
+qreal BMBasicTransform::rotation() const {
+	return m_rotation.value();
 }
 
-qreal BMBasicTransform::opacity() const
-{
-    // Scale the value to 0..1 to be suitable for Qt
-    return m_opacity.value() / 100.0;
+qreal BMBasicTransform::opacity() const {
+	// Scale the value to 0..1 to be suitable for Qt
+	return m_opacity.value() / 100.0;
 }
-
-QT_END_NAMESPACE

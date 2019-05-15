@@ -26,14 +26,11 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmround.h"
 
-#include "bmround_p.h"
+#include "bmtrimpath.h"
 
 #include <QJsonObject>
-
-#include "bmtrimpath_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMRound::BMRound(BMBase *parent) : BMShape(parent) {
 }
@@ -46,67 +43,59 @@ BMRound::BMRound(BMBase *parent, const BMRound &other)
 
 BMRound::BMRound(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMRound::clone(BMBase *parent) const
-{
-    return new BMRound(parent, *this);
+BMBase *BMRound::clone(BMBase *parent) const {
+	return new BMRound(parent, *this);
 }
 
-void BMRound::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+void BMRound::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMRound::construct():" << m_name;
+	QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+	m_position.construct(position);
 
-    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
-    m_position.construct(position);
-
-    QJsonObject radius = definition.value(QStringLiteral("r")).toObject();
-    m_radius.construct(radius);
+	QJsonObject radius = definition.value(QStringLiteral("r")).toObject();
+	m_radius.construct(radius);
 }
 
-void BMRound::updateProperties(int frame)
-{
-    m_position.update(frame);
-    m_radius.update(frame);
+void BMRound::updateProperties(int frame) {
+	m_position.update(frame);
+	m_radius.update(frame);
 
-    // AE uses center of a shape as it's position,
-    // in Qt a translation is needed
-    QPointF center = QPointF(m_position.value().x() - m_radius.value() / 2,
-                             m_position.value().y() - m_radius.value() / 2);
+	// AE uses center of a shape as it's position,
+	// in Qt a translation is needed
+	QPointF center = QPointF(
+		m_position.value().x() - m_radius.value() / 2,
+		m_position.value().y() - m_radius.value() / 2);
 
-    m_path = QPainterPath();
-    m_path.arcMoveTo(QRectF(center,
-                            QSizeF(m_radius.value(), m_radius.value())), 90);
-    m_path.arcTo(QRectF(center,
-                        QSizeF(m_radius.value(), m_radius.value())), 90, -360);
+	m_path = QPainterPath();
+	m_path.arcMoveTo(
+		QRectF(center, QSizeF(m_radius.value(), m_radius.value())), 90);
+	m_path.arcTo(
+		QRectF(center, QSizeF(m_radius.value(), m_radius.value())), 90, -360);
 
-    if (m_direction)
-        m_path = m_path.toReversed();
+	if (m_direction) {
+		m_path = m_path.toReversed();
+	}
 }
 
-void BMRound::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMRound::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-bool BMRound::acceptsTrim() const
-{
-    return true;
+bool BMRound::acceptsTrim() const {
+	return true;
 }
 
-QPointF BMRound::position() const
-{
-    return m_position.value();
+QPointF BMRound::position() const {
+	return m_position.value();
 }
 
-qreal BMRound::radius() const
-{
-    return m_radius.value();
+qreal BMRound::radius() const {
+	return m_radius.value();
 }
-
-QT_END_NAMESPACE

@@ -27,16 +27,13 @@
 **
 ****************************************************************************/
 
-#include "bmasset_p.h"
+#include "bmasset.h"
+
+#include "bmprecompasset.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QLoggingCategory>
-
-#include "bmprecompasset_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMAsset::BMAsset(BMBase *parent) : BMBase(parent) {
 }
@@ -47,44 +44,35 @@ BMAsset::BMAsset(BMBase *parent, const BMAsset &other)
 , m_resolved(other.m_resolved) {
 }
 
-BMAsset *BMAsset::clone(BMBase *parent) const
-{
-    return new BMAsset(parent, *this);
+BMAsset *BMAsset::clone(BMBase *parent) const {
+	return new BMAsset(parent, *this);
 }
 
-BMAsset *BMAsset::construct(BMBase *parent, QJsonObject definition)
-{
-    qCDebug(lcLottieQtBodymovinParser) << "BMAsset::construct()";
-
+BMAsset *BMAsset::construct(BMBase *parent, QJsonObject definition) {
 	BMAsset *asset = nullptr;
 	if (definition.contains(QStringLiteral("layers"))) {
-		qCDebug(lcLottieQtBodymovinParser) << "Parse precomp asset";
 		asset = new BMPreCompAsset(parent, definition);
 	}
-    return asset;
+	return asset;
 }
 
-void BMAsset::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+void BMAsset::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMAsset::parse():" << m_name;
-
-    m_id = definition.value(QStringLiteral("id")).toVariant().toString();
+	m_id = definition.value(QStringLiteral("id")).toVariant().toString();
 }
 
-void BMAsset::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
+void BMAsset::resolveAssets(
+		const std::function<BMAsset*(BMBase*, QString)> &resolver) {
 	if (!m_resolved) {
 		m_resolved = true;
 		BMBase::resolveAssets(resolver);
 	}
 }
 
-QString BMAsset::id() const
-{
-    return m_id;
+QString BMAsset::id() const {
+	return m_id;
 }
-
-QT_END_NAMESPACE

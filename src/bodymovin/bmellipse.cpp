@@ -26,15 +26,12 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmellipse.h"
 
-#include "bmellipse_p.h"
+#include "bmtrimpath.h"
 
 #include <QJsonObject>
 #include <QRectF>
-
-#include "bmtrimpath_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMEllipse::BMEllipse(BMBase *parent) : BMShape(parent) {
 }
@@ -47,68 +44,59 @@ BMEllipse::BMEllipse(BMBase *parent, const BMEllipse &other)
 
 BMEllipse::BMEllipse(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMEllipse::clone(BMBase *parent) const
-{
-    return new BMEllipse(parent, *this);
+BMBase *BMEllipse::clone(BMBase *parent) const {
+	return new BMEllipse(parent, *this);
 }
 
+void BMEllipse::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-void BMEllipse::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+	m_position.construct(position);
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMEllipse::construct():" << m_name;
+	QJsonObject size = definition.value(QStringLiteral("s")).toObject();
+	m_size.construct(size);
 
-    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
-    m_position.construct(position);
-
-    QJsonObject size = definition.value(QStringLiteral("s")).toObject();
-    m_size.construct(size);
-
-    m_direction = definition.value(QStringLiteral("d")).toInt();
+	m_direction = definition.value(QStringLiteral("d")).toInt();
 }
 
-bool BMEllipse::acceptsTrim() const
-{
-    return true;
+bool BMEllipse::acceptsTrim() const {
+	return true;
 }
 
-void BMEllipse::updateProperties(int frame)
-{
-    m_position.update(frame);
-    m_size.update(frame);
+void BMEllipse::updateProperties(int frame) {
+	m_position.update(frame);
+	m_size.update(frame);
 
-    // AE uses center of a shape as it's position,
-    // in Qt a translation is needed
-    QPointF pos = QPointF(m_position.value().x() - m_size.value().width() / 2,
-                             m_position.value().y() - m_size.value().height() / 2);
+	// AE uses center of a shape as it's position,
+	// in Qt a translation is needed
+	QPointF pos = QPointF(
+		m_position.value().x() - m_size.value().width() / 2,
+		m_position.value().y() - m_size.value().height() / 2);
 
-    m_path = QPainterPath();
-    m_path.arcMoveTo(QRectF(pos, m_size.value()), 90);
-    m_path.arcTo(QRectF(pos, m_size.value()), 90, -360);
+	m_path = QPainterPath();
+	m_path.arcMoveTo(QRectF(pos, m_size.value()), 90);
+	m_path.arcTo(QRectF(pos, m_size.value()), 90, -360);
 
-    if (m_direction)
-        m_path = m_path.toReversed();
+	if (m_direction) {
+		m_path = m_path.toReversed();
+	}
 }
 
-void BMEllipse::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMEllipse::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-QPointF BMEllipse::position() const
-{
-    return m_position.value();
+QPointF BMEllipse::position() const {
+	return m_position.value();
 }
 
-QSizeF BMEllipse::size() const
-{
-    return m_size.value();
+QSizeF BMEllipse::size() const {
+	return m_size.value();
 }
-
-QT_END_NAMESPACE

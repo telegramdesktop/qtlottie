@@ -26,14 +26,9 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmstroke.h"
 
-#include "bmstroke_p.h"
-
-#include <QLoggingCategory>
-
-#include "bmconstants_p.h"
-
-QT_BEGIN_NAMESPACE
+#include "bmconstants.h"
 
 BMStroke::BMStroke(BMBase *parent) : BMShape(parent) {
 }
@@ -50,101 +45,93 @@ BMStroke::BMStroke(BMBase *parent, const BMStroke &other)
 
 BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMStroke::BMStroke()" << m_name;
+	int lineCap = definition.value(QStringLiteral("lc")).toVariant().toInt();
+	switch (lineCap) {
+	case 1:
+		m_capStyle = Qt::FlatCap;
+		break;
+	case 2:
+		m_capStyle = Qt::RoundCap;
+		break;
+	case 3:
+		m_capStyle = Qt::SquareCap;
+		break;
+	default:
+		qWarning() << "Unknown line cap style in BMStroke";
+	}
 
-    int lineCap = definition.value(QStringLiteral("lc")).toVariant().toInt();
-    switch (lineCap) {
-    case 1:
-        m_capStyle = Qt::FlatCap;
-        break;
-    case 2:
-        m_capStyle = Qt::RoundCap;
-        break;
-    case 3:
-        m_capStyle = Qt::SquareCap;
-        break;
-    default:
-        qCDebug(lcLottieQtBodymovinParser) << "Unknown line cap style in BMStroke";
-    }
+	int lineJoin = definition.value(QStringLiteral("lj")).toVariant().toInt();
+	switch (lineJoin) {
+	case 1:
+		m_joinStyle = Qt::MiterJoin;
+		m_miterLimit = definition.value(QStringLiteral("ml")).toVariant().toReal();
+		break;
+	case 2:
+		m_joinStyle = Qt::RoundJoin;
+		break;
+	case 3:
+		m_joinStyle = Qt::BevelJoin;
+		break;
+	default:
+		qWarning() << "Unknown line join style in BMStroke";
+	}
 
-    int lineJoin = definition.value(QStringLiteral("lj")).toVariant().toInt();
-    switch (lineJoin) {
-    case 1:
-        m_joinStyle = Qt::MiterJoin;
-        m_miterLimit = definition.value(QStringLiteral("ml")).toVariant().toReal();
-        break;
-    case 2:
-        m_joinStyle = Qt::RoundJoin;
-        break;
-    case 3:
-        m_joinStyle = Qt::BevelJoin;
-        break;
-    default:
-        qCDebug(lcLottieQtBodymovinParser) << "Unknown line join style in BMStroke";
-    }
+	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	m_opacity.construct(opacity);
 
-    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
-    m_opacity.construct(opacity);
+	QJsonObject width = definition.value(QStringLiteral("w")).toObject();
+	m_width.construct(width);
 
-    QJsonObject width = definition.value(QStringLiteral("w")).toObject();
-    m_width.construct(width);
-
-    QJsonObject color = definition.value(QStringLiteral("c")).toObject();
-    m_color.construct(color);
+	QJsonObject color = definition.value(QStringLiteral("c")).toObject();
+	m_color.construct(color);
 }
 
-BMBase *BMStroke::clone(BMBase *parent) const
-{
-    return new BMStroke(parent, *this);
+BMBase *BMStroke::clone(BMBase *parent) const {
+	return new BMStroke(parent, *this);
 }
 
-void BMStroke::updateProperties(int frame)
-{
-    m_opacity.update(frame);
-    m_width.update(frame);
-    m_color.update(frame);
+void BMStroke::updateProperties(int frame) {
+	m_opacity.update(frame);
+	m_width.update(frame);
+	m_color.update(frame);
 }
 
-void BMStroke::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMStroke::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-QPen BMStroke::pen() const
-{
-    qreal width = m_width.value();
-    if (qFuzzyIsNull(width))
-        return QPen(Qt::NoPen);
-    QPen pen;
-    QColor color(getColor());
-    color.setAlphaF(color.alphaF() * (opacity() / 100.));
-    pen.setColor(color);
-    pen.setWidthF(width);
-    pen.setCapStyle(m_capStyle);
-    pen.setJoinStyle(m_joinStyle);
-    pen.setMiterLimit(m_miterLimit);
-    return pen;
+QPen BMStroke::pen() const {
+	qreal width = m_width.value();
+	if (qFuzzyIsNull(width)) {
+		return QPen(Qt::NoPen);
+	}
+	QPen pen;
+	QColor color(getColor());
+	color.setAlphaF(color.alphaF() * (opacity() / 100.));
+	pen.setColor(color);
+	pen.setWidthF(width);
+	pen.setCapStyle(m_capStyle);
+	pen.setJoinStyle(m_joinStyle);
+	pen.setMiterLimit(m_miterLimit);
+	return pen;
 }
 
-QColor BMStroke::getColor() const
-{
-    QVector4D cVec = m_color.value();
-    QColor color;
-    qreal r = static_cast<qreal>(cVec.x());
-    qreal g = static_cast<qreal>(cVec.y());
-    qreal b = static_cast<qreal>(cVec.z());
-    qreal a = static_cast<qreal>(cVec.w());
-    color.setRgbF(r, g, b, a);
-    return color;
+QColor BMStroke::getColor() const {
+	QVector4D cVec = m_color.value();
+	QColor color;
+	qreal r = static_cast<qreal>(cVec.x());
+	qreal g = static_cast<qreal>(cVec.y());
+	qreal b = static_cast<qreal>(cVec.z());
+	qreal a = static_cast<qreal>(cVec.w());
+	color.setRgbF(r, g, b, a);
+	return color;
 }
 
-qreal BMStroke::opacity() const
-{
-    return m_opacity.value();
+qreal BMStroke::opacity() const {
+	return m_opacity.value();
 }
-
-QT_END_NAMESPACE

@@ -26,39 +26,45 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmspatialproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QPointF>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMBasicTransform : public BMShape {
+public:
+	BMBasicTransform(BMBase *parent);
+	BMBasicTransform(BMBase *parent, const BMBasicTransform &other);
+	BMBasicTransform(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject &definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	void clearOpacity();
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+	QPointF anchorPoint() const;
+	virtual QPointF position() const;
+	QPointF scale() const;
+	qreal rotation() const;
+	qreal opacity() const;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+protected:
+	BMSpatialProperty m_anchorPoint;
+	bool m_splitPosition = false;
+	BMSpatialProperty m_position;
+	BMProperty<qreal> m_xPos;
+	BMProperty<qreal> m_yPos;
+	BMProperty2D<QPointF> m_scale;
+	BMProperty<qreal> m_rotation;
+	BMProperty<qreal> m_opacity;
+
+};

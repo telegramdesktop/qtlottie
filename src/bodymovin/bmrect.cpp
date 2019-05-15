@@ -26,18 +26,12 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmrect.h"
 
-#include "bmrect_p.h"
+#include "bmtrimpath.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QLoggingCategory>
-
-#include <QDebug>
-
-#include "bmtrimpath_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMRect::BMRect(BMBase *parent) : BMShape(parent) {
 }
@@ -51,72 +45,66 @@ BMRect::BMRect(BMBase *parent, const BMRect &other)
 
 BMRect::BMRect(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMRect::BMRect():" << m_name;
+	QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+	m_position.construct(position);
 
-    QJsonObject position = definition.value(QStringLiteral("p")).toObject();
-    m_position.construct(position);
+	QJsonObject size = definition.value(QStringLiteral("s")).toObject();
+	m_size.construct(size);
 
-    QJsonObject size = definition.value(QStringLiteral("s")).toObject();
-    m_size.construct(size);
+	QJsonObject roundness = definition.value(QStringLiteral("r")).toObject();
+	m_roundness.construct(roundness);
 
-    QJsonObject roundness = definition.value(QStringLiteral("r")).toObject();
-    m_roundness.construct(roundness);
-
-    m_direction = definition.value(QStringLiteral("d")).toInt();
+	m_direction = definition.value(QStringLiteral("d")).toInt();
 }
 
 
-BMBase *BMRect::clone(BMBase *parent) const
-{
-    return new BMRect(parent, *this);
+BMBase *BMRect::clone(BMBase *parent) const {
+	return new BMRect(parent, *this);
 }
 
-void BMRect::updateProperties(int frame)
-{
-    m_size.update(frame);
-    m_position.update(frame);
-    m_roundness.update(frame);
+void BMRect::updateProperties(int frame) {
+	m_size.update(frame);
+	m_position.update(frame);
+	m_roundness.update(frame);
 
-    // AE uses center of a shape as it's position,
-    // in Qt a translation is needed
-    QPointF pos = QPointF(m_position.value().x() - m_size.value().width() / 2,
-                             m_position.value().y() - m_size.value().height() / 2);
+	// AE uses center of a shape as it's position,
+	// in Qt a translation is needed
+	QPointF pos = QPointF(
+		m_position.value().x() - m_size.value().width() / 2,
+		m_position.value().y() - m_size.value().height() / 2);
 
-    m_path = QPainterPath();
-    m_path.addRoundedRect(QRectF(pos, m_size.value()),
-                               m_roundness.value(), m_roundness.value());
+	m_path = QPainterPath();
+	m_path.addRoundedRect(
+		QRectF(pos, m_size.value()),
+		m_roundness.value(),
+		m_roundness.value());
 
-    if (m_direction)
-        m_path = m_path.toReversed();
+	if (m_direction) {
+		m_path = m_path.toReversed();
+	}
 }
 
-void BMRect::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMRect::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-bool BMRect::acceptsTrim() const
-{
-    return true;
+bool BMRect::acceptsTrim() const {
+	return true;
 }
 
-QPointF BMRect::position() const
-{
-    return m_position.value();
+QPointF BMRect::position() const {
+	return m_position.value();
 }
 
-QSizeF BMRect::size() const
-{
-    return m_size.value();
+QSizeF BMRect::size() const {
+	return m_size.value();
 }
 
-qreal BMRect::roundness() const
-{
-    return m_roundness.value();
+qreal BMRect::roundness() const {
+	return m_roundness.value();
 }
-
-QT_END_NAMESPACE

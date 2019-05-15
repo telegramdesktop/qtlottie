@@ -26,18 +26,15 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmgroup.h"
 
-#include "bmgroup_p.h"
+#include "bmbase.h"
+#include "bmshape.h"
+#include "bmtrimpath.h"
+#include "bmbasictransform.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
-
-#include "bmbase_p.h"
-#include "bmshape_p.h"
-#include "bmtrimpath_p.h"
-#include "bmbasictransform_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMGroup::BMGroup(BMBase *parent) : BMShape(parent) {
 }
@@ -48,104 +45,103 @@ BMGroup::BMGroup(BMBase *parent, const BMGroup &other)
 
 BMGroup::BMGroup(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMGroup::clone(BMBase *parent) const
-{
-    return new BMGroup(parent, *this);
+BMBase *BMGroup::clone(BMBase *parent) const {
+	return new BMGroup(parent, *this);
 }
 
-void BMGroup::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+void BMGroup::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMGroup::construct()"
-                                       << m_name;
-
-    QJsonArray groupItems = definition.value(QLatin1String("it")).toArray();
-    QJsonArray::const_iterator itemIt = groupItems.constEnd();
-    while (itemIt != groupItems.constBegin()) {
-        itemIt--;
-        BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
-        if (shape) {
-            // Transform affects how group contents are drawn.
-            // It must be traversed first when drawing
-            if (shape->type() == BM_SHAPE_TRANS_IX)
-                prependChild(shape);
-            else
-                appendChild(shape);
-        }
-    }
+	QJsonArray groupItems = definition.value(QLatin1String("it")).toArray();
+	QJsonArray::const_iterator itemIt = groupItems.constEnd();
+	while (itemIt != groupItems.constBegin()) {
+		itemIt--;
+		BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
+		if (shape) {
+			// Transform affects how group contents are drawn.
+			// It must be traversed first when drawing
+			if (shape->type() == BM_SHAPE_TRANS_IX) {
+				prependChild(shape);
+			} else {
+				appendChild(shape);
+			}
+		}
+	}
 }
 
-void BMGroup::updateProperties(int frame)
-{
-    BMShape::updateProperties(frame);
+void BMGroup::updateProperties(int frame) {
+	BMShape::updateProperties(frame);
 
-    for (BMBase *child : children()) {
-        if (!child->active(frame))
-            continue;
+	for (BMBase *child : children()) {
+		if (!child->active(frame)) {
+			continue;
+		}
 
-        BMShape *shape = static_cast<BMShape*>(child);
-        if (shape->type() == BM_SHAPE_TRIM_IX) {
-            BMTrimPath *trim = static_cast<BMTrimPath*>(shape);
-            if (m_appliedTrim)
-                m_appliedTrim->applyTrim(*trim);
-            else
-                m_appliedTrim = trim;
-        } else if (m_appliedTrim  && shape->acceptsTrim())
-            shape->applyTrim(*m_appliedTrim);
-    }
+		BMShape *shape = static_cast<BMShape*>(child);
+		if (shape->type() == BM_SHAPE_TRIM_IX) {
+			BMTrimPath *trim = static_cast<BMTrimPath*>(shape);
+			if (m_appliedTrim) {
+				m_appliedTrim->applyTrim(*trim);
+			} else {
+				m_appliedTrim = trim;
+			}
+		} else if (m_appliedTrim && shape->acceptsTrim()) {
+			shape->applyTrim(*m_appliedTrim);
+		}
+	}
 }
 
-void BMGroup::render(LottieRenderer &renderer, int frame) const
-{
-    qCDebug(lcLottieQtBodymovinRender) << "Group:" << name();
+void BMGroup::render(LottieRenderer &renderer, int frame) const {
+	renderer.saveState();
 
-    renderer.saveState();
+	if (m_appliedTrim && !m_appliedTrim->hidden()) {
+		if (m_appliedTrim->simultaneous()) {
+			renderer.setTrimmingState(LottieRenderer::Simultaneous);
+		} else {
+			renderer.setTrimmingState(LottieRenderer::Individual);
+		}
+	} else {
+		renderer.setTrimmingState(LottieRenderer::Off);
+	}
 
-    if (m_appliedTrim && !m_appliedTrim->hidden()) {
-        if (m_appliedTrim->simultaneous())
-            renderer.setTrimmingState(LottieRenderer::Simultaneous);
-        else
-            renderer.setTrimmingState(LottieRenderer::Individual);
-    } else
-        renderer.setTrimmingState(LottieRenderer::Off);
+	renderer.startMergeGeometry();
+	for (BMBase *child : children()) {
+		if (child->active(frame)) {
+			child->render(renderer, frame);
+		}
+	}
+	renderer.renderMergedGeometry();
 
-    renderer.startMergeGeometry();
-    for (BMBase *child : children())
-        if (child->active(frame))
-            child->render(renderer, frame);
-    renderer.renderMergedGeometry();
+	if (m_appliedTrim
+		&& !m_appliedTrim->hidden()
+		&& !m_appliedTrim->simultaneous()) {
+		m_appliedTrim->render(renderer, frame);
+	}
 
-    if (m_appliedTrim && !m_appliedTrim->hidden()
-           && !m_appliedTrim->simultaneous())
-        m_appliedTrim->render(renderer, frame);
-
-    renderer.restoreState();
+	renderer.restoreState();
 }
 
-bool BMGroup::acceptsTrim() const
-{
-    return true;
+bool BMGroup::acceptsTrim() const {
+	return true;
 }
 
-void BMGroup::applyTrim(const BMTrimPath &trimmer)
-{
-    Q_ASSERT_X(!m_appliedTrim, "BMGroup", "A trim already assigned");
+void BMGroup::applyTrim(const BMTrimPath &trimmer) {
+	Q_ASSERT_X(!m_appliedTrim, "BMGroup", "A trim already assigned");
 
-    m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone(this));
-    // Setting a friendly name helps in testing
-    //m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
+	m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone(this));
+	// Setting a friendly name helps in testing
+	//m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
 
-    for (BMBase *child : children()) {
-        BMShape *shape = static_cast<BMShape*>(child);
-        if (shape->acceptsTrim())
-            shape->applyTrim(*m_appliedTrim);
-    }
+	for (BMBase *child : children()) {
+		BMShape *shape = static_cast<BMShape*>(child);
+		if (shape->acceptsTrim()) {
+			shape->applyTrim(*m_appliedTrim);
+		}
+	}
 }
-
-QT_END_NAMESPACE

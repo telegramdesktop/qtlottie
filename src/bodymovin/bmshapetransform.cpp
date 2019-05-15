@@ -26,14 +26,13 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmshapetransform.h"
 
-#include "bmshapetransform_p.h"
+#include "bmconstants.h"
+#include "bmbasictransform.h"
 
 #include <QJsonObject>
 #include <QtMath>
-
-#include "bmconstants_p.h"
-#include "bmbasictransform_p.h"
 
 BMShapeTransform::BMShapeTransform(BMBase *parent, const BMShapeTransform &other)
 : BMBasicTransform(parent, other)
@@ -46,67 +45,56 @@ BMShapeTransform::BMShapeTransform(BMBase *parent, const BMShapeTransform &other
 
 BMShapeTransform::BMShapeTransform(BMBase *parent, const QJsonObject &definition)
 : BMBasicTransform(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMShapeTransform::clone(BMBase *parent) const
-{
-    return new BMShapeTransform(parent, *this);
+BMBase *BMShapeTransform::clone(BMBase *parent) const {
+	return new BMShapeTransform(parent, *this);
 }
 
-void BMShapeTransform::parse(const QJsonObject &definition)
-{
-    BMBasicTransform::parse(definition);
+void BMShapeTransform::parse(const QJsonObject &definition) {
+	BMBasicTransform::parse(definition);
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMShapeTransform::construct():" << BMShape::name();
+	QJsonObject skew = definition.value(QStringLiteral("sk")).toObject();
+	m_skew.construct(skew);
 
-    QJsonObject skew = definition.value(QStringLiteral("sk")).toObject();
-    m_skew.construct(skew);
-
-    QJsonObject skewAxis = definition.value(QStringLiteral("sa")).toObject();
-    m_skewAxis.construct(skewAxis);
+	QJsonObject skewAxis = definition.value(QStringLiteral("sa")).toObject();
+	m_skewAxis.construct(skewAxis);
 }
 
-void BMShapeTransform::updateProperties(int frame)
-{
-    BMBasicTransform::updateProperties(frame);
+void BMShapeTransform::updateProperties(int frame) {
+	BMBasicTransform::updateProperties(frame);
 
-    m_skew.update(frame);
-    m_skewAxis.update(frame);
+	m_skew.update(frame);
+	m_skewAxis.update(frame);
 
-    double rads = qDegreesToRadians(m_skewAxis.value());
-    m_shearX = qCos(rads);
-    m_shearY = qSin(rads);
-    double tan = qDegreesToRadians(-m_skew.value());
-    m_shearAngle = qTan(tan);
+	double rads = qDegreesToRadians(m_skewAxis.value());
+	m_shearX = qCos(rads);
+	m_shearY = qSin(rads);
+	double tan = qDegreesToRadians(-m_skew.value());
+	m_shearAngle = qTan(tan);
 }
 
-void BMShapeTransform::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMShapeTransform::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-qreal BMShapeTransform::skew() const
-{
-    return m_skew.value();
+qreal BMShapeTransform::skew() const {
+	return m_skew.value();
 }
 
-qreal BMShapeTransform::skewAxis() const
-{
-    return m_skewAxis.value();
+qreal BMShapeTransform::skewAxis() const {
+	return m_skewAxis.value();
 }
 
-qreal BMShapeTransform::shearX() const
-{
-    return m_shearX;
+qreal BMShapeTransform::shearX() const {
+	return m_shearX;
 }
 
-qreal BMShapeTransform::shearY() const
-{
-    return m_shearY;
+qreal BMShapeTransform::shearY() const {
+	return m_shearY;
 }
 
-qreal BMShapeTransform::shearAngle() const
-{
-    return m_shearAngle;
+qreal BMShapeTransform::shearAngle() const {
+	return m_shearAngle;
 }

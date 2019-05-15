@@ -26,39 +26,33 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmpathtrimmer.h"
 
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QColor>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMFill;
+class BMTrimPath;
+class BMPathTrimmer;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMGroup : public BMShape {
+public:
+	BMGroup(BMBase *parent);
+	BMGroup(BMBase *parent, const BMGroup &other);
+	BMGroup(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject& definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	bool acceptsTrim() const override;
+	void applyTrim(const BMTrimPath  &trimmer) override;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

@@ -26,39 +26,32 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include <QList>
 
-#include <QJsonObject>
-#include <QJsonArray>
+class QJsonObject;
+class BMTrimPath;
+class LottieRenderer;
+class BMBase;
+class BMShape;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMPathTrimmer {
+public:
+	BMPathTrimmer(BMBase *root);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	void addTrim(BMTrimPath* trim);
+	bool inUse() const;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void applyTrim(BMShape *shape);
 
-	BMLayer::parse(definition);
+	void updateProperties(int frame);
+	void render(LottieRenderer &renderer, int frame) const;
 
-	m_layerTransform.clearOpacity();
-}
+private:
+	BMBase *m_root = nullptr;
 
-BMNullLayer::~BMNullLayer() = default;
+	QList<BMTrimPath*> m_trimPaths;
+	BMTrimPath *m_appliedTrim = nullptr;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

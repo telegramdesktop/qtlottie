@@ -26,39 +26,72 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
 #include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
 #include "lottierenderer.h"
 
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QList>
+#include <functional>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMAsset;
+class BMScene;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMBase {
+public:
+	BMBase(BMBase *parent);
+	BMBase(BMBase *parent, const BMBase &other);
+	BMBase(const BMBase &other) = delete;
+	virtual ~BMBase();
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	virtual BMBase *clone(BMBase *parent) const;
 
-	BMLayer::parse(definition);
+	QString name() const;
 
-	m_layerTransform.clearOpacity();
-}
+	int type() const;
+	void setType(int type);
+	virtual void parse(const QJsonObject &definition);
 
-BMNullLayer::~BMNullLayer() = default;
+	virtual bool active(int frame) const;
+	bool hidden() const;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+	BMBase *parent() const {
+		return m_parent;
+	}
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+	const QList<BMBase*> &children() const {
+		return m_children;
+	}
+	void prependChild(BMBase *child);
+	void appendChild(BMBase *child);
+
+	virtual void updateProperties(int frame);
+	virtual void render(LottieRenderer &renderer, int frame) const;
+
+	virtual void resolveAssets(
+		const std::function<BMAsset*(BMBase*, QString)> &resolver);
+
+protected:
+	virtual BMScene *resolveTopRoot() const;
+	BMScene *topRoot() const;
+
+protected:
+	int m_type = 0;
+	bool m_hidden = false;
+	QString m_name;
+	QString m_matchName;
+	bool m_autoOrient = false;
+
+	friend class BMRasterRenderer;
+	friend class BMRenderer;
+
+private:
+	BMBase * const m_parent = nullptr;
+	QList<BMBase *> m_children;
+
+	// Handle to the topmost element on which this element resides
+	// Will be resolved when traversing effects
+	mutable BMScene *m_topRoot = nullptr;
+
+};

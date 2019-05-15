@@ -26,10 +26,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmfill_p.h"
-
-QT_BEGIN_NAMESPACE
+#include "bmfill.h"
 
 BMFill::BMFill(BMBase *parent) : BMShape(parent) {
 }
@@ -42,50 +39,42 @@ BMFill::BMFill(BMBase *parent, const BMFill &other)
 
 BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMFill::construct():" << m_name;
+	QJsonObject color = definition.value(QStringLiteral("c")).toObject();
+	m_color.construct(color);
 
-    QJsonObject color = definition.value(QStringLiteral("c")).toObject();
-    m_color.construct(color);
-
-    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
-    m_opacity.construct(opacity);
+	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	m_opacity.construct(opacity);
 }
 
-BMBase *BMFill::clone(BMBase *parent) const
-{
-    return new BMFill(parent, *this);
+BMBase *BMFill::clone(BMBase *parent) const {
+	return new BMFill(parent, *this);
 }
 
-void BMFill::updateProperties(int frame)
-{
-    m_color.update(frame);
-    m_opacity.update(frame);
+void BMFill::updateProperties(int frame) {
+	m_color.update(frame);
+	m_opacity.update(frame);
 }
 
-void BMFill::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMFill::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-QColor BMFill::color() const
-{
-    QVector4D cVec = m_color.value();
-    QColor color;
-    qreal r = static_cast<qreal>(cVec.x());
-    qreal g = static_cast<qreal>(cVec.y());
-    qreal b = static_cast<qreal>(cVec.z());
-    qreal a = static_cast<qreal>(cVec.w());
-    color.setRgbF(r, g, b, a);
-    return color;
+QColor BMFill::color() const {
+	QVector4D cVec = m_color.value();
+	QColor color;
+	qreal r = static_cast<qreal>(cVec.x());
+	qreal g = static_cast<qreal>(cVec.y());
+	qreal b = static_cast<qreal>(cVec.z());
+	qreal a = static_cast<qreal>(cVec.w());
+	color.setRgbF(r, g, b, a);
+	return color;
 }
 
-qreal BMFill::opacity() const
-{
-    return m_opacity.value();
+qreal BMFill::opacity() const {
+	return m_opacity.value();
 }
-
-QT_END_NAMESPACE

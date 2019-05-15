@@ -26,104 +26,99 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmprecomplayer.h"
 
-#include "bmprecomplayer_p.h"
+#include "bmconstants.h"
+#include "bmasset.h"
+#include "bmbasictransform.h"
+#include "bmscene.h"
+#include "bmmasks.h"
+#include "lottierenderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
-
-#include "bmconstants_p.h"
-#include "bmasset_p.h"
-#include "bmbasictransform_p.h"
-#include "lottierenderer_p.h"
-
-#include "bmscene_p.h"
-#include "bmmasks_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMPreCompLayer::BMPreCompLayer(BMBase *parent) : BMLayer(parent) {
 }
 
 BMPreCompLayer::BMPreCompLayer(BMBase *parent, const BMPreCompLayer &other)
 : BMLayer(parent, other) {
-    if (other.m_layers) {
-        m_layers = other.m_layers->clone(this);
-    }
+	if (other.m_layers) {
+		m_layers = other.m_layers->clone(this);
+	}
 }
 
 BMPreCompLayer::BMPreCompLayer(BMBase *parent, const QJsonObject &definition)
 : BMLayer(parent) {
-    m_type = BM_LAYER_PRECOMP_IX;
+	m_type = BM_LAYER_PRECOMP_IX;
 
-    BMLayer::parse(definition);
-    if (m_hidden)
-        return;
+	BMLayer::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMPreCompLayer::BMPreCompLayer()"
-                                       << m_name;
-
-    m_refId = definition.value(QStringLiteral("refId")).toString();
+	m_refId = definition.value(QStringLiteral("refId")).toString();
 }
 
-BMPreCompLayer::~BMPreCompLayer()
-{
-    if (m_layers)
-        delete m_layers;
+BMPreCompLayer::~BMPreCompLayer() {
+	if (m_layers) {
+		delete m_layers;
+	}
 }
 
-BMBase *BMPreCompLayer::clone(BMBase *parent) const
-{
-    return new BMPreCompLayer(parent, *this);
+BMBase *BMPreCompLayer::clone(BMBase *parent) const {
+	return new BMPreCompLayer(parent, *this);
 }
 
-void BMPreCompLayer::updateProperties(int frame)
-{
-    if (m_updated)
-        return;
+void BMPreCompLayer::updateProperties(int frame) {
+	if (m_updated) {
+		return;
+	}
 
-    BMLayer::updateProperties(frame);
+	BMLayer::updateProperties(frame);
 
-    const auto layersFrame = frame - m_startTime;
-    if (m_layers && m_layers->active(layersFrame))
-        m_layers->updateProperties(layersFrame);
+	const auto layersFrame = frame - m_startTime;
+	if (m_layers && m_layers->active(layersFrame)) {
+		m_layers->updateProperties(layersFrame);
+	}
 }
 
-void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.saveState();
+void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const {
+	renderer.saveState();
 
-    renderEffects(renderer, frame);
+	renderEffects(renderer, frame);
 
-    // In case there is a linked layer, apply its transform first
-    // as it affects tranforms of this layer too
-    if (BMLayer * ll = linkedLayer())
-        ll->renderFullTransform(renderer, frame);
+	// In case there is a linked layer, apply its transform first
+	// as it affects tranforms of this layer too
+	if (BMLayer *ll = linkedLayer()) {
+		ll->renderFullTransform(renderer, frame);
+	}
 
-    renderer.render(*this);
+	renderer.render(*this);
 
 	m_layerTransform.render(renderer, frame);
 
-    if (m_masks) {
-        m_masks->render(renderer, frame);
-    }
+	if (m_masks) {
+		m_masks->render(renderer, frame);
+	}
 
-    const auto layersFrame = frame - m_startTime;
-    if (m_layers && m_layers->active(layersFrame))
-        m_layers->render(renderer, layersFrame);
+	const auto layersFrame = frame - m_startTime;
+	if (m_layers && m_layers->active(layersFrame)) {
+		m_layers->render(renderer, layersFrame);
+	}
 
-    renderer.restoreState();
+	renderer.restoreState();
 }
 
 void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
-    if (m_layers)
-        return;
-    m_layers = resolver(this, m_refId);
-    if (!m_layers)
-        qCWarning(lcLottieQtBodymovinParser)
-            << "BM PreComp Layer: asset not found: "
-            << m_refId;
-    BMLayer::resolveAssets(resolver);
+	if (m_layers) {
+		return;
+	}
+	m_layers = resolver(this, m_refId);
+	if (!m_layers) {
+		qWarning()
+			<< "BM PreComp Layer: asset not found: "
+			<< m_refId;
+	}
+	BMLayer::resolveAssets(resolver);
 }
-
-QT_END_NAMESPACE

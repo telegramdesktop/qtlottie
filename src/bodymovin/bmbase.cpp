@@ -26,20 +26,9 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmbase.h"
 
-#include "bmbase_p.h"
-
-#include <QLoggingCategory>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
-
-#include "bmscene_p.h"
-
-QT_BEGIN_NAMESPACE
-
-Q_LOGGING_CATEGORY(lcLottieQtBodymovinParser, "qt.lottieqt.bodymovin.parser");
-Q_LOGGING_CATEGORY(lcLottieQtBodymovinUpdate, "qt.lottieqt.bodymovin.update");
-Q_LOGGING_CATEGORY(lcLottieQtBodymovinRender, "qt.lottieqt.bodymovin.render");
+#include "bmscene.h"
 
 BMBase::BMBase(BMBase *parent) : m_parent(parent) {
 }
@@ -51,125 +40,100 @@ BMBase::BMBase(BMBase *parent, const BMBase &other)
 , m_matchName(other.m_matchName)
 , m_autoOrient(other.m_autoOrient)
 , m_parent(parent) {
-    for (BMBase *child : other.m_children) {
-        BMBase *clone = child->clone(this);
-        appendChild(clone);
-    }
+	for (BMBase *child : other.m_children) {
+		BMBase *clone = child->clone(this);
+		appendChild(clone);
+	}
 }
 
-BMBase::~BMBase()
-{
-    qDeleteAll(m_children);
+BMBase::~BMBase() {
+	qDeleteAll(m_children);
 }
 
-BMBase *BMBase::clone(BMBase *parent) const
-{
-    return new BMBase(parent, *this);
+BMBase *BMBase::clone(BMBase *parent) const {
+	return new BMBase(parent, *this);
 }
 
-QString BMBase::name() const
-{
-    return m_name;
+QString BMBase::name() const {
+	return m_name;
 }
 
-int BMBase::type() const
-{
-    return m_type;
+int BMBase::type() const {
+	return m_type;
 }
 
-void BMBase::setType(int type)
-{
-    m_type = type;
+void BMBase::setType(int type) {
+	m_type = type;
 }
 
-void BMBase::prependChild(BMBase *child)
-{
-    m_children.push_back(child);
-    if (const auto length = m_children.size(); length > 1) {
-        qSwap(m_children[length - 1], m_children[length - 2]);
-    }
+void BMBase::prependChild(BMBase *child) {
+	m_children.push_back(child);
+	if (const auto length = m_children.size(); length > 1) {
+		qSwap(m_children[length - 1], m_children[length - 2]);
+	}
 }
 
-void BMBase::appendChild(BMBase *child)
-{
-    m_children.push_back(child);
+void BMBase::appendChild(BMBase *child) {
+	m_children.push_back(child);
 }
 
-BMBase *BMBase::findChild(const QString &childName)
-{
-    if (name() == childName)
-        return this;
-
-    BMBase *found = nullptr;
-    for (BMBase *child : qAsConst(m_children)) {
-        found = child->findChild(childName);
-        if (found)
-            break;
-    }
-    return found;
+void BMBase::updateProperties(int frame) {
+	for (BMBase *child : children()) {
+		if (child->active(frame)) {
+			child->updateProperties(frame);
+		}
+	}
 }
 
-void BMBase::updateProperties(int frame)
-{
-    for (BMBase *child : qAsConst(m_children))
-        if (child->active(frame))
-            child->updateProperties(frame);
+void BMBase::render(LottieRenderer &renderer, int frame) const {
+	for (BMBase *child : children()) {
+		if (child->active(frame)) {
+			child->render(renderer, frame);
+		}
+	}
 }
 
-void BMBase::render(LottieRenderer &renderer, int frame) const
-{
-    for (BMBase *child : qAsConst(m_children))
-        if (child->active(frame))
-            child->render(renderer, frame);
+void BMBase::resolveAssets(
+		const std::function<BMAsset*(BMBase*, QString)> &resolver) {
+	if (m_hidden) {
+		return;
+	}
+
+	for (BMBase *child : children()) {
+		if (child->m_hidden) {
+			continue;
+		}
+		child->resolveAssets(resolver);
+	}
 }
 
-void BMBase::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
-    if (m_hidden)
-        return;
-
-    for (BMBase *child : qAsConst(m_children)) {
-        if (child->m_hidden)
-            continue;
-        child->resolveAssets(resolver);
-    }
-}
-
-BMScene *BMBase::resolveTopRoot() const
-{
+BMScene *BMBase::resolveTopRoot() const {
 	return m_parent->topRoot();
 }
 
-BMScene *BMBase::topRoot() const
-{
+BMScene *BMBase::topRoot() const {
 	if (!m_topRoot) {
 		m_topRoot = resolveTopRoot();
 	}
-    return m_topRoot;
+	return m_topRoot;
 }
 
-void BMBase::parse(const QJsonObject &definition)
-{
-    qCDebug(lcLottieQtBodymovinParser) << "BMBase::parse()";
+void BMBase::parse(const QJsonObject &definition) {
+	m_hidden = definition.value(QStringLiteral("hd")).toBool(false);
+	m_name = definition.value(QStringLiteral("nm")).toString();
+	m_matchName = definition.value(QStringLiteral("mn")).toString();
+	m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
 
-    m_hidden = definition.value(QStringLiteral("hd")).toBool(false);
-    m_name = definition.value(QStringLiteral("nm")).toString();
-    m_matchName = definition.value(QStringLiteral("mn")).toString();
-    m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
-
-    if (m_autoOrient)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "Element has auto-orientation set, but it is not supported";
+	if (m_autoOrient) {
+		qWarning()
+			<< "Element has auto-orientation set, but it is not supported";
+	}
 }
 
-bool BMBase::active(int frame) const
-{
-    Q_UNUSED(frame);
-    return !m_hidden;
+bool BMBase::active(int frame) const {
+	return !m_hidden;
 }
 
-bool BMBase::hidden() const
-{
-    return m_hidden;
+bool BMBase::hidden() const {
+	return m_hidden;
 }
-
-QT_END_NAMESPACE

@@ -26,39 +26,23 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
 #include "bmtrimpath.h"
-#include "bmbasictransform.h"
 #include "lottierenderer.h"
 
-#include <QJsonObject>
+#include <QPainterPath>
 #include <QJsonArray>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMMasks : public BMBase {
+public:
+	BMMasks(BMBase *parent);
+	BMMasks(BMBase *parent, const BMMasks &other);
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	BMLayer::parse(definition);
-
-	m_layerTransform.clearOpacity();
-}
-
-BMNullLayer::~BMNullLayer() = default;
-
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

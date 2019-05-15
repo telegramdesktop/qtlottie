@@ -26,39 +26,64 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
 #include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
 #include "bmbasictransform.h"
-#include "lottierenderer.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+class LottieRenderer;
+class BMMasks;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMLayer : public BMBase {
+public:
+	enum MatteClipMode {NoClip, Alpha, InvertedAlpha, Luminence, InvertedLuminence};
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMLayer(BMBase *parent);
+	BMLayer(BMBase *parent, const BMLayer &other);
+	~BMLayer() override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	static BMLayer *construct(BMBase *parent, QJsonObject definition);
 
-	BMLayer::parse(definition);
+	bool active(int frame) const override;
 
-	m_layerTransform.clearOpacity();
-}
+	void parse(const QJsonObject &definition) override;
 
-BMNullLayer::~BMNullLayer() = default;
+	void updateProperties(int frame) override;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+	bool isClippedLayer() const;
+	bool isMaskLayer() const;
+	MatteClipMode clipMode() const;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+	int layerId() const;
+	void renderFullTransform(LottieRenderer &renderer, int frame) const;
+
+protected:
+	void renderEffects(LottieRenderer &renderer, int frame) const;
+
+	virtual BMLayer *resolveLinkedLayer();
+	virtual BMLayer *linkedLayer() const;
+
+	int m_layerIndex = 0;
+	int m_startFrame;
+	int m_endFrame;
+	qreal m_startTime;
+	int m_blendMode;
+	bool m_3dLayer = false;
+	BMBase *m_effects = nullptr;
+	qreal m_stretch;
+	BMBasicTransform m_layerTransform;
+	BMMasks *m_masks = nullptr;
+
+	int m_parentLayer = 0;
+	int m_td = 0;
+	MatteClipMode m_clipMode = NoClip;
+
+	bool m_updated = false;
+
+private:
+	void parseEffects(const QJsonArray &definition, BMBase *effectRoot = nullptr);
+	void parseMasks(const QJsonArray &definition);
+
+	BMLayer *m_linkedLayer = nullptr;
+
+};

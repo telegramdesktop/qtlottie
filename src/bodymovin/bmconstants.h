@@ -26,39 +26,13 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#define BM_LAYER_PRECOMP_IX     0x10000
+#define BM_LAYER_SOLID_IX       0x10001
+#define BM_LAYER_IMAGE_IX       0x10002
+#define BM_LAYER_NULL_IX        0x10004
+#define BM_LAYER_SHAPE_IX       0x10008
+#define BM_LAYER_TEXT_IX        0x1000f
 
-#include <QJsonObject>
-#include <QJsonArray>
-
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
-
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
-
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
-
-	BMLayer::parse(definition);
-
-	m_layerTransform.clearOpacity();
-}
-
-BMNullLayer::~BMNullLayer() = default;
-
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+#define BM_EFFECT_FILL          0x20000

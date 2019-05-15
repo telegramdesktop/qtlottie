@@ -26,16 +26,13 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmprecompasset.h"
 
-#include "bmprecompasset_p.h"
-#include "bmlayer_p.h"
+#include "bmlayer.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QLoggingCategory>
-
-QT_BEGIN_NAMESPACE
 
 BMPreCompAsset::BMPreCompAsset(BMBase *parent) : BMAsset(parent) {
 }
@@ -43,19 +40,16 @@ BMPreCompAsset::BMPreCompAsset(BMBase *parent) : BMAsset(parent) {
 BMPreCompAsset::BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other) : BMAsset(parent, other) {
 }
 
-BMPreCompAsset *BMPreCompAsset::clone(BMBase *parent) const
-{
-    return new BMPreCompAsset(parent, *this);
+BMPreCompAsset *BMPreCompAsset::clone(BMBase *parent) const {
+	return new BMPreCompAsset(parent, *this);
 }
 
 BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
 : BMAsset(parent) {
-    BMAsset::parse(definition);
-    if (m_hidden)
-        return;
-
-	qCDebug(lcLottieQtBodymovinParser) << "BMPreCompAsset::BMPreCompAsset()"
-		<< m_name;
+	BMAsset::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
 	QJsonArray layers = definition.value(QStringLiteral("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
@@ -72,5 +66,3 @@ BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
 		}
 	}
 }
-
-QT_END_NAMESPACE

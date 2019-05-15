@@ -26,39 +26,46 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmgroup.h"
+#include "bmproperty.h"
+#include "bmproperty.h"
+#include "bmspatialproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QVector4D>
+#include <QGradient>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMGFill : public BMShape {
+public:
+	BMGFill(BMBase *parent);
+	BMGFill(BMBase *parent, const BMGFill &other);
+	BMGFill(BMBase *parent, const QJsonObject &definition);
+	~BMGFill() override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	BMLayer::parse(definition);
+	QGradient *value() const;
+	QGradient::Type gradientType() const;
+	QPointF startPoint() const;
+	QPointF endPoint() const;
+	qreal highlightLength() const;
+	qreal highlightAngle() const;
+	qreal opacity() const;
 
-	m_layerTransform.clearOpacity();
-}
+private:
+	void setGradient();
 
-BMNullLayer::~BMNullLayer() = default;
+protected:
+	BMProperty<qreal> m_opacity;
+	BMSpatialProperty m_startPoint;
+	BMSpatialProperty m_endPoint;
+	BMProperty<qreal> m_highlightLength;
+	BMProperty<qreal> m_highlightAngle;
+	QList<BMProperty4D<QVector4D>> m_colors;
+	QGradient *m_gradient = nullptr;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

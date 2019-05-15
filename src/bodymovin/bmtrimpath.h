@@ -26,39 +26,43 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmgroup.h"
 
+#include <QPainterPath>
 #include <QJsonObject>
-#include <QJsonArray>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMTrimPath : public BMShape {
+public:
+	BMTrimPath(BMBase *parent);
+	BMTrimPath(BMBase *parent, const BMTrimPath &other);
+	BMTrimPath(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	void inherit(const BMTrimPath &other);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject &definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	bool acceptsTrim() const override;
+	void applyTrim(const BMTrimPath  &trimmer) override;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+	qreal start() const;
+	qreal end() const;
+	qreal offset() const;
+	bool simultaneous() const;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+	QPainterPath trim(const QPainterPath &path) const;
+
+protected:
+	BMProperty<qreal> m_start;
+	BMProperty<qreal> m_end;
+	BMProperty<qreal> m_offset;
+	bool m_simultaneous = false;
+
+};

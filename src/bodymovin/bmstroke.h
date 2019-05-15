@@ -26,39 +26,37 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QPen>
+#include <QVector4D>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMStroke : public BMShape {
+public:
+	BMStroke(BMBase *parent);
+	BMStroke(BMBase *parent, const BMStroke &other);
+	BMStroke(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	BMLayer::parse(definition);
+	QPen pen() const;
+	qreal opacity() const;
 
-	m_layerTransform.clearOpacity();
-}
+protected:
+	QColor getColor() const;
 
-BMNullLayer::~BMNullLayer() = default;
+protected:
+	BMProperty<qreal> m_opacity;
+	BMProperty<qreal> m_width;
+	BMProperty4D<QVector4D> m_color;
+	Qt::PenCapStyle m_capStyle;
+	Qt::PenJoinStyle m_joinStyle;
+	qreal m_miterLimit = 0.;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

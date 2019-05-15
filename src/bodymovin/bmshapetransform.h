@@ -26,39 +26,40 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
 #include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QPointF>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMShapeTransform : public BMBasicTransform {
+public:
+	BMShapeTransform(BMBase *parent);
+	BMShapeTransform(BMBase *parent, const BMShapeTransform &other);
+	BMShapeTransform(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject &definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	qreal skew() const;
+	qreal skewAxis() const;
+	qreal shearX() const;
+	qreal shearY() const;
+	qreal shearAngle() const;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+protected:
+	BMProperty<qreal> m_skew;
+	BMProperty<qreal> m_skewAxis;
+	qreal m_shearX;
+	qreal m_shearY;
+	qreal m_shearAngle;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

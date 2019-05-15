@@ -26,8 +26,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmrepeater_p.h"
+#include "bmrepeater.h"
 
 BMRepeater::BMRepeater(BMBase *parent, const BMRepeater &other)
 : BMShape(parent, other)
@@ -39,55 +38,47 @@ BMRepeater::BMRepeater(BMBase *parent, const BMRepeater &other)
 BMRepeater::BMRepeater(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent)
 , m_transform(this) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMRepeater::clone(BMBase *parent) const
-{
-    return new BMRepeater(parent, *this);
+BMBase *BMRepeater::clone(BMBase *parent) const {
+	return new BMRepeater(parent, *this);
 }
 
-void BMRepeater::parse(const QJsonObject &definition)
-{
-    qCDebug(lcLottieQtBodymovinParser) << "BMRepeater::construct():" << m_name;
+void BMRepeater::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	QJsonObject copies = definition.value(QStringLiteral("c")).toObject();
+	m_copies.construct(copies);
 
-    QJsonObject copies = definition.value(QStringLiteral("c")).toObject();
-    m_copies.construct(copies);
+	QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
+	m_offset.construct(offset);
 
-    QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
-    m_offset.construct(offset);
-
-    m_transform.parse(definition.value(QStringLiteral("tr")).toObject());
+	m_transform.parse(definition.value(QStringLiteral("tr")).toObject());
 }
 
-void BMRepeater::updateProperties(int frame)
-{
-    m_copies.update(frame);
-    m_offset.update(frame);
-    m_transform.setInstanceCount(m_copies.value());
-    m_transform.updateProperties(frame);
+void BMRepeater::updateProperties(int frame) {
+	m_copies.update(frame);
+	m_offset.update(frame);
+	m_transform.setInstanceCount(m_copies.value());
+	m_transform.updateProperties(frame);
 }
 
-void BMRepeater::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMRepeater::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-int BMRepeater::copies() const
-{
-    return m_copies.value();
+int BMRepeater::copies() const {
+	return m_copies.value();
 }
 
-qreal BMRepeater::offset() const
-{
-    return m_offset.value();
+qreal BMRepeater::offset() const {
+	return m_offset.value();
 }
 
-const BMRepeaterTransform &BMRepeater::transform() const
-{
-    return m_transform;
+const BMRepeaterTransform &BMRepeater::transform() const {
+	return m_transform;
 }

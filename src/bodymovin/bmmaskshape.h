@@ -26,39 +26,75 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
 #include "bmtrimpath.h"
-#include "bmbasictransform.h"
 #include "lottierenderer.h"
 
-#include <QJsonObject>
+#include <QPainterPath>
 #include <QJsonArray>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMMaskShape : public BMShape {
+public:
+	BMMaskShape(BMBase *parent);
+	BMMaskShape(BMBase *parent, const BMMaskShape &other);
+	BMMaskShape(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject &definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	enum class Mode {
+		Additive,
+		Intersect,
+	};
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+	Mode mode() const;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+	bool inverted() const;
+
+protected:
+	struct VertexInfo {
+		BMProperty2D<QPointF> pos;
+		BMProperty2D<QPointF> ci;
+		BMProperty2D<QPointF> co;
+	};
+
+	void parseShapeKeyframes(QJsonObject &keyframes);
+	void buildShape(const QJsonObject &keyframe);
+	void buildShape(int frame);
+	void parseEasedVertices(const QJsonObject &keyframe, int startFrame);
+
+	QHash<int, QJsonObject> m_vertexMap;
+	QList<VertexInfo> m_vertexList;
+	QMap<int, bool> m_closedShape;
+
+	bool m_inverted = false;
+	BMProperty<qreal> m_opacity;
+	Mode m_mode = Mode::Additive;
+
+private:
+	struct VertexBuildInfo {
+		QJsonArray posKeyframes;
+		QJsonArray ciKeyframes;
+		QJsonArray coKeyframes;
+	};
+
+	void finalizeVertices();
+
+	QMap<int, VertexBuildInfo*> m_vertexInfos;
+
+	QJsonObject createKeyframe(
+		QJsonArray startValue,
+		QJsonArray endValue,
+		int startFrame,
+		QJsonObject easingIn,
+		QJsonObject easingOut);
+
+};

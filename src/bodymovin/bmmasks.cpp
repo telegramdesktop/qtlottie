@@ -26,12 +26,9 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmmasks_p.h"
+#include "bmmasks.h"
 
 #include <QJsonObject>
-
-QT_BEGIN_NAMESPACE
 
 BMMasks::BMMasks(BMBase *parent) : BMBase(parent) {
 }
@@ -39,18 +36,16 @@ BMMasks::BMMasks(BMBase *parent) : BMBase(parent) {
 BMMasks::BMMasks(BMBase *parent, const BMMasks &other) : BMBase(parent, other) {
 }
 
-BMBase *BMMasks::clone(BMBase *parent) const
-{
-    return new BMMasks(parent, *this);
+BMBase *BMMasks::clone(BMBase *parent) const {
+	return new BMMasks(parent, *this);
 }
 
-void BMMasks::render(LottieRenderer &renderer, int frame) const
-{
-	for (BMBase *child : children())
-		if (child->active(frame))
+void BMMasks::render(LottieRenderer &renderer, int frame) const {
+	for (BMBase *child : children()) {
+		if (child->active(frame)) {
 			child->render(renderer, frame);
+		}
+	}
 
 	renderer.render(*this);
 }
-
-QT_END_NAMESPACE

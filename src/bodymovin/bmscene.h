@@ -26,39 +26,59 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
 #include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
 
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QList>
+#include <QHash>
+#include <vector>
+#include <memory>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMAsset;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMScene : public BMBase {
+public:
+	BMScene(const BMScene &other) = delete;
+	BMScene &operator=(const BMScene &other) = delete;
+	explicit BMScene(const QJsonObject &definition);
+	virtual ~BMScene();
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	m_layerTransform.clearOpacity();
-}
+	int startFrame() const;
+	int endFrame() const;
+	int frameRate() const;
+	int width() const;
+	int height() const;
 
-BMNullLayer::~BMNullLayer() = default;
+protected:
+	BMScene *resolveTopRoot() const override;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+private:
+	void parse(const QJsonObject &definition);
+	void resolveAllAssets();
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+	std::vector<std::unique_ptr<BMAsset>> _assets;
+	QHash<QString, int> _assetIndexById;
+
+	std::unique_ptr<BMBase> _blueprint;
+	std::unique_ptr<BMBase> _current;
+
+	int _startFrame = 0;
+	int _endFrame = 0;
+	int _frameRate = 30;
+	int _width = 0;
+	int _height = 0;
+	QHash<QString, int> _markers;
+
+	bool _unsupported = false;
+
+	// Parsing stage.
+	bool _parsing = false;
+
+};

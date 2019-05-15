@@ -26,39 +26,34 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmrepeatertransform.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMRepeater : public BMShape {
+public:
+	BMRepeater(BMBase *parent);
+	BMRepeater(BMBase *parent, const BMRepeater &other);
+	BMRepeater(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void parse(const QJsonObject& definition);
 
-	BMLayer::parse(definition);
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	m_layerTransform.clearOpacity();
-}
+	int copies() const;
+	qreal offset() const;
+	const BMRepeaterTransform &transform() const;
 
-BMNullLayer::~BMNullLayer() = default;
+protected:
+	BMProperty<int> m_copies;
+	BMProperty<qreal> m_offset;
+	BMRepeaterTransform m_transform;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

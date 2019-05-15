@@ -26,39 +26,31 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmgroup.h"
+#include "bmproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QColor>
+#include <QVector4D>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMFill : public BMShape {
+public:
+	BMFill(BMBase *parent);
+	BMFill(BMBase *parent, const BMFill &other);
+	BMFill(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void updateProperties(int frame) override;
 
-	BMLayer::parse(definition);
+	void render(LottieRenderer &renderer, int frame) const override;
 
-	m_layerTransform.clearOpacity();
-}
+	QColor color() const;
+	qreal opacity() const;
 
-BMNullLayer::~BMNullLayer() = default;
+protected:
+	BMProperty4D<QVector4D> m_color;
+	BMProperty<qreal> m_opacity;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

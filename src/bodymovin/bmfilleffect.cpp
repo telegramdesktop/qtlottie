@@ -26,15 +26,10 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmfilleffect_p.h"
+#include "bmfilleffect.h"
 
 #include <QJsonObject>
 #include <QJsonValue>
-
-#include "bmglobal.h"
-
-QT_BEGIN_NAMESPACE
 
 BMFillEffect::BMFillEffect(BMBase *parent) : BMBase(parent) {
 }
@@ -50,68 +45,65 @@ BMFillEffect::BMFillEffect(BMBase *parent, const QJsonObject &definition)
 	parse(definition);
 }
 
-BMBase *BMFillEffect::clone(BMBase *parent) const
-{
-    return new BMFillEffect(parent, *this);
+BMBase *BMFillEffect::clone(BMBase *parent) const {
+	return new BMFillEffect(parent, *this);
 }
 
-void BMFillEffect::parse(const QJsonObject &definition)
-{
-    m_type = BM_EFFECT_FILL;
+void BMFillEffect::parse(const QJsonObject &definition) {
+	m_type = BM_EFFECT_FILL;
 
-    if (!definition.value(QStringLiteral("hd")).toBool(true))
-        return;
+	if (!definition.value(QStringLiteral("hd")).toBool(true)) {
+		return;
+	}
 
-    QJsonArray properties = definition.value(QStringLiteral("ef")).toArray();
+	QJsonArray properties = definition.value(QStringLiteral("ef")).toArray();
 
-    // TODO: Check are property positions really fixed in the effect?
+	// TODO: Check are property positions really fixed in the effect?
 
-    m_color.construct(properties.at(2).toObject().value(QStringLiteral("v")).toObject());
-    m_opacity.construct(properties.at(6).toObject().value(QStringLiteral("v")).toObject());
+	m_color.construct(properties.at(2).toObject().value(QStringLiteral("v")).toObject());
+	m_opacity.construct(properties.at(6).toObject().value(QStringLiteral("v")).toObject());
 
-    if (!qFuzzyCompare(properties.at(0).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
-        qCWarning(lcLottieQtBodymovinParser)<< "BMFillEffect: Property 'Fill mask' not supported";
+	if (!qFuzzyCompare(properties.at(0).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+		qWarning() << "BMFillEffect: Property 'Fill mask' not supported";
+	}
 
-    if (!qFuzzyCompare(properties.at(1).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
-        qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'All masks' not supported";
+	if (!qFuzzyCompare(properties.at(1).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+		qWarning() << "BMFillEffect: Property 'All masks' not supported";
+	}
 
-    if (!qFuzzyCompare(properties.at(3).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
-        qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Invert' not supported";
+	if (!qFuzzyCompare(properties.at(3).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+		qWarning() << "BMFillEffect: Property 'Invert' not supported";
+	}
 
-    if (!qFuzzyCompare(properties.at(4).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
-        qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Horizontal feather' not supported";
+	if (!qFuzzyCompare(properties.at(4).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+		qWarning() << "BMFillEffect: Property 'Horizontal feather' not supported";
+	}
 
-    if (!qFuzzyCompare(properties.at(5).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0))
-        qCWarning(lcLottieQtBodymovinParser) << "BMFillEffect: Property 'Vertical feather' not supported";
-
+	if (!qFuzzyCompare(properties.at(5).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+		qWarning() << "BMFillEffect: Property 'Vertical feather' not supported";
+	}
 }
 
-void BMFillEffect::updateProperties(int frame)
-{
-    m_color.update(frame);
-    m_opacity.update(frame);
+void BMFillEffect::updateProperties(int frame) {
+	m_color.update(frame);
+	m_opacity.update(frame);
 }
 
-void BMFillEffect::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMFillEffect::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-QColor BMFillEffect::color() const
-{
-    QVector4D cVec = m_color.value();
-    QColor color;
-    qreal r = static_cast<qreal>(cVec.x());
-    qreal g = static_cast<qreal>(cVec.y());
-    qreal b = static_cast<qreal>(cVec.z());
-    qreal a = static_cast<qreal>(cVec.w());
-    color.setRgbF(r, g, b, a);
-    return color;
+QColor BMFillEffect::color() const {
+	QVector4D cVec = m_color.value();
+	QColor color;
+	qreal r = static_cast<qreal>(cVec.x());
+	qreal g = static_cast<qreal>(cVec.y());
+	qreal b = static_cast<qreal>(cVec.z());
+	qreal a = static_cast<qreal>(cVec.w());
+	color.setRgbF(r, g, b, a);
+	return color;
 }
 
-qreal BMFillEffect::opacity() const
-{
-    return m_opacity.value();
+qreal BMFillEffect::opacity() const {
+	return m_opacity.value();
 }
-
-QT_END_NAMESPACE

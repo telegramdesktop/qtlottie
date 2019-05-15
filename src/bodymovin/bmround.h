@@ -26,39 +26,40 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmspatialproperty.h"
+#include "bmfill.h"
+#include "bmstroke.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QRect>
+#include <QPointF>
+#include <QBrush>
+#include <QPen>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class QJsonObject;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMRound : public BMShape {
+public:
+	BMRound(BMBase *parent);
+	BMRound(BMBase *parent, const BMRound &other);
+	BMRound(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	void parse(const QJsonObject &definition);
 
-	m_layerTransform.clearOpacity();
-}
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
+	bool acceptsTrim() const override;
 
-BMNullLayer::~BMNullLayer() = default;
+	QPointF position() const;
+	qreal radius() const;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+protected:
+	BMSpatialProperty m_position;
+	BMProperty<qreal> m_radius;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

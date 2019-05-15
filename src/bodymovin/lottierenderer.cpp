@@ -26,30 +26,22 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "lottierenderer.h"
 
-#include "lottierenderer_p.h"
-
-QT_BEGIN_NAMESPACE
-
-void LottieRenderer::setTrimmingState(LottieRenderer::TrimmingState trimmingState)
-{
-    m_trimmingState = trimmingState;
+void LottieRenderer::setTrimmingState(LottieRenderer::TrimmingState trimmingState) {
+	m_trimmingState = trimmingState;
 }
 
-LottieRenderer::TrimmingState LottieRenderer::trimmingState() const
-{
-    return m_trimmingState;
+LottieRenderer::TrimmingState LottieRenderer::trimmingState() const {
+	return m_trimmingState;
 }
 
-void LottieRenderer::saveTrimmingState()
-{
-    m_trimStateStack.push(m_trimmingState);
+void LottieRenderer::saveTrimmingState() {
+	m_trimStateStack.push(m_trimmingState);
 }
 
-void LottieRenderer::restoreTrimmingState()
-{
-    if (m_trimStateStack.count())
-        m_trimmingState = m_trimStateStack.pop();
+void LottieRenderer::restoreTrimmingState() {
+	if (m_trimStateStack.count()) {
+		m_trimmingState = m_trimStateStack.pop();
+	}
 }
-
-QT_END_NAMESPACE

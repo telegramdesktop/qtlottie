@@ -26,39 +26,38 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
+#include "bmspatialproperty.h"
+#include "bmfill.h"
+#include "bmstroke.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QRect>
+#include <QPointF>
+#include <QBrush>
+#include <QPen>
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMRect : public BMShape {
+public:
+	BMRect(BMBase *parent);
+	BMRect(BMBase *parent, const BMRect &other);
+	BMRect(BMBase *parent, const QJsonObject &definition);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMBase *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	void updateProperties(int frame) override;
+	void render(LottieRenderer &renderer, int frame) const override;
+	bool acceptsTrim() const override;
 
-	BMLayer::parse(definition);
+	QPointF position() const;
+	QSizeF size() const;
+	qreal roundness() const;
 
-	m_layerTransform.clearOpacity();
-}
+protected:
+	BMSpatialProperty m_position;
+	BMProperty2D<QSizeF> m_size;
+	BMProperty<qreal> m_roundness;
 
-BMNullLayer::~BMNullLayer() = default;
-
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

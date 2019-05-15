@@ -26,39 +26,20 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include <private/qbezier_p.h>
 
-#include <QJsonObject>
-#include <QJsonArray>
+class BezierEasing {
+public:
+	void addCubicBezierSegment(
+		const QPointF &c1,
+		const QPointF &c2,
+		const QPointF &endPoint);
+	qreal valueForProgress(qreal progress) const;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+private:
+	qreal tForX(qreal x) const;
+	QBezier mBezier;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
-
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
-
-	BMLayer::parse(definition);
-
-	m_layerTransform.clearOpacity();
-}
-
-BMNullLayer::~BMNullLayer() = default;
-
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

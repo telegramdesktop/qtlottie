@@ -26,27 +26,22 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmscene.h"
 
-#include "bmscene_p.h"
-
-#include "bmasset_p.h"
-#include "bmlayer_p.h"
+#include "bmasset.h"
+#include "bmlayer.h"
 
 #include <QJsonArray>
-
-QT_BEGIN_NAMESPACE
 
 BMScene::BMScene(const QJsonObject &definition) : BMBase(nullptr) {
 	parse(definition);
 }
 
-BMScene::~BMScene()
-{
+BMScene::~BMScene() {
 }
 
-BMBase *BMScene::clone(BMBase *parent) const
-{
-    return nullptr;
+BMBase *BMScene::clone(BMBase *parent) const {
+	return nullptr;
 }
 
 BMScene *BMScene::resolveTopRoot() const {
@@ -73,8 +68,7 @@ int BMScene::height() const {
 	return _height;
 }
 
-void BMScene::parse(const QJsonObject &definition)
-{
+void BMScene::parse(const QJsonObject &definition) {
 	_parsing = true;
 
 	_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
@@ -168,5 +162,3 @@ void BMScene::resolveAllAssets() {
 			: nullptr;
 	});
 }
-
-QT_END_NAMESPACE

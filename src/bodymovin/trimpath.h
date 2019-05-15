@@ -26,39 +26,48 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include <QPainterPath>
 
-#include <QJsonObject>
-#include <QJsonArray>
+class TrimPath {
+public:
+	TrimPath() = default;
+	TrimPath(const QPainterPath &path)
+		: mPath(path) {}
+	TrimPath(const TrimPath &other)
+		: mPath(other.mPath), mLens(other.mLens) {}
+	~TrimPath() {}
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+	void setPath(const QPainterPath &path) {
+		mPath = path;
+		mLens.clear();
+	}
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	QPainterPath path() const {
+		return mPath;
+	}
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	QPainterPath trimmed(qreal f1, qreal f2, qreal offset = 0.0) const;
 
-	BMLayer::parse(definition);
+private:
+	bool lensIsDirty() const {
+		return mLens.size() != mPath.elementCount();
+	}
+	void updateLens() const;
+	int elementAtLength(qreal len) const;
+	QPointF endPointOfElement(int elemIdx) const;
+	void appendTrimmedElement(QPainterPath *to, int elemIdx, bool trimStart, qreal startLen, bool trimEnd, qreal endLen) const;
+	void appendStartOfElement(QPainterPath *to, int elemIdx, qreal len) const {
+		appendTrimmedElement(to, elemIdx, false, 0.0, true, len);
+	}
+	void appendEndOfElement(QPainterPath *to, int elemIdx, qreal len) const {
+		appendTrimmedElement(to, elemIdx, true, len, false, 1.0);
+	}
 
-	m_layerTransform.clearOpacity();
-}
+	void appendElementRange(QPainterPath *to, int first, int last) const;
 
-BMNullLayer::~BMNullLayer() = default;
+	QPainterPath mPath;
+	mutable QVector<qreal> mLens;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

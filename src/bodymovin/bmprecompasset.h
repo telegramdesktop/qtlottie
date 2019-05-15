@@ -26,39 +26,19 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
-#include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmasset.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+class LottieRenderer;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+class BMPreCompAsset : public BMAsset {
+public:
+	BMPreCompAsset(BMBase *parent);
+	BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other);
+	BMPreCompAsset(BMBase *parent, const QJsonObject &definition);
+	~BMPreCompAsset() = default;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+	BMPreCompAsset *clone(BMBase *parent) const override;
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
-
-	BMLayer::parse(definition);
-
-	m_layerTransform.clearOpacity();
-}
-
-BMNullLayer::~BMNullLayer() = default;
-
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
-
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

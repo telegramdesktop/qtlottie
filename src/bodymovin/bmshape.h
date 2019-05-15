@@ -26,39 +26,50 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "bmnulllayer.h"
+#pragma once
 
-#include "bmconstants.h"
+#include <QPainterPath>
+
 #include "bmbase.h"
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "bmproperty.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
+class BMFill;
+class BMStroke;
+class BMTrimPath;
 
-BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
-}
+#define BM_SHAPE_ANY_TYPE_IX -1
+#define BM_SHAPE_ELLIPSE_IX 0
+#define BM_SHAPE_FILL_IX 1
+#define BM_SHAPE_GFILL_IX 2
+#define BM_SHAPE_GSTROKE_IX 3
+#define BM_SHAPE_GROUP_IX 4
+#define BM_SHAPE_RECT_IX 5
+#define BM_SHAPE_ROUND_IX 6
+#define BM_SHAPE_SHAPE_IX 7
+#define BM_SHAPE_STAR_IX 8
+#define BM_SHAPE_STROKE_IX 9
+#define BM_SHAPE_TRIM_IX 10
+#define BM_SHAPE_TRANS_IX 11
+#define BM_SHAPE_REPEATER_IX 12
 
-BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
-: BMLayer(parent, other) {
-}
+class BMShape : public BMBase {
+public:
+	BMShape(BMBase *parent);
+	BMShape(BMBase *parent, const BMShape &other);
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
-: BMLayer(parent) {
-	m_type = BM_LAYER_NULL_IX;
+	BMBase *clone(BMBase *parent) const override;
 
-	BMLayer::parse(definition);
+	static BMShape *construct(BMBase *parent, QJsonObject definition);
 
-	m_layerTransform.clearOpacity();
-}
+	virtual const QPainterPath &path() const;
+	virtual bool acceptsTrim() const;
+	virtual void applyTrim(const BMTrimPath& trimmer);
 
-BMNullLayer::~BMNullLayer() = default;
+	int direction() const;
 
-BMBase *BMNullLayer::clone(BMBase *parent) const {
-	return new BMNullLayer(parent, *this);
-}
+protected:
+	QPainterPath m_path;
+	BMTrimPath *m_appliedTrim = nullptr;
+	int m_direction = 0;
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
-}
+};

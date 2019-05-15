@@ -26,15 +26,12 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmgfill_p.h"
+#include "bmgfill.h"
 
 #include <QLinearGradient>
 #include <QRadialGradient>
 #include <QtMath>
 #include <QColor>
-
-QT_BEGIN_NAMESPACE
 
 BMGFill::BMGFill(BMBase *parent) : BMShape(parent) {
 }
@@ -47,186 +44,172 @@ BMGFill::BMGFill(BMBase *parent, const BMGFill &other)
 , m_highlightLength(other.m_highlightLength)
 , m_highlightAngle(other.m_highlightAngle)
 , m_colors(other.m_colors) {
-    if (other.gradientType() == QGradient::LinearGradient)
-        m_gradient = new QLinearGradient;
-    else if (other.gradientType() == QGradient::RadialGradient)
-        m_gradient = new QRadialGradient;
-    else {
-        Q_UNREACHABLE();
-    }
+	if (other.gradientType() == QGradient::LinearGradient) {
+		m_gradient = new QLinearGradient;
+	} else if (other.gradientType() == QGradient::RadialGradient) {
+		m_gradient = new QRadialGradient;
+	} else {
+		Q_UNREACHABLE();
+	}
 }
 
-BMGFill::~BMGFill()
-{
-    if (m_gradient)
-        delete m_gradient;
+BMGFill::~BMGFill() {
+	if (m_gradient) {
+		delete m_gradient;
+	}
 }
 
-BMBase *BMGFill::clone(BMBase *parent) const
-{
-    return new BMGFill(parent, *this);
+BMBase *BMGFill::clone(BMBase *parent) const {
+	return new BMGFill(parent, *this);
 }
 
 BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 : BMShape(parent) {
-    BMBase::parse(definition);
-    if (m_hidden)
-        return;
+	BMBase::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMGFill::construct():" << m_name;
+	int type = definition.value(QStringLiteral("t")).toVariant().toInt();
+	switch (type) {
+	case 1:
+		m_gradient = new QLinearGradient;
+		break;
+	case 2:
+		m_gradient = new QRadialGradient;
+		break;
+	default:
+		qWarning() << "Unknown gradient fill type";
+	}
 
-    int type = definition.value(QStringLiteral("t")).toVariant().toInt();
-    switch (type) {
-    case 1:
-        m_gradient = new QLinearGradient;
-        break;
-    case 2:
-        m_gradient = new QRadialGradient;
-        break;
-    default:
-        qCWarning(lcLottieQtBodymovinParser) << "Unknown gradient fill type";
-    }
+	QJsonObject color = definition.value(QStringLiteral("g")).toObject();
+	QJsonArray colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
+	int elementCount = color.value(QStringLiteral("p")).toInt();
+	for (int i = 0; i < (elementCount) * 4; i += 4) {
+		// p denotes the color stop percentage
+		QVector4D colorVec;
+		colorVec[0] = colorArr[i + 1].toVariant().toFloat();
+		colorVec[1] = colorArr[i + 2].toVariant().toFloat();
+		colorVec[2] = colorArr[i + 3].toVariant().toFloat();
+		// Set gradient stop position into w of the vector
+		colorVec[3] = colorArr[i + 0].toVariant().toFloat();
+		BMProperty4D<QVector4D> colorPos;
+		colorPos.setValue(colorVec);
+		m_colors.push_back(colorPos);
+	}
 
-    QJsonObject color = definition.value(QStringLiteral("g")).toObject();
-    QJsonArray colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
-    int elementCount = color.value(QStringLiteral("p")).toInt();
-    for (int i = 0; i < (elementCount) * 4; i += 4) {
-        // p denotes the color stop percentage
-        QVector4D colorVec;
-        colorVec[0] = colorArr[i + 1].toVariant().toFloat();
-        colorVec[1] = colorArr[i + 2].toVariant().toFloat();
-        colorVec[2] = colorArr[i + 3].toVariant().toFloat();
-        // Set gradient stop position into w of the vector
-        colorVec[3] = colorArr[i + 0].toVariant().toFloat();
-        BMProperty4D<QVector4D> colorPos;
-        colorPos.setValue(colorVec);
-        m_colors.push_back(colorPos);
-    }
+	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	m_opacity.construct(opacity);
 
-    QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
-    m_opacity.construct(opacity);
+	QJsonObject startPoint = definition.value(QStringLiteral("s")).toObject();
+	m_startPoint.construct(startPoint);
 
-    QJsonObject startPoint = definition.value(QStringLiteral("s")).toObject();
-    m_startPoint.construct(startPoint);
+	QJsonObject endPoint = definition.value(QStringLiteral("e")).toObject();
+	m_endPoint.construct(endPoint);
 
-    QJsonObject endPoint = definition.value(QStringLiteral("e")).toObject();
-    m_endPoint.construct(endPoint);
+	QJsonObject highlight = definition.value(QStringLiteral("h")).toObject();
+	m_highlightLength.construct(highlight);
 
-    QJsonObject highlight = definition.value(QStringLiteral("h")).toObject();
-    m_highlightLength.construct(highlight);
+	QJsonObject angle = definition.value(QStringLiteral("a")).toObject();
+	m_highlightAngle.construct(angle);
 
-    QJsonObject angle = definition.value(QStringLiteral("a")).toObject();
-    m_highlightAngle.construct(angle);
-
-    m_highlightAngle.setValue(0.0);
+	m_highlightAngle.setValue(0.0);
 }
 
-void BMGFill::updateProperties(int frame)
-{
-    QGradient::Type type = gradientType();
-    if (type != QGradient::LinearGradient &&
-        type != QGradient::RadialGradient)
-        return;
+void BMGFill::updateProperties(int frame) {
+	QGradient::Type type = gradientType();
+	if (type != QGradient::LinearGradient
+		&& type != QGradient::RadialGradient) {
+		return;
+	}
 
-    m_startPoint.update(frame);
-    m_endPoint.update(frame);
-    m_highlightLength.update(frame);
-    m_highlightAngle.update(frame);
-    m_opacity.update(frame);
-    QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
-    while (colorIt != m_colors.end()) {
-        (*colorIt).update(frame);
-        ++colorIt;
-    }
+	m_startPoint.update(frame);
+	m_endPoint.update(frame);
+	m_highlightLength.update(frame);
+	m_highlightAngle.update(frame);
+	m_opacity.update(frame);
+	QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
+	while (colorIt != m_colors.end()) {
+		(*colorIt).update(frame);
+		++colorIt;
+	}
 
-    setGradient();
+	setGradient();
 }
 
-void BMGFill::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMGFill::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-QGradient *BMGFill::value() const
-{
-    return m_gradient;
+QGradient *BMGFill::value() const {
+	return m_gradient;
 }
 
-QGradient::Type BMGFill::gradientType() const
-{
-    if (m_gradient)
-        return m_gradient->type();
-    else
-        return QGradient::NoGradient;
+QGradient::Type BMGFill::gradientType() const {
+	if (m_gradient) {
+		return m_gradient->type();
+	} else {
+		return QGradient::NoGradient;
+	}
 }
 
-QPointF BMGFill::startPoint() const
-{
-    return m_startPoint.value();
+QPointF BMGFill::startPoint() const {
+	return m_startPoint.value();
 }
 
-QPointF BMGFill::endPoint() const
-{
-    return m_endPoint.value();
+QPointF BMGFill::endPoint() const {
+	return m_endPoint.value();
 }
 
-qreal BMGFill::highlightLength() const
-{
-    return m_highlightLength.value();
+qreal BMGFill::highlightLength() const {
+	return m_highlightLength.value();
 }
 
-qreal BMGFill::highlightAngle() const
-{
-    return m_highlightAngle.value();
+qreal BMGFill::highlightAngle() const {
+	return m_highlightAngle.value();
 }
 
-qreal BMGFill::opacity() const
-{
-    return m_opacity.value();
+qreal BMGFill::opacity() const {
+	return m_opacity.value();
 }
 
-void BMGFill::setGradient()
-{
-    QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
-    while (colorIt != m_colors.end()) {
-        QVector4D colorPos = (*colorIt).value();
-        QColor color;
-        color.setRedF(static_cast<qreal>(colorPos[0]));
-        color.setGreenF(static_cast<qreal>(colorPos[1]));
-        color.setBlueF(static_cast<qreal>(colorPos[2]));
-        color.setAlphaF(m_opacity.value() / 100.0);
-        m_gradient->setColorAt(static_cast<qreal>(colorPos[3]),
-                               color);
-        ++colorIt;
-    }
+void BMGFill::setGradient() {
+	QList<BMProperty4D<QVector4D>>::iterator colorIt = m_colors.begin();
+	while (colorIt != m_colors.end()) {
+		QVector4D colorPos = (*colorIt).value();
+		QColor color;
+		color.setRedF(static_cast<qreal>(colorPos[0]));
+		color.setGreenF(static_cast<qreal>(colorPos[1]));
+		color.setBlueF(static_cast<qreal>(colorPos[2]));
+		color.setAlphaF(m_opacity.value() / 100.0);
+		m_gradient->setColorAt(static_cast<qreal>(colorPos[3]),
+							   color);
+		++colorIt;
+	}
 
-    switch (gradientType()) {
-    case QGradient::LinearGradient:
-    {
-        QLinearGradient *g = static_cast<QLinearGradient*>(m_gradient);
-        g->setStart(m_startPoint.value());
-        g->setFinalStop(m_endPoint.value());
-        break;
-    }
-    case QGradient::RadialGradient:
-    {
-        QRadialGradient *g = static_cast<QRadialGradient*>(m_gradient);
-        qreal dx = qAbs(m_endPoint.value().x() + m_startPoint.value().x());
-        qreal dy = qAbs(m_endPoint.value().y() + m_startPoint.value().y());
-        qreal radius = qSqrt(dx * dx +  dy * dy);
-        qreal angle = qAsin(dy / radius);
-        g->setCenter(m_startPoint.value());
-        g->setCenterRadius(radius);
-        qreal focusRadius = 2;
-        qreal x = (g->radius() - 2 * focusRadius) * qCos(angle + qDegreesToRadians(m_highlightAngle.value()));
-        qreal y = (g->radius() - 2 * focusRadius) * qSin(angle + qDegreesToRadians(m_highlightAngle.value()));
-        g->setFocalPoint(g->center() + QPointF(x, y));
-        g->setFocalRadius(focusRadius);
-        break;
-    }
-    default:
-        break;
-    }
+	switch (gradientType()) {
+	case QGradient::LinearGradient: {
+		QLinearGradient *g = static_cast<QLinearGradient*>(m_gradient);
+		g->setStart(m_startPoint.value());
+		g->setFinalStop(m_endPoint.value());
+		break;
+	}
+	case QGradient::RadialGradient: {
+		QRadialGradient *g = static_cast<QRadialGradient*>(m_gradient);
+		qreal dx = qAbs(m_endPoint.value().x() + m_startPoint.value().x());
+		qreal dy = qAbs(m_endPoint.value().y() + m_startPoint.value().y());
+		qreal radius = qSqrt(dx * dx +  dy * dy);
+		qreal angle = qAsin(dy / radius);
+		g->setCenter(m_startPoint.value());
+		g->setCenterRadius(radius);
+		qreal focusRadius = 2;
+		qreal x = (g->radius() - 2 * focusRadius) * qCos(angle + qDegreesToRadians(m_highlightAngle.value()));
+		qreal y = (g->radius() - 2 * focusRadius) * qSin(angle + qDegreesToRadians(m_highlightAngle.value()));
+		g->setFocalPoint(g->center() + QPointF(x, y));
+		g->setFocalRadius(focusRadius);
+		break;
+	}
+	default:
+		break;
+	}
 }
-
-QT_END_NAMESPACE

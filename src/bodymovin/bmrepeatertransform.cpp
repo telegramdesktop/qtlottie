@@ -26,10 +26,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#include "bmrepeatertransform_p.h"
-
-QT_BEGIN_NAMESPACE
+#include "bmrepeatertransform.h"
 
 BMRepeaterTransform::BMRepeaterTransform(BMBase *parent) : BMBasicTransform(parent) {
 }
@@ -43,67 +40,56 @@ BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const BMRepeaterTransfo
 
 BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const QJsonObject &definition)
 : BMBasicTransform(parent) {
-    parse(definition);
+	parse(definition);
 }
 
-BMBase *BMRepeaterTransform::clone(BMBase *parent) const
-{
-    return new BMRepeaterTransform(parent, *this);
+BMBase *BMRepeaterTransform::clone(BMBase *parent) const {
+	return new BMRepeaterTransform(parent, *this);
 }
 
-void BMRepeaterTransform::parse(const QJsonObject &definition)
-{
-    qCDebug(lcLottieQtBodymovinParser) << "BMRepeaterTransform::construct():" << name();
+void BMRepeaterTransform::parse(const QJsonObject &definition) {
+	BMBasicTransform::parse(definition);
+	if (m_hidden) {
+		return;
+	}
 
-    BMBasicTransform::parse(definition);
-    if (m_hidden)
-        return;
+	QJsonObject startOpacity = definition.value(QStringLiteral("so")).toObject();
+	m_startOpacity.construct(startOpacity);
 
-    QJsonObject startOpacity = definition.value(QStringLiteral("so")).toObject();
-    m_startOpacity.construct(startOpacity);
-
-    QJsonObject endOpacity = definition.value(QStringLiteral("eo")).toObject();
-    m_endOpacity.construct(endOpacity);
+	QJsonObject endOpacity = definition.value(QStringLiteral("eo")).toObject();
+	m_endOpacity.construct(endOpacity);
 }
 
-void BMRepeaterTransform::updateProperties(int frame)
-{
-    BMBasicTransform::updateProperties(frame);
+void BMRepeaterTransform::updateProperties(int frame) {
+	BMBasicTransform::updateProperties(frame);
 
-    m_startOpacity.update(frame);
-    m_endOpacity.update(frame);
+	m_startOpacity.update(frame);
+	m_endOpacity.update(frame);
 
-    m_opacities.clear();
-    for (int i = 0; i < m_copies; i++) {
-        qreal opacity = m_startOpacity.value() +
-                (m_endOpacity.value() - m_startOpacity.value()) * i / m_copies;
-        m_opacities.push_back(opacity);
-    }
+	m_opacities.clear();
+	for (int i = 0; i < m_copies; i++) {
+		qreal opacity = m_startOpacity.value()
+			+ (m_endOpacity.value() - m_startOpacity.value()) * i / m_copies;
+		m_opacities.push_back(opacity);
+	}
 }
 
-void BMRepeaterTransform::render(LottieRenderer &renderer, int frame) const
-{
-    renderer.render(*this);
+void BMRepeaterTransform::render(LottieRenderer &renderer, int frame) const {
+	renderer.render(*this);
 }
 
-void BMRepeaterTransform::setInstanceCount(int copies)
-{
-    m_copies = copies;
+void BMRepeaterTransform::setInstanceCount(int copies) {
+	m_copies = copies;
 }
 
-qreal BMRepeaterTransform::opacityAtInstance(int instance) const
-{
-    return m_opacities.at(instance) / 100.0;
+qreal BMRepeaterTransform::opacityAtInstance(int instance) const {
+	return m_opacities.at(instance) / 100.0;
 }
 
-qreal BMRepeaterTransform::startOpacity() const
-{
-    return m_startOpacity.value();
+qreal BMRepeaterTransform::startOpacity() const {
+	return m_startOpacity.value();
 }
 
-qreal BMRepeaterTransform::endOpacity() const
-{
-    return m_endOpacity.value();
+qreal BMRepeaterTransform::endOpacity() const {
+	return m_endOpacity.value();
 }
-
-QT_END_NAMESPACE

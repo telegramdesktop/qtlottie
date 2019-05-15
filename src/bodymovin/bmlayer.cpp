@@ -26,25 +26,21 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "bmlayer.h"
 
-#include "bmlayer_p.h"
+#include "bmshapelayer.h"
+#include "bmfilleffect.h"
+#include "bmbasictransform.h"
+
+#include "bmscene.h"
+#include "bmnulllayer.h"
+#include "bmprecomplayer.h"
+#include "bmmasks.h"
+#include "bmmaskshape.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QLoggingCategory>
-
-#include "bmshapelayer_p.h"
-#include "bmfilleffect_p.h"
-#include "bmbasictransform_p.h"
-
-#include "bmscene_p.h"
-#include "bmnulllayer_p.h"
-#include "bmprecomplayer_p.h"
-#include "bmmasks_p.h"
-#include "bmmaskshape_p.h"
-
-QT_BEGIN_NAMESPACE
 
 BMLayer::BMLayer(BMBase *parent) : BMBase(parent), m_layerTransform(this) {
 }
@@ -62,257 +58,237 @@ BMLayer::BMLayer(BMBase *parent, const BMLayer &other)
 , m_parentLayer(other.m_parentLayer)
 , m_td(other.m_td)
 , m_clipMode(other.m_clipMode) {
-    if (other.m_effects) {
-        m_effects = new BMBase(this);
-        for (BMBase *effect : other.m_effects->children())
-            m_effects->appendChild(effect->clone(m_effects));
-    }
-    if (other.m_masks) {
-        m_masks = new BMMasks(this, *other.m_masks);
-    }
-    //m_transformAtFirstFrame = other.m_transformAtFirstFrame;
+	if (other.m_effects) {
+		m_effects = new BMBase(this);
+		for (BMBase *effect : other.m_effects->children()) {
+			m_effects->appendChild(effect->clone(m_effects));
+		}
+	}
+	if (other.m_masks) {
+		m_masks = new BMMasks(this, *other.m_masks);
+	}
+	//m_transformAtFirstFrame = other.m_transformAtFirstFrame;
 }
 
-BMLayer::~BMLayer()
-{
-    if (m_effects)
-        delete m_effects;
-    if (m_masks)
-        delete m_masks;
+BMLayer::~BMLayer() {
+	if (m_effects) {
+		delete m_effects;
+	}
+	if (m_masks) {
+		delete m_masks;
+	}
 }
 
-BMLayer *BMLayer::construct(BMBase *parent, QJsonObject definition)
-{
-    qCDebug(lcLottieQtBodymovinParser) << "BMLayer::construct()";
-
-    BMLayer *layer = nullptr;
-    int type = definition.value(QStringLiteral("ty")).toInt();
-    switch (type) {
-    case 4:
-        qCDebug(lcLottieQtBodymovinParser) << "Parse shape layer";
-        layer = new BMShapeLayer(parent, definition);
-        break;
-    case 3:
-        qCDebug(lcLottieQtBodymovinParser) << "Parse null layer";
-        layer = new BMNullLayer(parent, definition);
-        break;
-    case 0:
-        qCDebug(lcLottieQtBodymovinParser) << "Parse precomp layer";
-        layer = new BMPreCompLayer(parent, definition);
-        break;
-    default:
-        qCWarning(lcLottieQtBodymovinParser) << "Unsupported layer type:" << type;
-    }
-    return layer;
+BMLayer *BMLayer::construct(BMBase *parent, QJsonObject definition) {
+	BMLayer *layer = nullptr;
+	int type = definition.value(QStringLiteral("ty")).toInt();
+	switch (type) {
+	case 4:
+		layer = new BMShapeLayer(parent, definition);
+		break;
+	case 3:
+		layer = new BMNullLayer(parent, definition);
+		break;
+	case 0:
+		layer = new BMPreCompLayer(parent, definition);
+		break;
+	default:
+		qWarning() << "Unsupported layer type:" << type;
+	}
+	return layer;
 }
 
-bool BMLayer::active(int frame) const
-{
-    return (!m_hidden && (frame >= m_startFrame && frame < m_endFrame));
+bool BMLayer::active(int frame) const {
+	return (!m_hidden && (frame >= m_startFrame && frame < m_endFrame));
 }
 
-void BMLayer::parse(const QJsonObject &definition)
-{
-    BMBase::parse(definition);
+void BMLayer::parse(const QJsonObject &definition) {
+	BMBase::parse(definition);
 
-    qCDebug(lcLottieQtBodymovinParser) << "BMLayer::parse():" << m_name;
+	m_layerIndex = definition.value(QStringLiteral("ind")).toVariant().toInt();
+	m_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
+	m_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
+	m_startTime = definition.value(QStringLiteral("st")).toVariant().toReal();
+	m_blendMode = definition.value(QStringLiteral("bm")).toVariant().toInt();
+	m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
+	m_3dLayer = definition.value(QStringLiteral("ddd")).toBool();
+	m_stretch = definition.value(QStringLiteral("sr")).toVariant().toReal();
+	m_parentLayer = definition.value(QStringLiteral("parent")).toVariant().toInt();
+	m_td = definition.value(QStringLiteral("td")).toInt();
+	int clipMode = definition.value(QStringLiteral("tt")).toInt(-1);
+	if (clipMode > -1 && clipMode < 5) {
+		m_clipMode = static_cast<MatteClipMode>(clipMode);
+	}
 
-    m_layerIndex = definition.value(QStringLiteral("ind")).toVariant().toInt();
-    m_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
-    m_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
-    m_startTime = definition.value(QStringLiteral("st")).toVariant().toReal();
-    m_blendMode = definition.value(QStringLiteral("bm")).toVariant().toInt();
-    m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
-    m_3dLayer = definition.value(QStringLiteral("ddd")).toBool();
-    m_stretch = definition.value(QStringLiteral("sr")).toVariant().toReal();
-    m_parentLayer = definition.value(QStringLiteral("parent")).toVariant().toInt();
-    m_td = definition.value(QStringLiteral("td")).toInt();
-    int clipMode = definition.value(QStringLiteral("tt")).toInt(-1);
-    if (clipMode > -1 && clipMode < 5)
-        m_clipMode = static_cast<MatteClipMode>(clipMode);
-
-    QJsonObject trans = definition.value(QStringLiteral("ks")).toObject();
+	QJsonObject trans = definition.value(QStringLiteral("ks")).toObject();
 	m_layerTransform.parse(trans);
 
-    if (m_hidden)
-        return;
+	if (m_hidden) {
+		return;
+	}
 
-    QJsonArray maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
-    parseMasks(maskProps);
+	QJsonArray maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
+	parseMasks(maskProps);
 
-    QJsonArray effects = definition.value(QStringLiteral("ef")).toArray();
-    parseEffects(effects);
+	QJsonArray effects = definition.value(QStringLiteral("ef")).toArray();
+	parseEffects(effects);
 
-    if (m_td > 1)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "BM Layer: Only alpha mask layer supported:" << m_clipMode;
-    if (m_blendMode > 0)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "BM Layer: Unsupported blend mode" << m_blendMode;
-    if (m_stretch > 1)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "BM Layer: stretch not supported" << m_stretch;
-    if (m_autoOrient)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "BM Layer: auto-orient not supported";
-    if (m_3dLayer)
-        qCWarning(lcLottieQtBodymovinParser)
-                << "BM Layer: is a 3D layer, but not handled";
+	if (m_td > 1) {
+		qWarning()
+			<< "BM Layer: Only alpha mask layer supported:" << m_clipMode;
+	}
+	if (m_blendMode > 0) {
+		qWarning()
+			<< "BM Layer: Unsupported blend mode" << m_blendMode;
+	}
+	if (m_stretch > 1) {
+		qWarning()
+			<< "BM Layer: stretch not supported" << m_stretch;
+	}
+	if (m_autoOrient) {
+		qWarning()
+			<< "BM Layer: auto-orient not supported";
+	}
+	if (m_3dLayer) {
+		qWarning()
+			<< "BM Layer: is a 3D layer, but not handled";
+	}
 }
 
-void BMLayer::updateProperties(int frame)
-{
-    if (m_updated)
-        return;
-    m_updated = true;
+void BMLayer::updateProperties(int frame) {
+	if (m_updated) {
+		return;
+	}
+	m_updated = true;
 
-    if (m_parentLayer) {
-        resolveLinkedLayer();
-        if (m_linkedLayer) {
-            m_linkedLayer->updateProperties(frame);
-        }
-    }
+	if (m_parentLayer) {
+		resolveLinkedLayer();
+		if (m_linkedLayer) {
+			m_linkedLayer->updateProperties(frame);
+		}
+	}
 
-    // Update first effects, as they are not children of the layer
-    if (m_effects) {
-        for (BMBase* effect : m_effects->children())
-            if (effect->active(frame))
-                effect->updateProperties(frame);
-    }
+	// Update first effects, as they are not children of the layer
+	if (m_effects) {
+		for (BMBase* effect : m_effects->children()) {
+			if (effect->active(frame)) {
+				effect->updateProperties(frame);
+			}
+		}
+	}
 
-    if (m_masks) {
-        m_masks->updateProperties(frame);
-    }
+	if (m_masks) {
+		m_masks->updateProperties(frame);
+	}
 
-    BMBase::updateProperties(frame);
+	BMBase::updateProperties(frame);
 
-    m_layerTransform.updateProperties(frame);
+	m_layerTransform.updateProperties(frame);
 }
 
-BMBase *BMLayer::findChild(const QString &childName)
-{
-    BMBase *child = nullptr;
+BMLayer *BMLayer::resolveLinkedLayer() {
+	if (m_linkedLayer) {
+		return m_linkedLayer;
+	}
 
-    if (m_effects)
-        child = m_effects->findChild(childName);
-
-    if (child)
-        return child;
-    else
-        return BMBase::findChild(childName);
+	for (BMBase *child : parent()->children()) {
+		BMLayer *layer = static_cast<BMLayer*>(child);
+		if (layer->layerId() == m_parentLayer) {
+			m_linkedLayer = layer;
+			break;
+		}
+	}
+	return m_linkedLayer;
 }
 
-BMLayer *BMLayer::resolveLinkedLayer()
-{
-    if (m_linkedLayer)
-        return m_linkedLayer;
-
-    for (BMBase *child : parent()->children()) {
-        BMLayer *layer = static_cast<BMLayer*>(child);
-        if (layer->layerId() == m_parentLayer) {
-            m_linkedLayer = layer;
-            break;
-        }
-    }
-    return m_linkedLayer;
+BMLayer *BMLayer::linkedLayer() const {
+	return m_linkedLayer;
 }
 
-BMLayer *BMLayer::linkedLayer() const
-{
-    return m_linkedLayer;
+bool BMLayer::isClippedLayer() const {
+	return m_clipMode != NoClip;
 }
 
-bool BMLayer::isClippedLayer() const
-{
-    return m_clipMode != NoClip;
+bool BMLayer::isMaskLayer() const {
+	return m_td > 0;
 }
 
-bool BMLayer::isMaskLayer() const
-{
-    return m_td > 0;
+BMLayer::MatteClipMode BMLayer::clipMode() const {
+	return m_clipMode;
 }
 
-BMLayer::MatteClipMode BMLayer::clipMode() const
-{
-    return m_clipMode;
-}
-
-int BMLayer::layerId() const
-{
-    return m_layerIndex;
+int BMLayer::layerId() const {
+	return m_layerIndex;
 }
 
 void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
-    // In case there is a linked layer, apply its transform first
-    // as it affects tranforms of this layer too
-    if (BMLayer *ll = linkedLayer())
-        ll->renderFullTransform(renderer, frame);
-    m_layerTransform.render(renderer, frame);
+	// In case there is a linked layer, apply its transform first
+	// as it affects tranforms of this layer too
+	if (BMLayer *ll = linkedLayer()) {
+		ll->renderFullTransform(renderer, frame);
+	}
+	m_layerTransform.render(renderer, frame);
 }
 
-void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const
-{
-    if (!m_effects)
-        return;
-
-    for (BMBase* effect : m_effects->children())
-        if (effect->active(frame))
-            effect->render(renderer, frame);
+void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const {
+	if (!m_effects) {
+		return;
+	}
+	for (BMBase* effect : m_effects->children())
+		if (effect->active(frame)) {
+			effect->render(renderer, frame);
+		}
 }
 
-void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot)
-{
-    QJsonArray::const_iterator it = definition.constEnd();
-    while (it != definition.constBegin()) {
-        // Create effects container if at least one effect found
-        if (!m_effects) {
-            m_effects = new BMBase(this);
-            effectRoot = m_effects;
-        }
-        it--;
-        QJsonObject effect = (*it).toObject();
-        int type = effect.value(QStringLiteral("ty")).toInt();
-        switch (type) {
-        case 0:
-        {
-            BMBase *slider = new BMBase(effectRoot);
-            slider->parse(effect);
-            effectRoot->appendChild(slider);
-            break;
-        }
-        case 5:
-        {
-            if (effect.value(QStringLiteral("en")).toInt()) {
-                BMBase *group = new BMBase(effectRoot);
-                group->parse(effect);
-                effectRoot->appendChild(group);
-                parseEffects(effect.value(QStringLiteral("ef")).toArray(), group);
-            }
-            break;
-        }
-        case 21:
-        {
-            BMFillEffect *fill = new BMFillEffect(effectRoot, effect);
-            effectRoot->appendChild(fill);
-            break;
-        }
-        default:
-            qCWarning(lcLottieQtBodymovinParser)
-                << "BMLayer: Unsupported effect" << type;
-        }
-    }
+void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
+	QJsonArray::const_iterator it = definition.constEnd();
+	while (it != definition.constBegin()) {
+		// Create effects container if at least one effect found
+		if (!m_effects) {
+			m_effects = new BMBase(this);
+			effectRoot = m_effects;
+		}
+		it--;
+		QJsonObject effect = (*it).toObject();
+		int type = effect.value(QStringLiteral("ty")).toInt();
+		switch (type) {
+		case 0: {
+			BMBase *slider = new BMBase(effectRoot);
+			slider->parse(effect);
+			effectRoot->appendChild(slider);
+		} break;
+
+		case 5: {
+			if (effect.value(QStringLiteral("en")).toInt()) {
+				BMBase *group = new BMBase(effectRoot);
+				group->parse(effect);
+				effectRoot->appendChild(group);
+				parseEffects(effect.value(QStringLiteral("ef")).toArray(), group);
+			}
+		} break;
+
+		case 21: {
+			BMFillEffect *fill = new BMFillEffect(effectRoot, effect);
+			effectRoot->appendChild(fill);
+		} break;
+
+		default:
+			qWarning()
+				<< "BMLayer: Unsupported effect" << type;
+		}
+	}
 }
 
 void BMLayer::parseMasks(const QJsonArray &definition) {
-    QJsonArray::const_iterator it = definition.constBegin();
-    while (it != definition.constEnd()) {
-        QJsonObject mask = (*it).toObject();
-        if (mask.value(QStringLiteral("mode")).toString() != QStringLiteral("n")) {
-            if (!m_masks) m_masks = new BMMasks(this);
-            m_masks->appendChild(new BMMaskShape(m_masks, mask));
-        }
-        ++it;
-    }
+	QJsonArray::const_iterator it = definition.constBegin();
+	while (it != definition.constEnd()) {
+		QJsonObject mask = (*it).toObject();
+		if (mask.value(QStringLiteral("mode")).toString() != QStringLiteral("n")) {
+			if (!m_masks) {
+				m_masks = new BMMasks(this);
+			}
+			m_masks->appendChild(new BMMaskShape(m_masks, mask));
+		}
+		++it;
+	}
 }
-
-QT_END_NAMESPACE
