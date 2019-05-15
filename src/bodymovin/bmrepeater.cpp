@@ -28,6 +28,10 @@
 ****************************************************************************/
 #include "bmrepeater.h"
 
+#include "renderer.h"
+
+namespace Lottie {
+
 BMRepeater::BMRepeater(BMBase *parent, const BMRepeater &other)
 : BMShape(parent, other)
 , m_copies(other.m_copies)
@@ -67,7 +71,7 @@ void BMRepeater::updateProperties(int frame) {
 	m_transform.updateProperties(frame);
 }
 
-void BMRepeater::render(LottieRenderer &renderer, int frame) const {
+void BMRepeater::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -82,3 +86,5 @@ qreal BMRepeater::offset() const {
 const BMRepeaterTransform &BMRepeater::transform() const {
 	return m_transform;
 }
+
+} // namespace Lottie

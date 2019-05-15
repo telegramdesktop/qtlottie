@@ -28,6 +28,10 @@
 ****************************************************************************/
 #include "bmrepeatertransform.h"
 
+#include "renderer.h"
+
+namespace Lottie {
+
 BMRepeaterTransform::BMRepeaterTransform(BMBase *parent) : BMBasicTransform(parent) {
 }
 
@@ -74,7 +78,7 @@ void BMRepeaterTransform::updateProperties(int frame) {
 	}
 }
 
-void BMRepeaterTransform::render(LottieRenderer &renderer, int frame) const {
+void BMRepeaterTransform::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -93,3 +97,5 @@ qreal BMRepeaterTransform::startOpacity() const {
 qreal BMRepeaterTransform::endOpacity() const {
 	return m_endOpacity.value();
 }
+
+} // namespace Lottie

@@ -33,6 +33,8 @@
 
 #include <QJsonArray>
 
+namespace Lottie {
+
 BMScene::BMScene(const QJsonObject &definition) : BMBase(nullptr) {
 	parse(definition);
 }
@@ -131,7 +133,7 @@ void BMScene::updateProperties(int frame) {
 	_current->updateProperties(frame);
 }
 
-void BMScene::render(LottieRenderer &renderer, int frame) const {
+void BMScene::render(Renderer &renderer, int frame) const {
 	Q_ASSERT(_current);
 	_current->render(renderer, frame);
 }
@@ -162,3 +164,5 @@ void BMScene::resolveAllAssets() {
 			: nullptr;
 	});
 }
+
+} // namespace Lottie

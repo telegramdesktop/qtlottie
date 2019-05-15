@@ -32,6 +32,8 @@
 
 #include <QPointF>
 
+namespace Lottie {
+
 class BMSpatialProperty : public BMProperty2D<QPointF> {
 public:
 	virtual void postprocessEasingCurve(
@@ -118,3 +120,5 @@ public:
 	}
 
 };
+
+} // namespace Lottie

@@ -28,6 +28,8 @@
 ****************************************************************************/
 #include "beziereasing.h"
 
+namespace Lottie {
+
 void BezierEasing::addCubicBezierSegment(
 		const QPointF &c1,
 		const QPointF &c2,
@@ -68,3 +70,5 @@ qreal BezierEasing::tForX(qreal x) const {
 
 	return t0;
 }
+
+} // namespace Lottie

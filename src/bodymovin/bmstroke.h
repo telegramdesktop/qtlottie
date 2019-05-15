@@ -34,6 +34,8 @@
 #include <QPen>
 #include <QVector4D>
 
+namespace Lottie {
+
 class BMStroke : public BMShape {
 public:
 	BMStroke(BMBase *parent);
@@ -43,7 +45,7 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	QPen pen() const;
 	qreal opacity() const;
@@ -60,3 +62,5 @@ protected:
 	qreal m_miterLimit = 0.;
 
 };
+
+} // namespace Lottie

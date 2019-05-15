@@ -28,7 +28,6 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmconstants.h"
 #include "beziereasing.h"
 
 #include <QJsonObject>
@@ -36,6 +35,8 @@
 #include <QJsonValue>
 #include <QPointF>
 #include <QtMath>
+
+namespace Lottie {
 
 enum class EasingSegmentState : char {
 	Complete,
@@ -354,3 +355,5 @@ protected:
 	}
 
 };
+
+} // namespace Lottie

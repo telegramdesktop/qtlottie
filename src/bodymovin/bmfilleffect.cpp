@@ -28,8 +28,12 @@
 ****************************************************************************/
 #include "bmfilleffect.h"
 
+#include "renderer.h"
+
 #include <QJsonObject>
 #include <QJsonValue>
+
+namespace Lottie {
 
 BMFillEffect::BMFillEffect(BMBase *parent) : BMBase(parent) {
 }
@@ -89,7 +93,7 @@ void BMFillEffect::updateProperties(int frame) {
 	m_opacity.update(frame);
 }
 
-void BMFillEffect::render(LottieRenderer &renderer, int frame) const {
+void BMFillEffect::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -107,3 +111,5 @@ QColor BMFillEffect::color() const {
 qreal BMFillEffect::opacity() const {
 	return m_opacity.value();
 }
+
+} // namespace Lottie

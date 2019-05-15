@@ -28,7 +28,9 @@
 ****************************************************************************/
 #include "bmstroke.h"
 
-#include "bmconstants.h"
+#include "renderer.h"
+
+namespace Lottie {
 
 BMStroke::BMStroke(BMBase *parent) : BMShape(parent) {
 }
@@ -101,7 +103,7 @@ void BMStroke::updateProperties(int frame) {
 	m_color.update(frame);
 }
 
-void BMStroke::render(LottieRenderer &renderer, int frame) const {
+void BMStroke::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -135,3 +137,5 @@ QColor BMStroke::getColor() const {
 qreal BMStroke::opacity() const {
 	return m_opacity.value();
 }
+
+} // namespace Lottie

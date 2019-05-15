@@ -28,9 +28,11 @@
 ****************************************************************************/
 #include "bmbasictransform.h"
 
-#include "bmconstants.h"
+#include "renderer.h"
 
 #include <QJsonObject>
+
+namespace Lottie {
 
 BMBasicTransform::BMBasicTransform(BMBase *parent) : BMShape(parent) {
 }
@@ -102,7 +104,7 @@ void BMBasicTransform::updateProperties(int frame) {
 	m_opacity.update(frame);
 }
 
-void BMBasicTransform::render(LottieRenderer &renderer, int frame) const {
+void BMBasicTransform::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -136,3 +138,5 @@ qreal BMBasicTransform::opacity() const {
 	// Scale the value to 0..1 to be suitable for Qt
 	return m_opacity.value() / 100.0;
 }
+
+} // namespace Lottie

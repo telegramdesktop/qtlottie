@@ -39,6 +39,8 @@
 #include <QBrush>
 #include <QPen>
 
+namespace Lottie {
+
 class BMRect : public BMShape {
 public:
 	BMRect(BMBase *parent);
@@ -48,7 +50,7 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 	bool acceptsTrim() const override;
 
 	QPointF position() const;
@@ -61,3 +63,5 @@ protected:
 	BMProperty<qreal> m_roundness;
 
 };
+
+} // namespace Lottie

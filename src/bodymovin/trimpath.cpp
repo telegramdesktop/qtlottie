@@ -32,6 +32,8 @@
 #include <private/qbezier_p.h>
 #include <QtMath>
 
+namespace Lottie {
+
 /*
 Returns the path trimmed to length fractions f1, f2, in range [0.0, 1.0].
 f1 and f2 are displaced, with wrapping, by the fractional part of offset, effective range <-1.0, 1.0>
@@ -161,7 +163,7 @@ QPointF TrimPath::endPointOfElement(int elemIdx) const {
 	}
 }
 
-void TrimPath::appendTrimmedElement(QPainterPath *to, int elemIdx, bool trimStart, qreal startLen, bool trimEnd, qreal endLen) const {
+void TrimPath::appendTrimmedElement(QPainterPath * to, int elemIdx, bool trimStart, qreal startLen, bool trimEnd, qreal endLen) const {
 	Q_ASSERT(elemIdx > 0);
 
 	if (lensIsDirty()) {
@@ -202,7 +204,7 @@ void TrimPath::appendTrimmedElement(QPainterPath *to, int elemIdx, bool trimStar
 	}
 }
 
-void TrimPath::appendElementRange(QPainterPath *to, int first, int last) const {
+void TrimPath::appendElementRange(QPainterPath * to, int first, int last) const {
 	//# (in QPPP, could do direct vector copy, better performance)
 	if (first >= mPath.elementCount() || last >= mPath.elementCount()) {
 		return;
@@ -228,3 +230,5 @@ void TrimPath::appendElementRange(QPainterPath *to, int first, int last) const {
 		}
 	}
 }
+
+} // namespace Lottie

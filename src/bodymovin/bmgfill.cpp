@@ -28,10 +28,14 @@
 ****************************************************************************/
 #include "bmgfill.h"
 
+#include "renderer.h"
+
 #include <QLinearGradient>
 #include <QRadialGradient>
 #include <QtMath>
 #include <QColor>
+
+namespace Lottie {
 
 BMGFill::BMGFill(BMBase *parent) : BMShape(parent) {
 }
@@ -137,7 +141,7 @@ void BMGFill::updateProperties(int frame) {
 	setGradient();
 }
 
-void BMGFill::render(LottieRenderer &renderer, int frame) const {
+void BMGFill::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -213,3 +217,5 @@ void BMGFill::setGradient() {
 		break;
 	}
 }
+
+} // namespace Lottie

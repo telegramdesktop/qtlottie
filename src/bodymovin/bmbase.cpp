@@ -30,6 +30,8 @@
 
 #include "bmscene.h"
 
+namespace Lottie {
+
 BMBase::BMBase(BMBase *parent) : m_parent(parent) {
 }
 
@@ -85,7 +87,7 @@ void BMBase::updateProperties(int frame) {
 	}
 }
 
-void BMBase::render(LottieRenderer &renderer, int frame) const {
+void BMBase::render(Renderer &renderer, int frame) const {
 	for (BMBase *child : children()) {
 		if (child->active(frame)) {
 			child->render(renderer, frame);
@@ -137,3 +139,5 @@ bool BMBase::active(int frame) const {
 bool BMBase::hidden() const {
 	return m_hidden;
 }
+
+} // namespace Lottie

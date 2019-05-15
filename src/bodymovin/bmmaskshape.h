@@ -30,12 +30,14 @@
 
 #include "bmshape.h"
 #include "bmtrimpath.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QPainterPath>
 #include <QJsonArray>
 
 class QJsonObject;
+
+namespace Lottie {
 
 class BMMaskShape : public BMShape {
 public:
@@ -48,7 +50,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	enum class Mode {
 		Additive,
@@ -98,3 +100,5 @@ private:
 		QJsonObject easingOut);
 
 };
+
+} // namespace Lottie

@@ -41,6 +41,8 @@
 
 class QJsonObject;
 
+namespace Lottie {
+
 class BMRound : public BMShape {
 public:
 	BMRound(BMBase *parent);
@@ -52,7 +54,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 	bool acceptsTrim() const override;
 
 	QPointF position() const;
@@ -63,3 +65,5 @@ protected:
 	BMProperty<qreal> m_radius;
 
 };
+
+} // namespace Lottie

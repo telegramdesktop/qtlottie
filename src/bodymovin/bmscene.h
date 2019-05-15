@@ -36,6 +36,8 @@
 #include <vector>
 #include <memory>
 
+namespace Lottie {
+
 class BMAsset;
 
 class BMScene : public BMBase {
@@ -48,7 +50,7 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	int startFrame() const;
 	int endFrame() const;
@@ -82,3 +84,5 @@ private:
 	bool _parsing = false;
 
 };
+
+} // namespace Lottie

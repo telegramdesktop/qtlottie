@@ -33,24 +33,26 @@
 #include "bmbase.h"
 #include "bmproperty.h"
 
+namespace Lottie {
+
 class BMFill;
 class BMStroke;
 class BMTrimPath;
 
 #define BM_SHAPE_ANY_TYPE_IX -1
-#define BM_SHAPE_ELLIPSE_IX 0
-#define BM_SHAPE_FILL_IX 1
-#define BM_SHAPE_GFILL_IX 2
-#define BM_SHAPE_GSTROKE_IX 3
-#define BM_SHAPE_GROUP_IX 4
-#define BM_SHAPE_RECT_IX 5
-#define BM_SHAPE_ROUND_IX 6
-#define BM_SHAPE_SHAPE_IX 7
-#define BM_SHAPE_STAR_IX 8
-#define BM_SHAPE_STROKE_IX 9
-#define BM_SHAPE_TRIM_IX 10
-#define BM_SHAPE_TRANS_IX 11
-#define BM_SHAPE_REPEATER_IX 12
+#define BM_SHAPE_ELLIPSE_IX  0x00000
+#define BM_SHAPE_FILL_IX     0x00001
+#define BM_SHAPE_GFILL_IX    0x00002
+#define BM_SHAPE_GSTROKE_IX  0x00003
+#define BM_SHAPE_GROUP_IX    0x00004
+#define BM_SHAPE_RECT_IX     0x00005
+#define BM_SHAPE_ROUND_IX    0x00006
+#define BM_SHAPE_SHAPE_IX    0x00007
+#define BM_SHAPE_STAR_IX     0x00008
+#define BM_SHAPE_STROKE_IX   0x00009
+#define BM_SHAPE_TRIM_IX     0x0000A
+#define BM_SHAPE_TRANS_IX    0x0000B
+#define BM_SHAPE_REPEATER_IX 0x0000C
 
 class BMShape : public BMBase {
 public:
@@ -73,3 +75,5 @@ protected:
 	int m_direction = 0;
 
 };
+
+} // namespace Lottie

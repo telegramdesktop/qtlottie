@@ -34,6 +34,8 @@
 
 class QJsonObject;
 
+namespace Lottie {
+
 class BMRepeater : public BMShape {
 public:
 	BMRepeater(BMBase *parent);
@@ -45,7 +47,7 @@ public:
 	void parse(const QJsonObject& definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	int copies() const;
 	qreal offset() const;
@@ -57,3 +59,5 @@ protected:
 	BMRepeaterTransform m_transform;
 
 };
+
+} // namespace Lottie

@@ -28,12 +28,14 @@
 ****************************************************************************/
 #include "bmtrimpath.h"
 
-#include "bmconstants.h"
 #include "trimpath.h"
+#include "renderer.h"
 
 #include <QtGlobal>
 #include <private/qpainterpath_p.h>
 #include <private/qbezier_p.h>
+
+namespace Lottie {
 
 BMTrimPath::BMTrimPath(BMBase *parent) : BMShape(parent) {
 	m_appliedTrim = this;
@@ -93,15 +95,15 @@ void BMTrimPath::updateProperties(int frame) {
 	BMShape::updateProperties(frame);
 }
 
-void BMTrimPath::render(LottieRenderer &renderer, int frame) const {
+void BMTrimPath::render(Renderer &renderer, int frame) const {
 	if (m_appliedTrim) {
 		if (m_appliedTrim->simultaneous()) {
-			renderer.setTrimmingState(LottieRenderer::Simultaneous);
+			renderer.setTrimmingState(Renderer::Simultaneous);
 		} else {
-			renderer.setTrimmingState(LottieRenderer::Individual);
+			renderer.setTrimmingState(Renderer::Individual);
 		}
 	} else {
-		renderer.setTrimmingState(LottieRenderer::Off);
+		renderer.setTrimmingState(Renderer::Off);
 	}
 
 	renderer.render(*this);
@@ -151,3 +153,5 @@ QPainterPath BMTrimPath::trim(const QPainterPath &path) const {
 	}
 	return trimmedPath;
 }
+
+} // namespace Lottie

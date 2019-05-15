@@ -30,6 +30,8 @@
 
 #include <private/qbezier_p.h>
 
+namespace Lottie {
+
 class BezierEasing {
 public:
 	void addCubicBezierSegment(
@@ -43,3 +45,5 @@ private:
 	QBezier mBezier;
 
 };
+
+} // namespace Lottie

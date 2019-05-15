@@ -28,11 +28,13 @@
 ****************************************************************************/
 #include "bmshapetransform.h"
 
-#include "bmconstants.h"
 #include "bmbasictransform.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QtMath>
+
+namespace Lottie {
 
 BMShapeTransform::BMShapeTransform(BMBase *parent, const BMShapeTransform &other)
 : BMBasicTransform(parent, other)
@@ -75,7 +77,7 @@ void BMShapeTransform::updateProperties(int frame) {
 	m_shearAngle = qTan(tan);
 }
 
-void BMShapeTransform::render(LottieRenderer &renderer, int frame) const {
+void BMShapeTransform::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -98,3 +100,5 @@ qreal BMShapeTransform::shearY() const {
 qreal BMShapeTransform::shearAngle() const {
 	return m_shearAngle;
 }
+
+} // namespace Lottie

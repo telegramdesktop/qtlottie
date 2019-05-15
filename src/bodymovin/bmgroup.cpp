@@ -32,9 +32,12 @@
 #include "bmshape.h"
 #include "bmtrimpath.h"
 #include "bmbasictransform.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
+
+namespace Lottie {
 
 BMGroup::BMGroup(BMBase *parent) : BMShape(parent) {
 }
@@ -97,17 +100,17 @@ void BMGroup::updateProperties(int frame) {
 	}
 }
 
-void BMGroup::render(LottieRenderer &renderer, int frame) const {
+void BMGroup::render(Renderer &renderer, int frame) const {
 	renderer.saveState();
 
 	if (m_appliedTrim && !m_appliedTrim->hidden()) {
 		if (m_appliedTrim->simultaneous()) {
-			renderer.setTrimmingState(LottieRenderer::Simultaneous);
+			renderer.setTrimmingState(Renderer::Simultaneous);
 		} else {
-			renderer.setTrimmingState(LottieRenderer::Individual);
+			renderer.setTrimmingState(Renderer::Individual);
 		}
 	} else {
-		renderer.setTrimmingState(LottieRenderer::Off);
+		renderer.setTrimmingState(Renderer::Off);
 	}
 
 	renderer.startMergeGeometry();
@@ -145,3 +148,5 @@ void BMGroup::applyTrim(const BMTrimPath &trimmer) {
 		}
 	}
 }
+
+} // namespace Lottie

@@ -36,6 +36,10 @@
 
 class QJsonObject;
 
+namespace Lottie {
+
+#define BM_EFFECT_FILL 0x20000
+
 class BMFillEffect : public BMBase {
 public:
 	BMFillEffect(BMBase *parent);
@@ -47,7 +51,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	QColor color() const;
 	qreal opacity() const;
@@ -57,3 +61,5 @@ protected:
 	BMProperty<qreal> m_opacity;
 
 };
+
+} // namespace Lottie

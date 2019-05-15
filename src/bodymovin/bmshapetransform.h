@@ -36,6 +36,8 @@
 
 class QJsonObject;
 
+namespace Lottie {
+
 class BMShapeTransform : public BMBasicTransform {
 public:
 	BMShapeTransform(BMBase *parent);
@@ -47,7 +49,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	qreal skew() const;
 	qreal skewAxis() const;
@@ -63,3 +65,5 @@ protected:
 	qreal m_shearAngle;
 
 };
+
+} // namespace Lottie

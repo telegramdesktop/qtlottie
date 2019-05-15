@@ -42,6 +42,8 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+namespace Lottie {
+
 BMLayer::BMLayer(BMBase *parent) : BMBase(parent), m_layerTransform(this) {
 }
 
@@ -221,7 +223,7 @@ int BMLayer::layerId() const {
 	return m_layerIndex;
 }
 
-void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
+void BMLayer::renderFullTransform(Renderer &renderer, int frame) const {
 	// In case there is a linked layer, apply its transform first
 	// as it affects tranforms of this layer too
 	if (BMLayer *ll = linkedLayer()) {
@@ -230,7 +232,7 @@ void BMLayer::renderFullTransform(LottieRenderer &renderer, int frame) const {
 	m_layerTransform.render(renderer, frame);
 }
 
-void BMLayer::renderEffects(LottieRenderer &renderer, int frame) const {
+void BMLayer::renderEffects(Renderer &renderer, int frame) const {
 	if (!m_effects) {
 		return;
 	}
@@ -292,3 +294,5 @@ void BMLayer::parseMasks(const QJsonArray &definition) {
 		++it;
 	}
 }
+
+} // namespace Lottie

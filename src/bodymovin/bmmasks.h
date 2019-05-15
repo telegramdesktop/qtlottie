@@ -30,12 +30,14 @@
 
 #include "bmshape.h"
 #include "bmtrimpath.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QPainterPath>
 #include <QJsonArray>
 
 class QJsonObject;
+
+namespace Lottie {
 
 class BMMasks : public BMBase {
 public:
@@ -43,6 +45,8 @@ public:
 	BMMasks(BMBase *parent, const BMMasks &other);
 	BMBase *clone(BMBase *parent) const override;
 
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 };
+
+} // namespace Lottie

@@ -36,6 +36,8 @@
 #include <QVector4D>
 #include <QGradient>
 
+namespace Lottie {
+
 class BMGFill : public BMShape {
 public:
 	BMGFill(BMBase *parent);
@@ -46,7 +48,7 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	QGradient *value() const;
 	QGradient::Type gradientType() const;
@@ -69,3 +71,5 @@ protected:
 	QGradient *m_gradient = nullptr;
 
 };
+
+} // namespace Lottie

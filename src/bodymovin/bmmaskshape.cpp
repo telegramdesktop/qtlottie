@@ -32,6 +32,8 @@
 
 #include <QJsonObject>
 
+namespace Lottie {
+
 BMMaskShape::BMMaskShape(BMBase *parent) : BMShape(parent) {
 }
 
@@ -104,7 +106,7 @@ void BMMaskShape::updateProperties(int frame) {
 	}
 }
 
-void BMMaskShape::render(LottieRenderer &renderer, int frame) const {
+void BMMaskShape::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -366,3 +368,5 @@ QJsonObject BMMaskShape::createKeyframe(
 	keyframe.insert(QStringLiteral("o"), easingOut);
 	return keyframe;
 }
+
+} // namespace Lottie

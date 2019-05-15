@@ -26,22 +26,26 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "lottierenderer.h"
+#include "renderer.h"
 
-void LottieRenderer::setTrimmingState(LottieRenderer::TrimmingState trimmingState) {
+namespace Lottie {
+
+void Renderer::setTrimmingState(Renderer::TrimmingState trimmingState) {
 	m_trimmingState = trimmingState;
 }
 
-LottieRenderer::TrimmingState LottieRenderer::trimmingState() const {
+Renderer::TrimmingState Renderer::trimmingState() const {
 	return m_trimmingState;
 }
 
-void LottieRenderer::saveTrimmingState() {
+void Renderer::saveTrimmingState() {
 	m_trimStateStack.push(m_trimmingState);
 }
 
-void LottieRenderer::restoreTrimmingState() {
+void Renderer::restoreTrimmingState() {
 	if (m_trimStateStack.count()) {
 		m_trimmingState = m_trimStateStack.pop();
 	}
 }
+
+} // namespace Lottie

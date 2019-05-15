@@ -30,6 +30,8 @@
 
 #include <QJsonObject>
 
+namespace Lottie {
+
 BMMasks::BMMasks(BMBase *parent) : BMBase(parent) {
 }
 
@@ -40,7 +42,7 @@ BMBase *BMMasks::clone(BMBase *parent) const {
 	return new BMMasks(parent, *this);
 }
 
-void BMMasks::render(LottieRenderer &renderer, int frame) const {
+void BMMasks::render(Renderer &renderer, int frame) const {
 	for (BMBase *child : children()) {
 		if (child->active(frame)) {
 			child->render(renderer, frame);
@@ -49,3 +51,5 @@ void BMMasks::render(LottieRenderer &renderer, int frame) const {
 
 	renderer.render(*this);
 }
+
+} // namespace Lottie

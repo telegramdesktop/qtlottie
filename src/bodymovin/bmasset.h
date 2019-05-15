@@ -30,7 +30,7 @@
 
 #include "bmbase.h"
 
-class LottieRenderer;
+namespace Lottie {
 
 class BMAsset : public BMBase {
 public:
@@ -54,3 +54,5 @@ private:
 	bool m_resolved = false;
 
 };
+
+} // namespace Lottie

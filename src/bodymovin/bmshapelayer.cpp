@@ -28,16 +28,17 @@
 ****************************************************************************/
 #include "bmshapelayer.h"
 
-#include "bmconstants.h"
 #include "bmbase.h"
 #include "bmshape.h"
 #include "bmtrimpath.h"
 #include "bmbasictransform.h"
 #include "bmmasks.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
+
+namespace Lottie {
 
 BMShapeLayer::BMShapeLayer(BMBase *parent) : BMLayer(parent) {
 }
@@ -106,7 +107,7 @@ void BMShapeLayer::updateProperties(int frame) {
 	}
 }
 
-void BMShapeLayer::render(LottieRenderer &renderer, int frame) const {
+void BMShapeLayer::render(Renderer &renderer, int frame) const {
 	renderer.saveState();
 
 	renderEffects(renderer, frame);
@@ -137,3 +138,5 @@ void BMShapeLayer::render(LottieRenderer &renderer, int frame) const {
 
 	renderer.restoreState();
 }
+
+} // namespace Lottie

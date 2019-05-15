@@ -28,15 +28,16 @@
 ****************************************************************************/
 #include "bmnulllayer.h"
 
-#include "bmconstants.h"
 #include "bmbase.h"
 #include "bmshape.h"
 #include "bmtrimpath.h"
 #include "bmbasictransform.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
+
+namespace Lottie {
 
 BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
 }
@@ -60,5 +61,7 @@ BMBase *BMNullLayer::clone(BMBase *parent) const {
 	return new BMNullLayer(parent, *this);
 }
 
-void BMNullLayer::render(LottieRenderer &renderer, int frame) const {
+void BMNullLayer::render(Renderer &renderer, int frame) const {
 }
+
+} // namespace Lottie

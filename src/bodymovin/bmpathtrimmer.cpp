@@ -29,12 +29,14 @@
 #include "bmpathtrimmer.h"
 
 #include "bmtrimpath.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QPainterPath>
 
+namespace Lottie {
+
 BMPathTrimmer::BMPathTrimmer(BMBase *root)
-	: m_root(root) {
+: m_root(root) {
 	Q_ASSERT(m_root);
 }
 
@@ -93,9 +95,11 @@ void BMPathTrimmer::updateProperties(int frame) {
 //	}
 }
 
-void BMPathTrimmer::render(LottieRenderer &renderer, int frame) const {
+void BMPathTrimmer::render(Renderer &renderer, int frame) const {
 	Q_UNUSED(renderer);
 //	if (m_appliedTrim) {
 //		renderer.render(*m_appliedTrim);
 //	}
 }
+
+} // namespace Lottie

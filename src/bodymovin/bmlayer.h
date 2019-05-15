@@ -31,8 +31,16 @@
 #include "bmbase.h"
 #include "bmbasictransform.h"
 
-class LottieRenderer;
+namespace Lottie {
+
 class BMMasks;
+
+#define BM_LAYER_PRECOMP_IX 0x10000
+#define BM_LAYER_SOLID_IX   0x10001
+#define BM_LAYER_IMAGE_IX   0x10002
+#define BM_LAYER_NULL_IX    0x10004
+#define BM_LAYER_SHAPE_IX   0x10008
+#define BM_LAYER_TEXT_IX    0x1000f
 
 class BMLayer : public BMBase {
 public:
@@ -55,10 +63,10 @@ public:
 	MatteClipMode clipMode() const;
 
 	int layerId() const;
-	void renderFullTransform(LottieRenderer &renderer, int frame) const;
+	void renderFullTransform(Renderer &renderer, int frame) const;
 
 protected:
-	void renderEffects(LottieRenderer &renderer, int frame) const;
+	void renderEffects(Renderer &renderer, int frame) const;
 
 	virtual BMLayer *resolveLinkedLayer();
 	virtual BMLayer *linkedLayer() const;
@@ -87,3 +95,5 @@ private:
 	BMLayer *m_linkedLayer = nullptr;
 
 };
+
+} // namespace Lottie

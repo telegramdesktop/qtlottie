@@ -30,6 +30,8 @@
 
 #include <QPainterPath>
 
+namespace Lottie {
+
 class TrimPath {
 public:
 	TrimPath() = default;
@@ -71,3 +73,5 @@ private:
 	mutable QVector<qreal> mLens;
 
 };
+
+} // namespace Lottie

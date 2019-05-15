@@ -35,6 +35,8 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+namespace Lottie {
+
 BMAsset::BMAsset(BMBase *parent) : BMBase(parent) {
 }
 
@@ -76,3 +78,5 @@ void BMAsset::resolveAssets(
 QString BMAsset::id() const {
 	return m_id;
 }
+
+} // namespace Lottie

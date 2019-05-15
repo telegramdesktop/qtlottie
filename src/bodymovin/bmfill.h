@@ -34,6 +34,8 @@
 #include <QColor>
 #include <QVector4D>
 
+namespace Lottie {
+
 class BMFill : public BMShape {
 public:
 	BMFill(BMBase *parent);
@@ -44,7 +46,7 @@ public:
 
 	void updateProperties(int frame) override;
 
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	QColor color() const;
 	qreal opacity() const;
@@ -54,3 +56,5 @@ protected:
 	BMProperty<qreal> m_opacity;
 
 };
+
+} // namespace Lottie

@@ -36,6 +36,8 @@
 
 class QJsonObject;
 
+namespace Lottie {
+
 class BMBasicTransform : public BMShape {
 public:
 	BMBasicTransform(BMBase *parent);
@@ -47,7 +49,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	void clearOpacity();
 
@@ -68,3 +70,5 @@ protected:
 	BMProperty<qreal> m_opacity;
 
 };
+
+} // namespace Lottie

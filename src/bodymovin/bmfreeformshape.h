@@ -30,7 +30,7 @@
 
 #include "bmshape.h"
 #include "bmtrimpath.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QPainterPath>
 #include <QJsonArray>
@@ -38,6 +38,8 @@
 #include <QHash>
 
 class QJsonObject;
+
+namespace Lottie {
 
 class BMFreeFormShape : public BMShape {
 public:
@@ -50,7 +52,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	bool acceptsTrim() const override;
 
@@ -89,3 +91,5 @@ private:
 		QJsonObject easingOut);
 
 };
+
+} // namespace Lottie

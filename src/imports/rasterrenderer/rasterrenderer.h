@@ -33,14 +33,17 @@
 #include <QStack>
 #include <QRegion>
 
-#include "lottierenderer.h"
+#include "renderer.h"
 
-class BMShape;
 class QPainter;
 
-class LottieRasterRenderer : public LottieRenderer {
+namespace Lottie {
+
+class BMShape;
+
+class RasterRenderer : public Renderer {
 public:
-	explicit LottieRasterRenderer(QPainter *m_painter);
+	explicit RasterRenderer(QPainter *m_painter);
 
 	void startMergeGeometry() override;
 	void renderMergedGeometry() override;
@@ -89,3 +92,5 @@ private:
 	void renderGeometry(const BMShape &geometry);
 
 };
+
+} // namespace Lottie

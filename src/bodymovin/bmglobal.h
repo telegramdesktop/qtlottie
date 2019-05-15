@@ -28,11 +28,4 @@
 ****************************************************************************/
 #pragma once
 
-#define BM_LAYER_PRECOMP_IX     0x10000
-#define BM_LAYER_SOLID_IX       0x10001
-#define BM_LAYER_IMAGE_IX       0x10002
-#define BM_LAYER_NULL_IX        0x10004
-#define BM_LAYER_SHAPE_IX       0x10008
-#define BM_LAYER_TEXT_IX        0x1000f
-
-#define BM_EFFECT_FILL          0x20000
+#include <QtGlobal>

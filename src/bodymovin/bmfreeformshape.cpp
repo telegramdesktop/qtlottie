@@ -32,6 +32,8 @@
 
 #include <QJsonObject>
 
+namespace Lottie {
+
 BMFreeFormShape::BMFreeFormShape(BMBase *parent) : BMShape(parent) {
 }
 
@@ -86,7 +88,7 @@ void BMFreeFormShape::updateProperties(int frame) {
 	}
 }
 
-void BMFreeFormShape::render(LottieRenderer &renderer, int frame) const {
+void BMFreeFormShape::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -343,3 +345,5 @@ QJsonObject BMFreeFormShape::createKeyframe(
 	keyframe.insert(QStringLiteral("o"), easingOut);
 	return keyframe;
 }
+
+} // namespace Lottie

@@ -35,6 +35,8 @@
 #include <QJsonObject>
 #include <QColor>
 
+namespace Lottie {
+
 class BMFill;
 class BMTrimPath;
 class BMPathTrimmer;
@@ -50,9 +52,11 @@ public:
 	void parse(const QJsonObject& definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	bool acceptsTrim() const override;
 	void applyTrim(const BMTrimPath  &trimmer) override;
 
 };
+
+} // namespace Lottie

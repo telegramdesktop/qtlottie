@@ -31,7 +31,9 @@
 #include "bmlayer.h"
 
 class QJsonObject;
-class LottieRenderer;
+
+namespace Lottie {
+
 class BMShape;
 class BMTrimPath;
 class BMBasicTransform;
@@ -46,7 +48,7 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 	void resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) override;
 
 	QString refId() const;
@@ -57,3 +59,5 @@ private:
 	bool m_resolving = false;
 
 };
+
+} // namespace Lottie

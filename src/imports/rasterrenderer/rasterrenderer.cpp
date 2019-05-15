@@ -26,7 +26,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#include "lottierasterrenderer.h"
+#include "rasterrenderer.h"
 
 #include "bmshape.h"
 #include "bmfill.h"
@@ -51,12 +51,14 @@
 #include <QPointer>
 #include <QVectorIterator>
 
-LottieRasterRenderer::LottieRasterRenderer(QPainter *painter)
-	: m_painter(painter) {
+namespace Lottie {
+
+RasterRenderer::RasterRenderer(QPainter *painter)
+: m_painter(painter) {
 	m_painter->setPen(QPen(Qt::NoPen));
 }
 
-void LottieRasterRenderer::saveState() {
+void RasterRenderer::saveState() {
 	m_painter->save();
 	saveTrimmingState();
 	m_pathStack.push_back(m_unitedPath);
@@ -64,20 +66,20 @@ void LottieRasterRenderer::saveState() {
 	m_unitedPath = QPainterPath();
 }
 
-void LottieRasterRenderer::restoreState() {
+void RasterRenderer::restoreState() {
 	m_painter->restore();
 	restoreTrimmingState();
 	m_unitedPath = m_pathStack.pop();
 	m_fillEffect = m_fillEffectStack.pop();
 }
 
-void LottieRasterRenderer::render(const BMLayer &layer) {
+void RasterRenderer::render(const BMLayer &layer) {
 	if (layer.isMaskLayer()) {
 		m_buildingClipRegion = true;
-	}  else if (!m_clipPath.isEmpty()) {
+	} else if (!m_clipPath.isEmpty()) {
 		if (layer.clipMode() == BMLayer::Alpha) {
 			m_painter->setClipPath(m_clipPath);
-		}  else if (layer.clipMode() == BMLayer::InvertedAlpha) {
+		} else if (layer.clipMode() == BMLayer::InvertedAlpha) {
 			QPainterPath screen;
 			screen.addRect(
 				0,
@@ -95,7 +97,7 @@ void LottieRasterRenderer::render(const BMLayer &layer) {
 	}
 }
 
-void LottieRasterRenderer::renderGeometry(const BMShape &geometry) {
+void RasterRenderer::renderGeometry(const BMShape & geometry) {
 	const auto withTransforms = (m_repeatCount > 1);
 	if (withTransforms) {
 		m_painter->save();
@@ -103,7 +105,7 @@ void LottieRasterRenderer::renderGeometry(const BMShape &geometry) {
 
 	for (int i = 0; i < m_repeatCount; i++) {
 		applyRepeaterTransform(i);
-		if (trimmingState() == LottieRenderer::Individual) {
+		if (trimmingState() == Renderer::Individual) {
 			QTransform t = m_painter->transform();
 			QPainterPath tp = t.map(geometry.path());
 			tp.addPath(m_unitedPath);
@@ -127,14 +129,14 @@ void LottieRasterRenderer::renderGeometry(const BMShape &geometry) {
 	}
 }
 
-void LottieRasterRenderer::startMergeGeometry() {
+void RasterRenderer::startMergeGeometry() {
 	if (m_buildingMergedGeometry++) {
 		m_mergedGeometryStack.push_back(std::move(m_mergedGeometry));
 		m_mergedGeometry = QPainterPath();
 	}
 }
 
-void LottieRasterRenderer::renderMergedGeometry() {
+void RasterRenderer::renderMergedGeometry() {
 	Q_ASSERT(m_buildingMergedGeometry > 0);
 
 	if (!m_mergedGeometry.isEmpty()) {
@@ -148,19 +150,19 @@ void LottieRasterRenderer::renderMergedGeometry() {
 	}
 }
 
-void LottieRasterRenderer::render(const BMRect &rect) {
+void RasterRenderer::render(const BMRect & rect) {
 	renderGeometry(rect);
 }
 
-void LottieRasterRenderer::render(const BMEllipse &ellipse) {
+void RasterRenderer::render(const BMEllipse & ellipse) {
 	renderGeometry(ellipse);
 }
 
-void LottieRasterRenderer::render(const BMRound &round) {
+void RasterRenderer::render(const BMRound & round) {
 	renderGeometry(round);
 }
 
-void LottieRasterRenderer::render(const BMFill &fill) {
+void RasterRenderer::render(const BMFill & fill) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -170,7 +172,7 @@ void LottieRasterRenderer::render(const BMFill &fill) {
 	m_painter->setBrush(color);
 }
 
-void LottieRasterRenderer::render(const BMGFill &gradient) {
+void RasterRenderer::render(const BMGFill & gradient) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -184,7 +186,7 @@ void LottieRasterRenderer::render(const BMGFill &gradient) {
 	}
 }
 
-void LottieRasterRenderer::render(const BMStroke &stroke) {
+void RasterRenderer::render(const BMStroke & stroke) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -192,7 +194,7 @@ void LottieRasterRenderer::render(const BMStroke &stroke) {
 	m_painter->setPen(stroke.pen());
 }
 
-void applyBMTransform(QTransform *xf, const BMBasicTransform &bmxf, bool isBMShapeTransform = false) {
+void applyBMTransform(QTransform * xf, const BMBasicTransform & bmxf, bool isBMShapeTransform = false) {
 	QPointF pos = bmxf.position();
 	qreal rot = bmxf.rotation();
 	QPointF sca = bmxf.scale();
@@ -218,31 +220,31 @@ void applyBMTransform(QTransform *xf, const BMBasicTransform &bmxf, bool isBMSha
 	xf->translate(-anc.x(), -anc.y());
 }
 
-void LottieRasterRenderer::render(const BMBasicTransform &transform) {
+void RasterRenderer::render(const BMBasicTransform & transform) {
 	QTransform t = m_painter->transform();
 	applyBMTransform(&t, transform);
 	m_painter->setTransform(t);
 	m_painter->setOpacity(m_painter->opacity() * transform.opacity());
 }
 
-void LottieRasterRenderer::render(const BMShapeTransform &transform) {
+void RasterRenderer::render(const BMShapeTransform & transform) {
 	QTransform t = m_painter->transform();
 	applyBMTransform(&t, transform, true);
 	m_painter->setTransform(t);
 	m_painter->setOpacity(m_painter->opacity() * transform.opacity());
 }
 
-void LottieRasterRenderer::render(const BMFreeFormShape &shape) {
+void RasterRenderer::render(const BMFreeFormShape & shape) {
 	renderGeometry(shape);
 }
 
-void LottieRasterRenderer::render(const BMTrimPath &trimPath) {
+void RasterRenderer::render(const BMTrimPath & trimPath) {
 	// TODO: Remove "Individual" trimming to the prerendering thread
 	// Now it is done in the GUI thread
 
 	m_painter->save();
 
-	for (int i = 0; i < m_repeatCount; i ++) {
+	for (int i = 0; i < m_repeatCount; i++) {
 		applyRepeaterTransform(i);
 		if (!trimPath.simultaneous() && !qFuzzyCompare(0.0, m_unitedPath.length())) {
 			QPainterPath tr = trimPath.trim(m_unitedPath);
@@ -256,13 +258,13 @@ void LottieRasterRenderer::render(const BMTrimPath &trimPath) {
 	m_painter->restore();
 }
 
-void LottieRasterRenderer::render(const BMFillEffect &effect) {
+void RasterRenderer::render(const BMFillEffect & effect) {
 	m_fillEffect = &effect;
 	m_painter->setBrush(m_fillEffect->color());
 	m_painter->setOpacity(m_painter->opacity() * m_fillEffect->opacity());
 }
 
-void LottieRasterRenderer::render(const BMRepeater &repeater) {
+void RasterRenderer::render(const BMRepeater & repeater) {
 	if (m_repeaterTransform) {
 		qWarning() << "Only one Repeater can be active at a time!";
 		return;
@@ -281,7 +283,7 @@ void LottieRasterRenderer::render(const BMRepeater &repeater) {
 		m_repeatOffset * m_repeaterTransform->position().y());
 }
 
-void LottieRasterRenderer::applyRepeaterTransform(int instance) {
+void RasterRenderer::applyRepeaterTransform(int instance) {
 	if (!m_repeaterTransform || instance == 0) {
 		return;
 	}
@@ -299,19 +301,19 @@ void LottieRasterRenderer::applyRepeaterTransform(int instance) {
 		m_repeaterTransform->scale().y());
 	m_painter->setTransform(t);
 
-	qreal o =m_repeaterTransform->opacityAtInstance(instance);
+	qreal o = m_repeaterTransform->opacityAtInstance(instance);
 
 	m_painter->setOpacity(m_painter->opacity() * o);
 }
 
-void LottieRasterRenderer::render(const BMMasks &masks) {
+void RasterRenderer::render(const BMMasks & masks) {
 	if (m_buildingMaskRegion) {
 		m_buildingMaskRegion = false;
 		m_painter->setClipPath(m_maskPath);
 	}
 }
 
-void LottieRasterRenderer::render(const BMMaskShape &shape) {
+void RasterRenderer::render(const BMMaskShape & shape) {
 	QPainterPath path;
 	if (shape.inverted()) {
 		QPainterPath screen;
@@ -330,3 +332,5 @@ void LottieRasterRenderer::render(const BMMaskShape &shape) {
 		m_maskPath = m_maskPath.intersected(path);
 	}
 }
+
+} // namespace Lottie

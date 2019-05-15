@@ -29,8 +29,11 @@
 #include "bmround.h"
 
 #include "bmtrimpath.h"
+#include "renderer.h"
 
 #include <QJsonObject>
+
+namespace Lottie {
 
 BMRound::BMRound(BMBase *parent) : BMShape(parent) {
 }
@@ -84,7 +87,7 @@ void BMRound::updateProperties(int frame) {
 	}
 }
 
-void BMRound::render(LottieRenderer &renderer, int frame) const {
+void BMRound::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -99,3 +102,5 @@ QPointF BMRound::position() const {
 qreal BMRound::radius() const {
 	return m_radius.value();
 }
+
+} // namespace Lottie

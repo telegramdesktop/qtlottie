@@ -34,6 +34,8 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+namespace Lottie {
+
 BMPreCompAsset::BMPreCompAsset(BMBase *parent) : BMAsset(parent) {
 }
 
@@ -66,3 +68,5 @@ BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
 		}
 	}
 }
+
+} // namespace Lottie

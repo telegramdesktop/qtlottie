@@ -29,9 +29,12 @@
 #include "bmellipse.h"
 
 #include "bmtrimpath.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QRectF>
+
+namespace Lottie {
 
 BMEllipse::BMEllipse(BMBase *parent) : BMShape(parent) {
 }
@@ -89,7 +92,7 @@ void BMEllipse::updateProperties(int frame) {
 	}
 }
 
-void BMEllipse::render(LottieRenderer &renderer, int frame) const {
+void BMEllipse::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -100,3 +103,5 @@ QPointF BMEllipse::position() const {
 QSizeF BMEllipse::size() const {
 	return m_size.value();
 }
+
+} // namespace Lottie

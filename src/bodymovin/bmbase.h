@@ -28,15 +28,15 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmconstants.h"
-#include "lottierenderer.h"
-
 #include <QJsonObject>
 #include <QList>
 #include <functional>
 
+namespace Lottie {
+
 class BMAsset;
 class BMScene;
+class Renderer;
 
 class BMBase {
 public:
@@ -67,7 +67,7 @@ public:
 	void appendChild(BMBase *child);
 
 	virtual void updateProperties(int frame);
-	virtual void render(LottieRenderer &renderer, int frame) const;
+	virtual void render(Renderer &renderer, int frame) const;
 
 	virtual void resolveAssets(
 		const std::function<BMAsset*(BMBase*, QString)> &resolver);
@@ -95,3 +95,5 @@ private:
 	mutable BMScene *m_topRoot = nullptr;
 
 };
+
+} // namespace Lottie

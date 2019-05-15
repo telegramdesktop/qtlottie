@@ -31,7 +31,9 @@
 #include "bmlayer.h"
 
 class QJsonObject;
-class LottieRenderer;
+
+namespace Lottie {
+
 class BMShape;
 class BMTrimPath;
 class BMBasicTransform;
@@ -46,9 +48,11 @@ public:
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &render, int frame) const override;
+	void render(Renderer &render, int frame) const override;
 
 private:
 	BMTrimPath *m_appliedTrim = nullptr;
 
 };
+
+} // namespace Lottie

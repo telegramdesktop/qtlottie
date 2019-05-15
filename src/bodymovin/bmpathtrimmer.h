@@ -31,8 +31,11 @@
 #include <QList>
 
 class QJsonObject;
+
+namespace Lottie {
+
 class BMTrimPath;
-class LottieRenderer;
+class Renderer;
 class BMBase;
 class BMShape;
 
@@ -46,7 +49,7 @@ public:
 	void applyTrim(BMShape *shape);
 
 	void updateProperties(int frame);
-	void render(LottieRenderer &renderer, int frame) const;
+	void render(Renderer &renderer, int frame) const;
 
 private:
 	BMBase *m_root = nullptr;
@@ -55,3 +58,5 @@ private:
 	BMTrimPath *m_appliedTrim = nullptr;
 
 };
+
+} // namespace Lottie

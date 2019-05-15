@@ -34,6 +34,8 @@
 #include <QPainterPath>
 #include <QJsonObject>
 
+namespace Lottie {
+
 class BMTrimPath : public BMShape {
 public:
 	BMTrimPath(BMBase *parent);
@@ -47,7 +49,7 @@ public:
 	void parse(const QJsonObject &definition);
 
 	void updateProperties(int frame) override;
-	void render(LottieRenderer &renderer, int frame) const override;
+	void render(Renderer &renderer, int frame) const override;
 
 	bool acceptsTrim() const override;
 	void applyTrim(const BMTrimPath  &trimmer) override;
@@ -66,3 +68,5 @@ protected:
 	bool m_simultaneous = false;
 
 };
+
+} // namespace Lottie

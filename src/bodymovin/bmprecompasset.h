@@ -30,7 +30,7 @@
 
 #include "bmasset.h"
 
-class LottieRenderer;
+namespace Lottie {
 
 class BMPreCompAsset : public BMAsset {
 public:
@@ -42,3 +42,5 @@ public:
 	BMPreCompAsset *clone(BMBase *parent) const override;
 
 };
+
+} // namespace Lottie

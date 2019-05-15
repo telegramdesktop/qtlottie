@@ -30,6 +30,8 @@
 
 #include <QStack>
 
+namespace Lottie {
+
 class BMBase;
 class BMLayer;
 class BMRect;
@@ -50,11 +52,11 @@ class BMRepeater;
 class BMMasks;
 class BMMaskShape;
 
-class LottieRenderer {
+class Renderer {
 public:
 	enum TrimmingState{Off = 0, Simultaneous, Individual};
 
-	virtual ~LottieRenderer() = default;
+	virtual ~Renderer() = default;
 
 	virtual void saveState() = 0;
 	virtual void restoreState() = 0;
@@ -89,6 +91,8 @@ protected:
 	TrimmingState m_trimmingState = Off;
 
 private:
-	QStack<LottieRenderer::TrimmingState> m_trimStateStack;
+	QStack<TrimmingState> m_trimStateStack;
 
 };
+
+} // namespace Lottie

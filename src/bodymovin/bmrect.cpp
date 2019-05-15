@@ -29,9 +29,12 @@
 #include "bmrect.h"
 
 #include "bmtrimpath.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
+
+namespace Lottie {
 
 BMRect::BMRect(BMBase *parent) : BMShape(parent) {
 }
@@ -89,7 +92,7 @@ void BMRect::updateProperties(int frame) {
 	}
 }
 
-void BMRect::render(LottieRenderer &renderer, int frame) const {
+void BMRect::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -108,3 +111,5 @@ QSizeF BMRect::size() const {
 qreal BMRect::roundness() const {
 	return m_roundness.value();
 }
+
+} // namespace Lottie

@@ -28,6 +28,10 @@
 ****************************************************************************/
 #include "bmfill.h"
 
+#include "renderer.h"
+
+namespace Lottie {
+
 BMFill::BMFill(BMBase *parent) : BMShape(parent) {
 }
 
@@ -60,7 +64,7 @@ void BMFill::updateProperties(int frame) {
 	m_opacity.update(frame);
 }
 
-void BMFill::render(LottieRenderer &renderer, int frame) const {
+void BMFill::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
@@ -78,3 +82,5 @@ QColor BMFill::color() const {
 qreal BMFill::opacity() const {
 	return m_opacity.value();
 }
+
+} // namespace Lottie

@@ -39,10 +39,11 @@
 #include "bmshapetransform.h"
 #include "bmfreeformshape.h"
 #include "bmrepeater.h"
-#include "bmconstants.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
+
+namespace Lottie {
 
 BMShape::BMShape(BMBase *parent) : BMBase(parent) {
 }
@@ -156,3 +157,5 @@ int BMShape::direction() const {
 const QPainterPath &BMShape::path() const {
     return m_path;
 }
+
+} // namespace Lottie

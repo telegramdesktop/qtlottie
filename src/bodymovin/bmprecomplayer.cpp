@@ -28,15 +28,16 @@
 ****************************************************************************/
 #include "bmprecomplayer.h"
 
-#include "bmconstants.h"
 #include "bmasset.h"
 #include "bmbasictransform.h"
 #include "bmscene.h"
 #include "bmmasks.h"
-#include "lottierenderer.h"
+#include "renderer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
+
+namespace Lottie {
 
 BMPreCompLayer::BMPreCompLayer(BMBase *parent) : BMLayer(parent) {
 }
@@ -83,7 +84,7 @@ void BMPreCompLayer::updateProperties(int frame) {
 	}
 }
 
-void BMPreCompLayer::render(LottieRenderer &renderer, int frame) const {
+void BMPreCompLayer::render(Renderer &renderer, int frame) const {
 	renderer.saveState();
 
 	renderEffects(renderer, frame);
@@ -122,3 +123,5 @@ void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(BMBase*, QString
 	}
 	BMLayer::resolveAssets(resolver);
 }
+
+} // namespace Lottie
