@@ -48,8 +48,6 @@ BMNullLayer::BMNullLayer(BMBase *parent, const JsonObject &definition)
 	m_type = BM_LAYER_NULL_IX;
 
 	BMLayer::parse(definition);
-
-	m_layerTransform.clearOpacity();
 }
 
 BMNullLayer::~BMNullLayer() = default;

@@ -39,7 +39,7 @@ namespace Lottie {
 
 class BMShape;
 
-class RasterRenderer : public Renderer {
+class RasterRenderer final : public Renderer {
 public:
 	explicit RasterRenderer(QPainter *m_painter);
 
@@ -57,6 +57,7 @@ public:
 	void render(const BMGFill &shape) override;
 	void render(const BMStroke &stroke) override;
 	void render(const BMBasicTransform &transform) override;
+	void renderWithoutOpacity(const BMBasicTransform &transform) override;
 	void render(const BMShapeTransform &transform) override;
 	void render(const BMFreeFormShape &shape) override;
 	void render(const BMTrimPath &trans) override;

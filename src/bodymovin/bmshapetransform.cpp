@@ -100,4 +100,29 @@ qreal BMShapeTransform::shearAngle() const {
 	return m_shearAngle;
 }
 
+QTransform BMShapeTransform::apply(QTransform to) const {
+	const auto pos = position();
+	const auto rot = rotation();
+	const auto sca = scale();
+	const auto anc = anchorPoint();
+
+	to.translate(pos.x(), pos.y());
+	if (!qFuzzyIsNull(rot)) {
+		to.rotate(rot);
+	}
+	if (!qFuzzyIsNull(skew())) {
+		const auto shX = shearX();
+		const auto shY = shearY();
+		const auto ang = shearAngle();
+		QTransform t(shX, shY, 0, -shY, shX, 0, 0, 0, 1);
+		t *= QTransform(1, 0, 0, ang, 1, 0, 0, 0, 1);
+		t *= QTransform(shX, -shY, 0, shY, shX, 0, 0, 0, 1);
+		to = t * to;
+	}
+	to.scale(sca.x(), sca.y());
+	to.translate(-anc.x(), -anc.y());
+
+	return to;
+}
+
 } // namespace Lottie

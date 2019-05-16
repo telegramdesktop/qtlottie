@@ -110,7 +110,10 @@ void BMShapeLayer::render(Renderer &renderer, int frame) const {
 
 	renderer.render(*this);
 
-	renderFullTransform(renderer, frame);
+	if (BMLayer *ll = linkedLayer()) {
+		ll->renderFullTransform(renderer, frame);
+	}
+	m_layerTransform.render(renderer, frame);
 
 	if (m_masks) {
 		m_masks->render(renderer, frame);

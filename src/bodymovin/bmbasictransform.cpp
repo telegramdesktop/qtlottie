@@ -106,9 +106,8 @@ void BMBasicTransform::render(Renderer &renderer, int frame) const {
 	renderer.render(*this);
 }
 
-void BMBasicTransform::clearOpacity() {
-	m_opacity = BMProperty<qreal>();
-	m_opacity.setValue(100.);
+void BMBasicTransform::renderWithoutOpacity(Renderer &renderer, int frame) const {
+	renderer.renderWithoutOpacity(*this);
 }
 
 QPointF BMBasicTransform::anchorPoint() const {
@@ -135,6 +134,22 @@ qreal BMBasicTransform::rotation() const {
 qreal BMBasicTransform::opacity() const {
 	// Scale the value to 0..1 to be suitable for Qt
 	return m_opacity.value() / 100.0;
+}
+
+QTransform BMBasicTransform::apply(QTransform to) const {
+	const auto pos = position();
+	const auto rot = rotation();
+	const auto sca = scale();
+	const auto anc = anchorPoint();
+
+	to.translate(pos.x(), pos.y());
+	if (!qFuzzyIsNull(rot)) {
+		to.rotate(rot);
+	}
+	to.scale(sca.x(), sca.y());
+	to.translate(-anc.x(), -anc.y());
+
+	return to;
 }
 
 } // namespace Lottie

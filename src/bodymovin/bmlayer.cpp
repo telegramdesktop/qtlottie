@@ -224,7 +224,7 @@ void BMLayer::renderFullTransform(Renderer &renderer, int frame) const {
 	if (BMLayer *ll = linkedLayer()) {
 		ll->renderFullTransform(renderer, frame);
 	}
-	m_layerTransform.render(renderer, frame);
+	m_layerTransform.renderWithoutOpacity(renderer, frame);
 }
 
 void BMLayer::renderEffects(Renderer &renderer, int frame) const {

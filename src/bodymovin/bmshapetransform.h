@@ -52,6 +52,8 @@ public:
 	qreal shearY() const;
 	qreal shearAngle() const;
 
+	QTransform apply(QTransform to) const override;
+
 protected:
 	BMProperty<qreal> m_skew;
 	BMProperty<qreal> m_skewAxis;

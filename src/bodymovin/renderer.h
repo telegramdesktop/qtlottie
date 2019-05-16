@@ -75,6 +75,7 @@ public:
 	virtual void render(const BMGFill &fill) = 0;
 	virtual void render(const BMStroke &stroke) = 0;
 	virtual void render(const BMBasicTransform &trans) = 0;
+	virtual void renderWithoutOpacity(const BMBasicTransform &trans) = 0;
 	virtual void render(const BMShapeTransform &trans) = 0;
 	virtual void render(const BMFreeFormShape &shape) = 0;
 	virtual void render(const BMTrimPath &trans) = 0;

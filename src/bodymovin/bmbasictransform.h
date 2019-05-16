@@ -45,14 +45,15 @@ public:
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;
-
-	void clearOpacity();
+	void renderWithoutOpacity(Renderer &renderer, int frame) const;
 
 	QPointF anchorPoint() const;
 	virtual QPointF position() const;
 	QPointF scale() const;
 	qreal rotation() const;
 	qreal opacity() const;
+
+	virtual QTransform apply(QTransform to) const;
 
 protected:
 	BMProperty<QPointF> m_anchorPoint;

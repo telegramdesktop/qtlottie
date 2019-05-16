@@ -98,7 +98,7 @@ void RasterRenderer::render(const BMLayer &layer) {
 	}
 }
 
-void RasterRenderer::renderGeometry(const BMShape & geometry) {
+void RasterRenderer::renderGeometry(const BMShape &geometry) {
 	const auto withTransforms = (m_repeatCount > 1);
 	if (withTransforms) {
 		m_painter->save();
@@ -151,19 +151,19 @@ void RasterRenderer::renderMergedGeometry() {
 	}
 }
 
-void RasterRenderer::render(const BMRect & rect) {
+void RasterRenderer::render(const BMRect &rect) {
 	renderGeometry(rect);
 }
 
-void RasterRenderer::render(const BMEllipse & ellipse) {
+void RasterRenderer::render(const BMEllipse &ellipse) {
 	renderGeometry(ellipse);
 }
 
-void RasterRenderer::render(const BMRound & round) {
+void RasterRenderer::render(const BMRound &round) {
 	renderGeometry(round);
 }
 
-void RasterRenderer::render(const BMFill & fill) {
+void RasterRenderer::render(const BMFill &fill) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -173,7 +173,7 @@ void RasterRenderer::render(const BMFill & fill) {
 	m_painter->setBrush(color);
 }
 
-void RasterRenderer::render(const BMGFill & gradient) {
+void RasterRenderer::render(const BMGFill &gradient) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -186,7 +186,7 @@ void RasterRenderer::render(const BMGFill & gradient) {
 	}
 }
 
-void RasterRenderer::render(const BMStroke & stroke) {
+void RasterRenderer::render(const BMStroke &stroke) {
 	if (m_fillEffect) {
 		return;
 	}
@@ -194,51 +194,24 @@ void RasterRenderer::render(const BMStroke & stroke) {
 	m_painter->setPen(stroke.pen());
 }
 
-void applyBMTransform(QTransform * xf, const BMBasicTransform & bmxf, bool isBMShapeTransform = false) {
-	QPointF pos = bmxf.position();
-	qreal rot = bmxf.rotation();
-	QPointF sca = bmxf.scale();
-	QPointF anc = bmxf.anchorPoint();
-
-	xf->translate(pos.x(), pos.y());
-
-	if (!qFuzzyIsNull(rot)) {
-		xf->rotate(rot);
-	}
-
-	if (isBMShapeTransform) {
-		const BMShapeTransform &shxf = static_cast<const BMShapeTransform &>(bmxf);
-		if (!qFuzzyIsNull(shxf.skew())) {
-			QTransform t(shxf.shearX(), shxf.shearY(), 0, -shxf.shearY(), shxf.shearX(), 0, 0, 0, 1);
-			t *= QTransform(1, 0, 0, shxf.shearAngle(), 1, 0, 0, 0, 1);
-			t *= QTransform(shxf.shearX(), -shxf.shearY(), 0, shxf.shearY(), shxf.shearX(), 0, 0, 0, 1);
-			*xf = t * (*xf);
-		}
-	}
-
-	xf->scale(sca.x(), sca.y());
-	xf->translate(-anc.x(), -anc.y());
-}
-
-void RasterRenderer::render(const BMBasicTransform & transform) {
-	QTransform t = m_painter->transform();
-	applyBMTransform(&t, transform);
-	m_painter->setTransform(t);
+void RasterRenderer::render(const BMBasicTransform &transform) {
+	renderWithoutOpacity(transform);
 	m_painter->setOpacity(m_painter->opacity() * transform.opacity());
 }
 
-void RasterRenderer::render(const BMShapeTransform & transform) {
-	QTransform t = m_painter->transform();
-	applyBMTransform(&t, transform, true);
-	m_painter->setTransform(t);
-	m_painter->setOpacity(m_painter->opacity() * transform.opacity());
+void RasterRenderer::renderWithoutOpacity(const BMBasicTransform &transform) {
+	m_painter->setTransform(transform.apply(m_painter->transform()));
 }
 
-void RasterRenderer::render(const BMFreeFormShape & shape) {
+void RasterRenderer::render(const BMShapeTransform &transform) {
+	render(static_cast<const BMBasicTransform&>(transform));
+}
+
+void RasterRenderer::render(const BMFreeFormShape &shape) {
 	renderGeometry(shape);
 }
 
-void RasterRenderer::render(const BMTrimPath & trimPath) {
+void RasterRenderer::render(const BMTrimPath &trimPath) {
 	// TODO: Remove "Individual" trimming to the prerendering thread
 	// Now it is done in the GUI thread
 
@@ -258,13 +231,13 @@ void RasterRenderer::render(const BMTrimPath & trimPath) {
 	m_painter->restore();
 }
 
-void RasterRenderer::render(const BMFillEffect & effect) {
+void RasterRenderer::render(const BMFillEffect &effect) {
 	m_fillEffect = &effect;
 	m_painter->setBrush(m_fillEffect->color());
 	m_painter->setOpacity(m_painter->opacity() * m_fillEffect->opacity());
 }
 
-void RasterRenderer::render(const BMRepeater & repeater) {
+void RasterRenderer::render(const BMRepeater &repeater) {
 	if (m_repeaterTransform) {
 		qWarning() << "Only one Repeater can be active at a time!";
 		return;
@@ -306,14 +279,14 @@ void RasterRenderer::applyRepeaterTransform(int instance) {
 	m_painter->setOpacity(m_painter->opacity() * o);
 }
 
-void RasterRenderer::render(const BMMasks & masks) {
+void RasterRenderer::render(const BMMasks &masks) {
 	if (m_buildingMaskRegion) {
 		m_buildingMaskRegion = false;
 		m_painter->setClipPath(m_maskPath);
 	}
 }
 
-void RasterRenderer::render(const BMMaskShape & shape) {
+void RasterRenderer::render(const BMMaskShape &shape) {
 	QPainterPath path;
 	if (shape.inverted()) {
 		QPainterPath screen;
