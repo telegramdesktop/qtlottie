@@ -119,7 +119,7 @@ QPen BMStroke::pen() const {
 	pen.setWidthF(width);
 	pen.setCapStyle(m_capStyle);
 	pen.setJoinStyle(m_joinStyle);
-	pen.setMiterLimit(m_miterLimit);
+	pen.setMiterLimit(m_miterLimit / 100.);
 	return pen;
 }
 
