@@ -55,10 +55,10 @@ void BMRepeater::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonObject copies = definition.value(QStringLiteral("c")).toObject();
+	const auto copies = definition.value(QStringLiteral("c")).toObject();
 	m_copies.construct(copies);
 
-	QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
+	const auto offset = definition.value(QStringLiteral("o")).toObject();
 	m_offset.construct(offset);
 
 	m_transform.parse(definition.value(QStringLiteral("tr")).toObject());

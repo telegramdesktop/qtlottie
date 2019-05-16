@@ -60,7 +60,7 @@ void BMFillEffect::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonArray properties = definition.value(QStringLiteral("ef")).toArray();
+	const auto properties = definition.value(QStringLiteral("ef")).toArray();
 
 	// TODO: Check are property positions really fixed in the effect?
 

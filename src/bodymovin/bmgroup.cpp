@@ -61,11 +61,11 @@ void BMGroup::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonArray groupItems = definition.value(QLatin1String("it")).toArray();
+	const auto groupItems = definition.value(QLatin1String("it")).toArray();
 	QJsonArray::const_iterator itemIt = groupItems.constEnd();
 	while (itemIt != groupItems.constBegin()) {
 		itemIt--;
-		BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
+		const auto shape = BMShape::construct(this, (*itemIt).toObject());
 		if (shape) {
 			// Transform affects how group contents are drawn.
 			// It must be traversed first when drawing

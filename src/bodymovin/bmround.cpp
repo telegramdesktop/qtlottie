@@ -59,10 +59,10 @@ void BMRound::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+	const auto position = definition.value(QStringLiteral("p")).toObject();
 	m_position.construct(position);
 
-	QJsonObject radius = definition.value(QStringLiteral("r")).toObject();
+	const auto radius = definition.value(QStringLiteral("r")).toObject();
 	m_radius.construct(radius);
 }
 
@@ -72,7 +72,7 @@ void BMRound::updateProperties(int frame) {
 
 	// AE uses center of a shape as it's position,
 	// in Qt a translation is needed
-	QPointF center = QPointF(
+	const auto center = QPointF(
 		m_position.value().x() - m_radius.value() / 2,
 		m_position.value().y() - m_radius.value() / 2);
 

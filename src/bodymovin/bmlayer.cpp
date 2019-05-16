@@ -122,17 +122,17 @@ void BMLayer::parse(const QJsonObject &definition) {
 		m_clipMode = static_cast<MatteClipMode>(clipMode);
 	}
 
-	QJsonObject trans = definition.value(QStringLiteral("ks")).toObject();
+	const auto trans = definition.value(QStringLiteral("ks")).toObject();
 	m_layerTransform.parse(trans);
 
 	if (m_hidden) {
 		return;
 	}
 
-	QJsonArray maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
+	const auto maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
 	parseMasks(maskProps);
 
-	QJsonArray effects = definition.value(QStringLiteral("ef")).toArray();
+	const auto effects = definition.value(QStringLiteral("ef")).toArray();
 	parseEffects(effects);
 
 	if (m_td > 1) {
@@ -251,7 +251,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
 			effectRoot = m_effects;
 		}
 		it--;
-		QJsonObject effect = (*it).toObject();
+		const auto effect = (*it).toObject();
 		int type = effect.value(QStringLiteral("ty")).toInt();
 		switch (type) {
 		case 0: {
@@ -284,7 +284,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
 void BMLayer::parseMasks(const QJsonArray &definition) {
 	QJsonArray::const_iterator it = definition.constBegin();
 	while (it != definition.constEnd()) {
-		QJsonObject mask = (*it).toObject();
+		const auto mask = (*it).toObject();
 		if (mask.value(QStringLiteral("mode")).toString() != QStringLiteral("n")) {
 			if (!m_masks) {
 				m_masks = new BMMasks(this);

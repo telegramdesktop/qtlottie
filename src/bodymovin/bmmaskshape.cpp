@@ -57,7 +57,7 @@ void BMMaskShape::parse(const QJsonObject &definition) {
 
 	m_inverted = definition.value(QStringLiteral("inv")).toBool();
 
-	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value(QStringLiteral("o")).toObject();
 	if (opacity.isEmpty()) {
 		m_opacity.setValue(100.);
 	} else {
@@ -68,7 +68,7 @@ void BMMaskShape::parse(const QJsonObject &definition) {
 		qWarning() << "Transparent mask shapes are not supported.";
 	}
 
-	QString mode = definition.value(QStringLiteral("mode")).toVariant().toString();
+	const auto mode = definition.value(QStringLiteral("mode")).toVariant().toString();
 	if (mode == QStringLiteral("a")) {
 		m_mode = Mode::Additive;
 	} else if (mode == QStringLiteral("i")) {

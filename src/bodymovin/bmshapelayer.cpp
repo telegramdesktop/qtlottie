@@ -57,11 +57,11 @@ BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
 		return;
 	}
 
-	QJsonArray items = definition.value(QStringLiteral("shapes")).toArray();
+	const auto items = definition.value(QStringLiteral("shapes")).toArray();
 	QJsonArray::const_iterator itemIt = items.constEnd();
 	while (itemIt != items.constBegin()) {
 		itemIt--;
-		BMShape *shape = BMShape::construct(this, (*itemIt).toObject());
+		const auto shape = BMShape::construct(this, (*itemIt).toObject());
 		if (shape) {
 			appendChild(shape);
 		}

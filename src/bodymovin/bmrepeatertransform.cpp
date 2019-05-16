@@ -57,10 +57,10 @@ void BMRepeaterTransform::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonObject startOpacity = definition.value(QStringLiteral("so")).toObject();
+	const auto startOpacity = definition.value(QStringLiteral("so")).toObject();
 	m_startOpacity.construct(startOpacity);
 
-	QJsonObject endOpacity = definition.value(QStringLiteral("eo")).toObject();
+	const auto endOpacity = definition.value(QStringLiteral("eo")).toObject();
 	m_endOpacity.construct(endOpacity);
 }
 
@@ -72,7 +72,7 @@ void BMRepeaterTransform::updateProperties(int frame) {
 
 	m_opacities.clear();
 	for (int i = 0; i < m_copies; i++) {
-		qreal opacity = m_startOpacity.value()
+		const auto opacity = m_startOpacity.value()
 			+ (m_endOpacity.value() - m_startOpacity.value()) * i / m_copies;
 		m_opacities.push_back(opacity);
 	}

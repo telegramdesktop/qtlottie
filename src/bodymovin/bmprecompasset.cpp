@@ -53,7 +53,7 @@ BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
 		return;
 	}
 
-	QJsonArray layers = definition.value(QStringLiteral("layers")).toArray();
+	const auto layers = definition.value(QStringLiteral("layers")).toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
 		if (const auto layer = BMLayer::construct(this, entry.toObject())) {

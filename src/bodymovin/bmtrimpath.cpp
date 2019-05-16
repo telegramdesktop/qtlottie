@@ -65,13 +65,13 @@ void BMTrimPath::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonObject start = definition.value(QStringLiteral("s")).toObject();
+	const auto start = definition.value(QStringLiteral("s")).toObject();
 	m_start.construct(start);
 
-	QJsonObject end = definition.value(QStringLiteral("e")).toObject();
+	const auto end = definition.value(QStringLiteral("e")).toObject();
 	m_end.construct(end);
 
-	QJsonObject offset = definition.value(QStringLiteral("o")).toObject();
+	const auto offset = definition.value(QStringLiteral("o")).toObject();
 	m_offset.construct(offset);
 
 	int simultaneous = true;

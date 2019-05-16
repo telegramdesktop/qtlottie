@@ -61,32 +61,32 @@ BMBase *BMBasicTransform::clone(BMBase *parent) const {
 void BMBasicTransform::parse(const QJsonObject &definition) {
 	BMBase::parse(definition);
 
-	QJsonObject anchors = definition.value(QStringLiteral("a")).toObject();
+	const auto anchors = definition.value(QStringLiteral("a")).toObject();
 	m_anchorPoint.construct(anchors);
 
 	if (definition.value(QStringLiteral("p")).toObject().contains(QStringLiteral("s"))) {
-		QJsonObject posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
+		const auto posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
 		m_xPos.construct(posX);
 
-		QJsonObject posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
+		const auto posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
 		m_yPos.construct(posY);
 
 		m_splitPosition = true;
 	} else {
-		QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+		const auto position = definition.value(QStringLiteral("p")).toObject();
 		m_position.construct(position);
 	}
 
-	QJsonObject scale = definition.value(QStringLiteral("s")).toObject();
+	const auto scale = definition.value(QStringLiteral("s")).toObject();
 	m_scale.construct(scale);
 
-	QJsonObject rotation = definition.value(QStringLiteral("r")).toObject();
+	const auto rotation = definition.value(QStringLiteral("r")).toObject();
 	m_rotation.construct(rotation);
 
 	// If this is the base class for BMRepeaterTransform,
 	// opacity is not present
 	if (definition.contains(QStringLiteral("o"))) {
-		QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+		const auto opacity = definition.value(QStringLiteral("o")).toObject();
 		m_opacity.construct(opacity);
 	}
 }

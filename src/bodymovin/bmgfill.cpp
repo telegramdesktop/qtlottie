@@ -86,9 +86,9 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 		qWarning() << "Unknown gradient fill type";
 	}
 
-	QJsonObject color = definition.value(QStringLiteral("g")).toObject();
-	QJsonArray colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
-	int elementCount = color.value(QStringLiteral("p")).toInt();
+	const auto color = definition.value(QStringLiteral("g")).toObject();
+	const auto colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
+	const auto elementCount = color.value(QStringLiteral("p")).toInt();
 	for (int i = 0; i < (elementCount) * 4; i += 4) {
 		// p denotes the color stop percentage
 		QVector4D colorVec;
@@ -102,19 +102,19 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 		m_colors.push_back(colorPos);
 	}
 
-	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value(QStringLiteral("o")).toObject();
 	m_opacity.construct(opacity);
 
-	QJsonObject startPoint = definition.value(QStringLiteral("s")).toObject();
+	const auto startPoint = definition.value(QStringLiteral("s")).toObject();
 	m_startPoint.construct(startPoint);
 
-	QJsonObject endPoint = definition.value(QStringLiteral("e")).toObject();
+	const auto endPoint = definition.value(QStringLiteral("e")).toObject();
 	m_endPoint.construct(endPoint);
 
-	QJsonObject highlight = definition.value(QStringLiteral("h")).toObject();
+	const auto highlight = definition.value(QStringLiteral("h")).toObject();
 	m_highlightLength.construct(highlight);
 
-	QJsonObject angle = definition.value(QStringLiteral("a")).toObject();
+	const auto angle = definition.value(QStringLiteral("a")).toObject();
 	m_highlightAngle.construct(angle);
 
 	m_highlightAngle.setValue(0.0);

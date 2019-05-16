@@ -48,10 +48,10 @@ BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
 		return;
 	}
 
-	QJsonObject color = definition.value(QStringLiteral("c")).toObject();
+	const auto color = definition.value(QStringLiteral("c")).toObject();
 	m_color.construct(color);
 
-	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value(QStringLiteral("o")).toObject();
 	m_opacity.construct(opacity);
 }
 
@@ -69,12 +69,12 @@ void BMFill::render(Renderer &renderer, int frame) const {
 }
 
 QColor BMFill::color() const {
-	QVector4D cVec = m_color.value();
+	const auto cVec = m_color.value();
+	const auto r = static_cast<qreal>(cVec.x());
+	const auto g = static_cast<qreal>(cVec.y());
+	const auto b = static_cast<qreal>(cVec.z());
+	const auto a = static_cast<qreal>(cVec.w());
 	QColor color;
-	qreal r = static_cast<qreal>(cVec.x());
-	qreal g = static_cast<qreal>(cVec.y());
-	qreal b = static_cast<qreal>(cVec.z());
-	qreal a = static_cast<qreal>(cVec.w());
 	color.setRgbF(r, g, b, a);
 	return color;
 }

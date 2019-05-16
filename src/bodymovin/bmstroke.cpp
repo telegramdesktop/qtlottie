@@ -83,13 +83,13 @@ BMStroke::BMStroke(BMBase *parent, const QJsonObject &definition)
 		qWarning() << "Unknown line join style in BMStroke";
 	}
 
-	QJsonObject opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value(QStringLiteral("o")).toObject();
 	m_opacity.construct(opacity);
 
-	QJsonObject width = definition.value(QStringLiteral("w")).toObject();
+	const auto width = definition.value(QStringLiteral("w")).toObject();
 	m_width.construct(width);
 
-	QJsonObject color = definition.value(QStringLiteral("c")).toObject();
+	const auto color = definition.value(QStringLiteral("c")).toObject();
 	m_color.construct(color);
 }
 

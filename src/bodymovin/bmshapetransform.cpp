@@ -57,10 +57,10 @@ BMBase *BMShapeTransform::clone(BMBase *parent) const {
 void BMShapeTransform::parse(const QJsonObject &definition) {
 	BMBasicTransform::parse(definition);
 
-	QJsonObject skew = definition.value(QStringLiteral("sk")).toObject();
+	const auto skew = definition.value(QStringLiteral("sk")).toObject();
 	m_skew.construct(skew);
 
-	QJsonObject skewAxis = definition.value(QStringLiteral("sa")).toObject();
+	const auto skewAxis = definition.value(QStringLiteral("sa")).toObject();
 	m_skewAxis.construct(skewAxis);
 }
 
@@ -70,10 +70,10 @@ void BMShapeTransform::updateProperties(int frame) {
 	m_skew.update(frame);
 	m_skewAxis.update(frame);
 
-	double rads = qDegreesToRadians(m_skewAxis.value());
+	const auto rads = qDegreesToRadians(m_skewAxis.value());
 	m_shearX = qCos(rads);
 	m_shearY = qSin(rads);
-	double tan = qDegreesToRadians(-m_skew.value());
+	const auto tan = qDegreesToRadians(-m_skew.value());
 	m_shearAngle = qTan(tan);
 }
 

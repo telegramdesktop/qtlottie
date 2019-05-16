@@ -58,25 +58,25 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 	};
 	auto entries = std::vector<Entry>();
 
-	QJsonArray vertexKeyframes = keyframes.value(QStringLiteral("k")).toArray();
+	const auto vertexKeyframes = keyframes.value(QStringLiteral("k")).toArray();
 	for (int i = 0; i < vertexKeyframes.count(); i++) {
-		QJsonObject keyframe = vertexKeyframes.at(i).toObject();
+		const auto keyframe = vertexKeyframes.at(i).toObject();
 
 		const auto hold = (keyframe.value(QStringLiteral("h")).toInt() == 1);
 		const auto startFrame = keyframe.value(QStringLiteral("t")).toVariant().toInt();
 
-		QJsonObject startValue = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject();
-		QJsonObject endValue = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject();
-		bool closedPathAtStart = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
-		//bool closedPathAtEnd = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
-		QJsonArray startVertices = startValue.value(QStringLiteral("v")).toArray();
-		QJsonArray startBezierIn = startValue.value(QStringLiteral("i")).toArray();
-		QJsonArray startBezierOut = startValue.value(QStringLiteral("o")).toArray();
-		QJsonArray endVertices = endValue.value(QStringLiteral("v")).toArray();
-		QJsonArray endBezierIn = endValue.value(QStringLiteral("i")).toArray();
-		QJsonArray endBezierOut = endValue.value(QStringLiteral("o")).toArray();
-		QJsonObject easingIn = keyframe.value(QStringLiteral("i")).toObject();
-		QJsonObject easingOut = keyframe.value(QStringLiteral("o")).toObject();
+		const auto startValue = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject();
+		const auto endValue = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject();
+		const auto closedPathAtStart = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
+		//const auto closedPathAtEnd = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
+		const auto startVertices = startValue.value(QStringLiteral("v")).toArray();
+		const auto startBezierIn = startValue.value(QStringLiteral("i")).toArray();
+		const auto startBezierOut = startValue.value(QStringLiteral("o")).toArray();
+		const auto endVertices = endValue.value(QStringLiteral("v")).toArray();
+		const auto endBezierIn = endValue.value(QStringLiteral("i")).toArray();
+		const auto endBezierOut = endValue.value(QStringLiteral("o")).toArray();
+		const auto easingIn = keyframe.value(QStringLiteral("i")).toObject();
+		const auto easingOut = keyframe.value(QStringLiteral("o")).toObject();
 
 		if (!startVertices.isEmpty()
 			&& !entries.empty()
@@ -141,36 +141,34 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 QPainterPath FreeFormShape::buildShape(const QJsonObject &shape) {
 	auto result = QPainterPath();
 
-	bool needToClose = shape.value(QStringLiteral("c")).toBool();
-	QJsonArray bezierIn = shape.value(QStringLiteral("i")).toArray();
-	QJsonArray bezierOut = shape.value(QStringLiteral("o")).toArray();
-	QJsonArray vertices = shape.value(QStringLiteral("v")).toArray();
+	const auto needToClose = shape.value(QStringLiteral("c")).toBool();
+	const auto bezierIn = shape.value(QStringLiteral("i")).toArray();
+	const auto bezierOut = shape.value(QStringLiteral("o")).toArray();
+	const auto vertices = shape.value(QStringLiteral("v")).toArray();
 
 	// If there are less than two vertices, cannot make a bezier curve
 	if (vertices.count() < 2) {
 		return result;
 	}
 
-	QPointF s(
+	auto s = QPointF(
 		vertices.at(0).toArray().at(0).toDouble(),
 		vertices.at(0).toArray().at(1).toDouble());
-	QPointF s0(s);
+	const auto s0 = s;
 
 	result.moveTo(s);
 	int i=0;
 
 	while (i < vertices.count() - 1) {
-		QPointF v = QPointF(
+		const auto v = QPointF(
 			vertices.at(i + 1).toArray().at(0).toDouble(),
 			vertices.at(i + 1).toArray().at(1).toDouble());
-		QPointF c1 = QPointF(
+		const auto c1 = s + QPointF(
 			bezierOut.at(i).toArray().at(0).toDouble(),
 			bezierOut.at(i).toArray().at(1).toDouble());
-		QPointF c2 = QPointF(
+		const auto c2 = v + QPointF(
 			bezierIn.at(i + 1).toArray().at(0).toDouble(),
 			bezierIn.at(i + 1).toArray().at(1).toDouble());
-		c1 += s;
-		c2 += v;
 
 		result.cubicTo(c1, c2, v);
 
@@ -179,16 +177,13 @@ QPainterPath FreeFormShape::buildShape(const QJsonObject &shape) {
 	}
 
 	if (needToClose) {
-		QPointF v = s0;
-		QPointF c1 = QPointF(
+		const auto v = s0;
+		const auto c1 = s + QPointF(
 			bezierOut.at(i).toArray().at(0).toDouble(),
 			bezierOut.at(i).toArray().at(1).toDouble());
-		QPointF c2 = QPointF(
+		const auto c2 = v + QPointF(
 			bezierIn.at(0).toArray().at(0).toDouble(),
 			bezierIn.at(0).toArray().at(1).toDouble());
-		c1 += s;
-		c2 += v;
-
 		result.cubicTo(c1, c2, v);
 	}
 

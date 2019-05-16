@@ -60,10 +60,10 @@ void BMEllipse::parse(const QJsonObject &definition) {
 		return;
 	}
 
-	QJsonObject position = definition.value(QStringLiteral("p")).toObject();
+	const auto position = definition.value(QStringLiteral("p")).toObject();
 	m_position.construct(position);
 
-	QJsonObject size = definition.value(QStringLiteral("s")).toObject();
+	const auto size = definition.value(QStringLiteral("s")).toObject();
 	m_size.construct(size);
 
 	m_direction = definition.value(QStringLiteral("d")).toInt();
@@ -79,7 +79,7 @@ void BMEllipse::updateProperties(int frame) {
 
 	// AE uses center of a shape as it's position,
 	// in Qt a translation is needed
-	QPointF pos = QPointF(
+	const auto pos = QPointF(
 		m_position.value().x() - m_size.value().width() / 2,
 		m_position.value().y() - m_size.value().height() / 2);
 
