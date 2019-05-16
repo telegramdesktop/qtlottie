@@ -53,12 +53,17 @@ protected:
 	QColor getColor() const;
 
 protected:
+	void parseDash(const JsonArray &definition);
+
 	BMProperty<qreal> m_opacity;
 	BMProperty<qreal> m_width;
 	BMProperty<QVector4D> m_color;
 	Qt::PenCapStyle m_capStyle;
 	Qt::PenJoinStyle m_joinStyle;
 	qreal m_miterLimit = 0.;
+	QVector<BMProperty<qreal>> m_dashPattern;
+	QVector<qreal> m_dashPatternComputed;
+	BMProperty<qreal> m_dashOffset;
 
 };
 

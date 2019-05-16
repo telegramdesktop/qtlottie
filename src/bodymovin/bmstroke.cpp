@@ -42,7 +42,9 @@ BMStroke::BMStroke(BMBase *parent, const BMStroke &other)
 , m_color(other.m_color)
 , m_capStyle(other.m_capStyle)
 , m_joinStyle(other.m_joinStyle)
-, m_miterLimit(other.m_miterLimit) {
+, m_miterLimit(other.m_miterLimit)
+, m_dashPattern(other.m_dashPattern)
+, m_dashOffset(other.m_dashOffset) {
 }
 
 BMStroke::BMStroke(BMBase *parent, const JsonObject &definition)
@@ -91,6 +93,30 @@ BMStroke::BMStroke(BMBase *parent, const JsonObject &definition)
 
 	const auto color = definition.value("c").toObject();
 	m_color.construct(color);
+
+	const auto dash = definition.value("d").toArray();
+	if (!dash.empty()) {
+		parseDash(dash);
+	}
+}
+
+void BMStroke::parseDash(const JsonArray &definition) {
+	auto offsetFound = false;
+	m_dashPattern.reserve(definition.size() - 1);
+	for (const auto &element : definition) {
+		const auto &part = element.toObject();
+		if (part.value("n").toString() == "o") {
+			if (offsetFound) {
+				qWarning() << "Two elements found for BMStroke dash offset.";
+				return;
+			}
+			offsetFound = true;
+			m_dashOffset.construct(part.value("v").toObject());
+		} else {
+			m_dashPattern.push_back({});
+			m_dashPattern.back().construct(part.value("v").toObject());
+		}
+	}
 }
 
 BMBase *BMStroke::clone(BMBase *parent) const {
@@ -101,6 +127,22 @@ void BMStroke::updateProperties(int frame) {
 	m_opacity.update(frame);
 	m_width.update(frame);
 	m_color.update(frame);
+	m_dashOffset.update(frame);
+
+	const auto width = m_width.value();
+	const auto count = m_dashPattern.size();
+	const auto twice = (count % 2 != 0);
+	m_dashPatternComputed.resize(twice ? (2 * count) : count);
+	auto i = 0;
+	for (auto &part : m_dashPattern) {
+		part.update(frame);
+		m_dashPatternComputed[i++] = part.value() / width;
+	}
+	if (twice) {
+		for (auto i = 0; i != count; ++i) {
+			m_dashPatternComputed[count + i] = m_dashPatternComputed[i];
+		}
+	}
 }
 
 void BMStroke::render(Renderer &renderer, int frame) const {
@@ -108,7 +150,7 @@ void BMStroke::render(Renderer &renderer, int frame) const {
 }
 
 QPen BMStroke::pen() const {
-	qreal width = m_width.value();
+	const auto width = m_width.value();
 	if (qFuzzyIsNull(width)) {
 		return QPen(Qt::NoPen);
 	}
@@ -120,6 +162,10 @@ QPen BMStroke::pen() const {
 	pen.setCapStyle(m_capStyle);
 	pen.setJoinStyle(m_joinStyle);
 	pen.setMiterLimit(m_miterLimit / 100.);
+	if (!m_dashPatternComputed.empty()) {
+		pen.setDashPattern(m_dashPatternComputed);
+		pen.setDashOffset(m_dashOffset.value() / width);
+	}
 	return pen;
 }
 
