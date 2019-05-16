@@ -200,17 +200,17 @@ void BMGFill::setGradient() {
 	}
 	case QGradient::RadialGradient: {
 		QRadialGradient *g = static_cast<QRadialGradient*>(m_gradient);
-		qreal dx = qAbs(m_endPoint.value().x() + m_startPoint.value().x());
-		qreal dy = qAbs(m_endPoint.value().y() + m_startPoint.value().y());
+		qreal dx = m_endPoint.value().x() - m_startPoint.value().x();
+		qreal dy = m_endPoint.value().y() - m_startPoint.value().y();
 		qreal radius = qSqrt(dx * dx +  dy * dy);
-		qreal angle = qAsin(dy / radius);
 		g->setCenter(m_startPoint.value());
 		g->setCenterRadius(radius);
-		qreal focusRadius = 2;
-		qreal x = (g->radius() - 2 * focusRadius) * qCos(angle + qDegreesToRadians(m_highlightAngle.value()));
-		qreal y = (g->radius() - 2 * focusRadius) * qSin(angle + qDegreesToRadians(m_highlightAngle.value()));
-		g->setFocalPoint(g->center() + QPointF(x, y));
-		g->setFocalRadius(focusRadius);
+
+		qreal angle = qAtan2(dy, dx) + qDegreesToRadians(m_highlightAngle.value());
+		qreal percent = std::clamp(m_highlightLength.value(), -0.99, 0.99);
+		qreal dist = radius * percent;
+		g->setFocalPoint(g->center() + dist * QPointF(qCos(angle), qSin(angle)));
+		g->setFocalRadius(0.);
 		break;
 	}
 	default:

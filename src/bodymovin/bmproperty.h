@@ -209,9 +209,12 @@ public:
 	void construct(const JsonObject &definition) {
 		if (definition.value("s").toInt()) {
 			qWarning()
-				<< "Property is split into separate x and y but it is not supported";
+				<< "Property is split into separate x and y but it is not supported.";
 		}
-
+		if (definition.contains("x")) {
+			qWarning()
+				<< "Expressions are not supported.";
+		}
 		const auto value = definition.value("k");
 		const auto animated = value.isArray() && value.toArray().at(0).isObject();
 		if (animated) {
