@@ -28,41 +28,33 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmshape.h"
-#include "freeformshape.h"
+#include "bmproperty.h"
 
+#include <QMap>
+#include <QVector>
+
+class QPainterPath;
 class QJsonObject;
 
 namespace Lottie {
 
-class BMMaskShape : public BMShape {
+class FreeFormShape {
 public:
-	BMMaskShape(BMBase *parent);
-	BMMaskShape(BMBase *parent, const BMMaskShape &other);
-	BMMaskShape(BMBase *parent, const QJsonObject &definition);
+	QPainterPath parse(const QJsonObject &definition);
+	QPainterPath build(int frame);
 
-	BMBase *clone(BMBase *parent) const override;
-
-	void parse(const QJsonObject &definition);
-
-	void updateProperties(int frame) override;
-	void render(Renderer &renderer, int frame) const override;
-
-	enum class Mode {
-		Additive,
-		Intersect,
+private:
+	struct VertexInfo {
+		BMProperty<QPointF> pos;
+		BMProperty<QPointF> ci;
+		BMProperty<QPointF> co;
 	};
+	QVector<VertexInfo> m_vertexList;
+	QMap<int, bool> m_closedShape;
 
-	Mode mode() const;
-
-	bool inverted() const;
-
-protected:
-	FreeFormShape m_shape;
-
-	bool m_inverted = false;
-	BMProperty<qreal> m_opacity;
-	Mode m_mode = Mode::Additive;
+	void parseShapeKeyframes(const QJsonObject &keyframes);
+	QPainterPath buildShape(const QJsonObject &keyframe);
+	QPainterPath buildShape(int frame);
 
 };
 

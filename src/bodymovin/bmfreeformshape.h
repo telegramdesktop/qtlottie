@@ -29,13 +29,7 @@
 #pragma once
 
 #include "bmshape.h"
-#include "bmtrimpath.h"
-#include "renderer.h"
-
-#include <QPainterPath>
-#include <QJsonArray>
-#include <QMap>
-#include <QHash>
+#include "freeformshape.h"
 
 class QJsonObject;
 
@@ -57,38 +51,7 @@ public:
 	bool acceptsTrim() const override;
 
 protected:
-	struct VertexInfo {
-		BMProperty<QPointF> pos;
-		BMProperty<QPointF> ci;
-		BMProperty<QPointF> co;
-	};
-
-	void parseShapeKeyframes(QJsonObject &keyframes);
-	void buildShape(const QJsonObject &keyframe);
-	void buildShape(int frame);
-	void parseEasedVertices(const QJsonObject &keyframe, int startFrame);
-
-	QHash<int, QJsonObject> m_vertexMap;
-	QList<VertexInfo> m_vertexList;
-	QMap<int, bool> m_closedShape;
-
-private:
-	struct VertexBuildInfo {
-		QJsonArray posKeyframes;
-		QJsonArray ciKeyframes;
-		QJsonArray coKeyframes;
-	};
-
-	void finalizeVertices();
-
-	QMap<int, VertexBuildInfo*> m_vertexInfos;
-
-	QJsonObject createKeyframe(
-		QJsonArray startValue,
-		QJsonArray endValue,
-		int startFrame,
-		QJsonObject easingIn,
-		QJsonObject easingOut);
+	FreeFormShape m_shape;
 
 };
 

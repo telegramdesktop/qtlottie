@@ -62,7 +62,7 @@ struct EasingSegment<QPointF> : EasingSegmentBasic<QPointF> {
 	};
 
 	double bezierLength = 0.;
-	std::vector<BezierPoint> bezierPoints;
+	QVector<BezierPoint> bezierPoints;
 };
 
 template <typename T>
@@ -357,7 +357,7 @@ protected:
 
 protected:
 	bool m_animated = false;
-	std::vector<EasingSegment<T>> m_easingCurves;
+	QVector<EasingSegment<T>> m_easingCurves;
 	const EasingSegment<T> *m_currentEasing = nullptr;
 	int m_startFrame = INT_MAX;
 	int m_endFrame = 0;
