@@ -108,15 +108,9 @@ void BMShapeLayer::render(Renderer &renderer, int frame) const {
 
 	renderEffects(renderer, frame);
 
-	// In case there is a linked layer, apply its transform first
-	// as it affects tranforms of this layer too
-	if (BMLayer *ll = linkedLayer()) {
-		ll->renderFullTransform(renderer, frame);
-	}
-
 	renderer.render(*this);
 
-	m_layerTransform.render(renderer, frame);
+	renderFullTransform(renderer, frame);
 
 	if (m_masks) {
 		m_masks->render(renderer, frame);
