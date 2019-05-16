@@ -28,11 +28,8 @@
 ****************************************************************************/
 #pragma once
 
+#include "bmshape.h"
 #include "bmproperty.h"
-#include "bmgroup.h"
-
-#include <QPainterPath>
-#include <QJsonObject>
 
 namespace Lottie {
 

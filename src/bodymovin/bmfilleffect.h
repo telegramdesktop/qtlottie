@@ -31,11 +31,6 @@
 #include "bmbase.h"
 #include "bmproperty.h"
 
-#include <QColor>
-#include <QVector4D>
-
-class QJsonObject;
-
 namespace Lottie {
 
 #define BM_EFFECT_FILL 0x20000

@@ -31,10 +31,6 @@
 #include "bmshape.h"
 #include "bmproperty.h"
 
-#include <QPointF>
-
-class QJsonObject;
-
 namespace Lottie {
 
 class BMBasicTransform : public BMShape {

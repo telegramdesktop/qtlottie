@@ -29,9 +29,7 @@
 #pragma once
 
 #include <QPainterPath>
-#include <QPainter>
 #include <QStack>
-#include <QRegion>
 
 #include "renderer.h"
 

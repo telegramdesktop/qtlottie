@@ -28,14 +28,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmshape.h"
-#include "bmtrimpath.h"
-#include "renderer.h"
-
-#include <QPainterPath>
-#include <QJsonArray>
-
-class QJsonObject;
+#include "bmbase.h"
 
 namespace Lottie {
 

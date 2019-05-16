@@ -30,8 +30,6 @@
 
 #include <QList>
 
-class QJsonObject;
-
 namespace Lottie {
 
 class BMTrimPath;

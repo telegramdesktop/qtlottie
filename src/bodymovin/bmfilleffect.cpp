@@ -32,6 +32,7 @@
 
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QColor>
 
 namespace Lottie {
 

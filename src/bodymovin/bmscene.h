@@ -30,8 +30,6 @@
 
 #include "bmbase.h"
 
-#include <QJsonObject>
-#include <QList>
 #include <QHash>
 #include <vector>
 #include <memory>

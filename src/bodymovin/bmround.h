@@ -30,15 +30,6 @@
 
 #include "bmshape.h"
 #include "bmproperty.h"
-#include "bmfill.h"
-#include "bmstroke.h"
-
-#include <QRect>
-#include <QPointF>
-#include <QBrush>
-#include <QPen>
-
-class QJsonObject;
 
 namespace Lottie {
 

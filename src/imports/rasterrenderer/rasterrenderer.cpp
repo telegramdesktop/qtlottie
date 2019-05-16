@@ -35,6 +35,7 @@
 #include "bmshapetransform.h"
 #include "bmrect.h"
 #include "bmellipse.h"
+#include "bmstroke.h"
 #include "bmround.h"
 #include "bmfreeformshape.h"
 #include "bmtrimpath.h"

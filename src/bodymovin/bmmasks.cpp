@@ -28,6 +28,8 @@
 ****************************************************************************/
 #include "bmmasks.h"
 
+#include "renderer.h"
+
 #include <QJsonObject>
 
 namespace Lottie {

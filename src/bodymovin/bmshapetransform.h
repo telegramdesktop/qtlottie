@@ -28,13 +28,8 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmshape.h"
 #include "bmbasictransform.h"
 #include "bmproperty.h"
-
-#include <QPointF>
-
-class QJsonObject;
 
 namespace Lottie {
 

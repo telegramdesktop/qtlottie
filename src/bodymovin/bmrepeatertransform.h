@@ -29,8 +29,9 @@
 #pragma once
 
 #include "bmbasictransform.h"
+#include "bmproperty.h"
 
-class QJsonObject;
+#include <QList>
 
 namespace Lottie {
 

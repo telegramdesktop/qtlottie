@@ -28,11 +28,8 @@
 ****************************************************************************/
 #pragma once
 
-#include "bmgroup.h"
+#include "bmshape.h"
 #include "bmproperty.h"
-
-#include <QColor>
-#include <QVector4D>
 
 namespace Lottie {
 

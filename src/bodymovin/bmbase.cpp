@@ -30,6 +30,8 @@
 
 #include "bmscene.h"
 
+#include <QJsonObject>
+
 namespace Lottie {
 
 BMBase::BMBase(BMBase *parent) : m_parent(parent) {

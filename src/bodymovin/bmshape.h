@@ -28,15 +28,12 @@
 ****************************************************************************/
 #pragma once
 
-#include <QPainterPath>
-
 #include "bmbase.h"
-#include "bmproperty.h"
+
+#include <QPainterPath>
 
 namespace Lottie {
 
-class BMFill;
-class BMStroke;
 class BMTrimPath;
 
 #define BM_SHAPE_ANY_TYPE_IX -1

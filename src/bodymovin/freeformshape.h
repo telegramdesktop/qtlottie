@@ -34,7 +34,6 @@
 #include <QVector>
 
 class QPainterPath;
-class QJsonObject;
 
 namespace Lottie {
 

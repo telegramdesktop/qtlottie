@@ -28,9 +28,10 @@
 ****************************************************************************/
 #pragma once
 
-#include <QJsonObject>
 #include <QList>
 #include <functional>
+
+class QJsonObject;
 
 namespace Lottie {
 

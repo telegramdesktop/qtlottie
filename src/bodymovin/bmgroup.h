@@ -30,10 +30,6 @@
 
 #include "bmshape.h"
 #include "bmproperty.h"
-#include "bmpathtrimmer.h"
-
-#include <QJsonObject>
-#include <QColor>
 
 namespace Lottie {
 
@@ -55,7 +51,7 @@ public:
 	void render(Renderer &renderer, int frame) const override;
 
 	bool acceptsTrim() const override;
-	void applyTrim(const BMTrimPath  &trimmer) override;
+	void applyTrim(const BMTrimPath &trimmer) override;
 
 };
 

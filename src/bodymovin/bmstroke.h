@@ -32,7 +32,6 @@
 #include "bmproperty.h"
 
 #include <QPen>
-#include <QVector4D>
 
 namespace Lottie {
 

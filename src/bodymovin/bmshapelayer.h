@@ -30,13 +30,9 @@
 
 #include "bmlayer.h"
 
-class QJsonObject;
-
 namespace Lottie {
 
-class BMShape;
 class BMTrimPath;
-class BMBasicTransform;
 
 class BMShapeLayer final : public BMLayer {
 public:

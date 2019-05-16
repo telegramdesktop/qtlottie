@@ -30,6 +30,8 @@
 
 #include "renderer.h"
 
+#include <QColor>
+
 namespace Lottie {
 
 BMFill::BMFill(BMBase *parent) : BMShape(parent) {

@@ -31,8 +31,6 @@
 #include "bmshape.h"
 #include "freeformshape.h"
 
-class QJsonObject;
-
 namespace Lottie {
 
 class BMFreeFormShape : public BMShape {
