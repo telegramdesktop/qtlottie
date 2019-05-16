@@ -37,11 +37,11 @@ class BMEllipse : public BMShape {
 public:
     BMEllipse(BMBase *parent);
     BMEllipse(BMBase *parent, const BMEllipse &other);
-    BMEllipse(BMBase *parent, const QJsonObject &definition);
+    BMEllipse(BMBase *parent, const JsonObject &definition);
 
     BMBase *clone(BMBase *parent) const override;
 
-    void parse(const QJsonObject &definition);
+    void parse(const JsonObject &definition);
 
     void updateProperties(int frame) override;
     void render(Renderer &renderer, int frame) const override;

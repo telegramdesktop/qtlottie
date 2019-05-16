@@ -36,7 +36,7 @@ class BMNullLayer final : public BMLayer {
 public:
 	BMNullLayer(BMBase *parent);
 	BMNullLayer(BMBase *parent, const BMNullLayer &other);
-	BMNullLayer(BMBase *parent, const QJsonObject &definition);
+	BMNullLayer(BMBase *parent, const JsonObject &definition);
 	~BMNullLayer() override;
 
 	BMBase *clone(BMBase *parent) const override;

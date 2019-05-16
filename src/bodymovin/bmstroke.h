@@ -39,7 +39,7 @@ class BMStroke : public BMShape {
 public:
 	BMStroke(BMBase *parent);
 	BMStroke(BMBase *parent, const BMStroke &other);
-	BMStroke(BMBase *parent, const QJsonObject &definition);
+	BMStroke(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 

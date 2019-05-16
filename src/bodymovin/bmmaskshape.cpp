@@ -31,8 +31,6 @@
 #include "bmtrimpath.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMMaskShape::BMMaskShape(BMBase *parent) : BMShape(parent) {
@@ -43,7 +41,7 @@ BMMaskShape::BMMaskShape(BMBase *parent, const BMMaskShape &other)
 , m_shape(other.m_shape) {
 }
 
-BMMaskShape::BMMaskShape(BMBase *parent, const QJsonObject &definition)
+BMMaskShape::BMMaskShape(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -52,13 +50,13 @@ BMBase *BMMaskShape::clone(BMBase *parent) const {
 	return new BMMaskShape(parent, *this);
 }
 
-void BMMaskShape::parse(const QJsonObject &definition) {
+void BMMaskShape::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 
-	m_inverted = definition.value(QStringLiteral("inv")).toBool();
+	m_inverted = definition.value("inv").toBool();
 
-	const auto opacity = definition.value(QStringLiteral("o")).toObject();
-	if (opacity.isEmpty()) {
+	const auto opacity = definition.value("o").toObject();
+	if (opacity.empty()) {
 		m_opacity.setValue(100.);
 	} else {
 		m_opacity.construct(opacity);
@@ -68,16 +66,16 @@ void BMMaskShape::parse(const QJsonObject &definition) {
 		qWarning() << "Transparent mask shapes are not supported.";
 	}
 
-	const auto mode = definition.value(QStringLiteral("mode")).toVariant().toString();
-	if (mode == QStringLiteral("a")) {
+	const auto mode = definition.value("mode").toString();
+	if (mode == "a") {
 		m_mode = Mode::Additive;
-	} else if (mode == QStringLiteral("i")) {
+	} else if (mode == "i") {
 		m_mode = Mode::Intersect;
 	} else {
 		qWarning() << "Unsupported mask mode.";
 	}
 
-	m_path = m_shape.parse(definition.value(QStringLiteral("pt")).toObject());
+	m_path = m_shape.parse(definition.value("pt").toObject());
 }
 
 void BMMaskShape::updateProperties(int frame) {

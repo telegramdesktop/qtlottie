@@ -37,7 +37,7 @@ class BMRect : public BMShape {
 public:
 	BMRect(BMBase *parent);
 	BMRect(BMBase *parent, const BMRect &other);
-	BMRect(BMBase *parent, const QJsonObject &definition);
+	BMRect(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 

@@ -31,7 +31,6 @@
 #include "bmbasictransform.h"
 #include "renderer.h"
 
-#include <QJsonObject>
 #include <QtMath>
 
 namespace Lottie {
@@ -45,7 +44,7 @@ BMShapeTransform::BMShapeTransform(BMBase *parent, const BMShapeTransform &other
 , m_shearAngle(other.m_shearAngle) {
 }
 
-BMShapeTransform::BMShapeTransform(BMBase *parent, const QJsonObject &definition)
+BMShapeTransform::BMShapeTransform(BMBase *parent, const JsonObject &definition)
 : BMBasicTransform(parent) {
 	parse(definition);
 }
@@ -54,13 +53,13 @@ BMBase *BMShapeTransform::clone(BMBase *parent) const {
 	return new BMShapeTransform(parent, *this);
 }
 
-void BMShapeTransform::parse(const QJsonObject &definition) {
+void BMShapeTransform::parse(const JsonObject &definition) {
 	BMBasicTransform::parse(definition);
 
-	const auto skew = definition.value(QStringLiteral("sk")).toObject();
+	const auto skew = definition.value("sk").toObject();
 	m_skew.construct(skew);
 
-	const auto skewAxis = definition.value(QStringLiteral("sa")).toObject();
+	const auto skewAxis = definition.value("sa").toObject();
 	m_skewAxis.construct(skewAxis);
 }
 

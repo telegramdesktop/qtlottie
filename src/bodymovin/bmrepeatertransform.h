@@ -39,11 +39,11 @@ class BMRepeaterTransform : public BMBasicTransform {
 public:
 	BMRepeaterTransform(BMBase *parent);
 	BMRepeaterTransform(BMBase *parent, const BMRepeaterTransform &other);
-	BMRepeaterTransform(BMBase *parent, const QJsonObject &definition);
+	BMRepeaterTransform(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const QJsonObject &definition);
+	void parse(const JsonObject &definition);
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

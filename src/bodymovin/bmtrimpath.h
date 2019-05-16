@@ -37,13 +37,13 @@ class BMTrimPath : public BMShape {
 public:
 	BMTrimPath(BMBase *parent);
 	BMTrimPath(BMBase *parent, const BMTrimPath &other);
-	BMTrimPath(BMBase *parent, const QJsonObject &definition);
+	BMTrimPath(BMBase *parent, const JsonObject &definition);
 
 	void inherit(const BMTrimPath &other);
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const QJsonObject &definition);
+	void parse(const JsonObject &definition);
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

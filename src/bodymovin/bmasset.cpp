@@ -30,10 +30,7 @@
 #include "bmasset.h"
 
 #include "bmprecompasset.h"
-
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
+#include "json.h"
 
 namespace Lottie {
 
@@ -50,32 +47,32 @@ BMAsset *BMAsset::clone(BMBase *parent) const {
 	return new BMAsset(parent, *this);
 }
 
-BMAsset *BMAsset::construct(BMBase *parent, QJsonObject definition) {
+BMAsset *BMAsset::construct(BMBase *parent, JsonObject definition) {
 	BMAsset *asset = nullptr;
-	if (definition.contains(QStringLiteral("layers"))) {
+	if (definition.contains("layers")) {
 		asset = new BMPreCompAsset(parent, definition);
 	}
 	return asset;
 }
 
-void BMAsset::parse(const QJsonObject &definition) {
+void BMAsset::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	m_id = definition.value(QStringLiteral("id")).toVariant().toString();
+	m_id = definition.value("id").toString();
 }
 
 void BMAsset::resolveAssets(
-		const std::function<BMAsset*(BMBase*, QString)> &resolver) {
+		const std::function<BMAsset*(BMBase*, QByteArray)> &resolver) {
 	if (!m_resolved) {
 		m_resolved = true;
 		BMBase::resolveAssets(resolver);
 	}
 }
 
-QString BMAsset::id() const {
+QByteArray BMAsset::id() const {
 	return m_id;
 }
 

@@ -30,8 +30,6 @@
 
 #include "renderer.h"
 
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QColor>
 
 namespace Lottie {
@@ -45,7 +43,7 @@ BMFillEffect::BMFillEffect(BMBase *parent, const BMFillEffect &other)
 , m_opacity(other.m_opacity) {
 }
 
-BMFillEffect::BMFillEffect(BMBase *parent, const QJsonObject &definition)
+BMFillEffect::BMFillEffect(BMBase *parent, const JsonObject &definition)
 : BMBase(parent) {
 	parse(definition);
 }
@@ -54,37 +52,37 @@ BMBase *BMFillEffect::clone(BMBase *parent) const {
 	return new BMFillEffect(parent, *this);
 }
 
-void BMFillEffect::parse(const QJsonObject &definition) {
+void BMFillEffect::parse(const JsonObject &definition) {
 	m_type = BM_EFFECT_FILL;
 
-	if (!definition.value(QStringLiteral("hd")).toBool(true)) {
+	if (!definition.value("hd").toBool(true)) {
 		return;
 	}
 
-	const auto properties = definition.value(QStringLiteral("ef")).toArray();
+	const auto properties = definition.value("ef").toArray();
 
 	// TODO: Check are property positions really fixed in the effect?
 
-	m_color.construct(properties.at(2).toObject().value(QStringLiteral("v")).toObject());
-	m_opacity.construct(properties.at(6).toObject().value(QStringLiteral("v")).toObject());
+	m_color.construct(properties.at(2).toObject().value("v").toObject());
+	m_opacity.construct(properties.at(6).toObject().value("v").toObject());
 
-	if (!qFuzzyCompare(properties.at(0).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+	if (!qFuzzyCompare(properties.at(0).toObject().value("v").toObject().value("k").toDouble(), 0.0)) {
 		qWarning() << "BMFillEffect: Property 'Fill mask' not supported";
 	}
 
-	if (!qFuzzyCompare(properties.at(1).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+	if (!qFuzzyCompare(properties.at(1).toObject().value("v").toObject().value("k").toDouble(), 0.0)) {
 		qWarning() << "BMFillEffect: Property 'All masks' not supported";
 	}
 
-	if (!qFuzzyCompare(properties.at(3).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+	if (!qFuzzyCompare(properties.at(3).toObject().value("v").toObject().value("k").toDouble(), 0.0)) {
 		qWarning() << "BMFillEffect: Property 'Invert' not supported";
 	}
 
-	if (!qFuzzyCompare(properties.at(4).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+	if (!qFuzzyCompare(properties.at(4).toObject().value("v").toObject().value("k").toDouble(), 0.0)) {
 		qWarning() << "BMFillEffect: Property 'Horizontal feather' not supported";
 	}
 
-	if (!qFuzzyCompare(properties.at(5).toObject().value(QStringLiteral("v")).toObject().value(QStringLiteral("k")).toDouble(), 0.0)) {
+	if (!qFuzzyCompare(properties.at(5).toObject().value("v").toObject().value("k").toDouble(), 0.0)) {
 		qWarning() << "BMFillEffect: Property 'Vertical feather' not supported";
 	}
 }

@@ -29,10 +29,8 @@
 #pragma once
 
 #include "beziereasing.h"
+#include "json.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
 #include <QPointF>
 #include <QSizeF>
 #include <QVector4D>
@@ -90,37 +88,51 @@ struct ConstructAnimatedData {
 	std::vector<ConstructKeyframeData<T>> keyframes;
 };
 
-inline QPointF ParseEasingInOut(const QJsonObject &object) {
-	const auto x = object.value(QStringLiteral("x"));
-	const auto y = object.value(QStringLiteral("y"));
+inline QPointF ParseEasingInOut(const JsonObject &object) {
+	const auto x = object.value("x");
+	const auto y = object.value("y");
 	return x.isArray()
 		? QPointF(x.toArray().at(0).toDouble(), y.toArray().at(0).toDouble())
 		: QPointF(x.toDouble(), y.toDouble());
 }
 
 template <typename T>
-T ParseValue(const QJsonArray &value) {
-	const auto variant = value.at(0).toVariant();
-	return variant.canConvert<T>() ? variant.value<T>() : T();
+T ParsePlainValue(const JsonValue &value) {
+	return T();
 }
 
 template <>
-inline QPointF ParseValue<QPointF>(const QJsonArray &value) {
-	return (value.count() > 1)
+inline qreal ParsePlainValue<qreal>(const JsonValue &value) {
+	return value.toDouble();
+}
+
+template <>
+inline int ParsePlainValue<int>(const JsonValue &value) {
+	return value.toInt();
+}
+
+template <typename T>
+T ParseValue(const JsonArray &value) {
+	return ParsePlainValue<T>(value.at(0));
+}
+
+template <>
+inline QPointF ParseValue<QPointF>(const JsonArray &value) {
+	return (value.size() > 1)
 		? QPointF(value.at(0).toDouble(), value.at(1).toDouble())
 		: QPointF();
 }
 
 template <>
-inline QSizeF ParseValue<QSizeF>(const QJsonArray &value) {
-	return (value.count() > 1)
+inline QSizeF ParseValue<QSizeF>(const JsonArray &value) {
+	return (value.size() > 1)
 		? QSizeF(value.at(0).toDouble(), value.at(1).toDouble())
 		: QSizeF();
 }
 
 template <>
-inline QVector4D ParseValue<QVector4D>(const QJsonArray &value) {
-	return (value.count() > 3)
+inline QVector4D ParseValue<QVector4D>(const JsonArray &value) {
+	return (value.size() > 3)
 		? QVector4D(
 			value.at(0).toDouble(),
 			value.at(1).toDouble(),
@@ -130,31 +142,29 @@ inline QVector4D ParseValue<QVector4D>(const QJsonArray &value) {
 }
 
 template <typename T>
-T ParseValue(const QJsonValue &value) {
-	if (value.isArray()) {
-		return ParseValue<T>(value.toArray());
-	}
-	const auto variant = value.toVariant();
-	return variant.canConvert<T>() ? variant.value<T>() : T();
+T ParseValue(const JsonValue &value) {
+	return value.isArray()
+		? ParseValue<T>(value.toArray())
+		: ParsePlainValue<T>(value);
 }
 
 template <typename T>
-ConstructKeyframeData<T> ParseKeyframe(const QJsonObject &keyframe) {
+ConstructKeyframeData<T> ParseKeyframe(const JsonObject &keyframe) {
 	auto result = ConstructKeyframeData<T>();
 
-	result.startFrame = keyframe.value(QStringLiteral("t")).toVariant().toInt();
-	result.startValue = ParseValue<T>(keyframe.value(QStringLiteral("s")).toArray());
-	result.endValue = ParseValue<T>(keyframe.value(QStringLiteral("e")).toArray());
-	result.hold = (keyframe.value(QStringLiteral("h")).toInt() == 1);
+	result.startFrame = keyframe.value("t").toInt();
+	result.startValue = ParseValue<T>(keyframe.value("s").toArray());
+	result.endValue = ParseValue<T>(keyframe.value("e").toArray());
+	result.hold = (keyframe.value("h").toInt() == 1);
 
-	const auto in = keyframe.value(QStringLiteral("i")).toObject();
-	const auto out = keyframe.value(QStringLiteral("o")).toObject();
-	result.easingIn = ParseEasingInOut(keyframe.value(QStringLiteral("i")).toObject());
-	result.easingOut = ParseEasingInOut(keyframe.value(QStringLiteral("o")).toObject());
+	const auto in = keyframe.value("i").toObject();
+	const auto out = keyframe.value("o").toObject();
+	result.easingIn = ParseEasingInOut(keyframe.value("i").toObject());
+	result.easingOut = ParseEasingInOut(keyframe.value("o").toObject());
 
 	if constexpr (std::is_same_v<T, QPointF>) {
-		const auto tin = keyframe.value(QStringLiteral("ti")).toArray();
-		const auto tout = keyframe.value(QStringLiteral("to")).toArray();
+		const auto tin = keyframe.value("ti").toArray();
+		const auto tout = keyframe.value("to").toArray();
 		result.tangentIn = QPointF(tin.at(0).toDouble(), tin.at(1).toDouble());
 		result.tangentOut = QPointF(tout.at(0).toDouble(), tout.at(2).toDouble());
 	}
@@ -163,9 +173,9 @@ ConstructKeyframeData<T> ParseKeyframe(const QJsonObject &keyframe) {
 }
 
 template <typename T>
-ConstructAnimatedData<T> ParseAnimatedData(const QJsonArray &keyframes) {
+ConstructAnimatedData<T> ParseAnimatedData(const JsonArray &keyframes) {
 	auto result = ConstructAnimatedData<T>();
-	result.keyframes.reserve(keyframes.count());
+	result.keyframes.reserve(keyframes.size());
 	for (const auto &keyframe : keyframes) {
 		result.keyframes.push_back(ParseKeyframe<T>(keyframe.toObject()));
 	}
@@ -196,13 +206,13 @@ public:
 		}
 	}
 
-	void construct(const QJsonObject &definition) {
-		if (definition.value(QStringLiteral("s")).toVariant().toInt()) {
+	void construct(const JsonObject &definition) {
+		if (definition.value("s").toInt()) {
 			qWarning()
 				<< "Property is split into separate x and y but it is not supported";
 		}
 
-		const auto value = definition.value(QStringLiteral("k"));
+		const auto value = definition.value("k");
 		const auto animated = value.isArray() && value.toArray().at(0).isObject();
 		if (animated) {
 			constructAnimated(ParseAnimatedData<T>(value.toArray()));

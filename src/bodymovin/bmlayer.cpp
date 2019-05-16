@@ -31,16 +31,11 @@
 #include "bmshapelayer.h"
 #include "bmfilleffect.h"
 #include "bmbasictransform.h"
-
 #include "bmscene.h"
 #include "bmnulllayer.h"
 #include "bmprecomplayer.h"
 #include "bmmasks.h"
 #include "bmmaskshape.h"
-
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
 
 namespace Lottie {
 
@@ -81,9 +76,9 @@ BMLayer::~BMLayer() {
 	}
 }
 
-BMLayer *BMLayer::construct(BMBase *parent, QJsonObject definition) {
+BMLayer *BMLayer::construct(BMBase *parent, JsonObject definition) {
 	BMLayer *layer = nullptr;
-	int type = definition.value(QStringLiteral("ty")).toInt();
+	int type = definition.value("ty").toInt();
 	switch (type) {
 	case 4:
 		layer = new BMShapeLayer(parent, definition);
@@ -104,35 +99,35 @@ bool BMLayer::active(int frame) const {
 	return (!m_hidden && (frame >= m_startFrame && frame < m_endFrame));
 }
 
-void BMLayer::parse(const QJsonObject &definition) {
+void BMLayer::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 
-	m_layerIndex = definition.value(QStringLiteral("ind")).toVariant().toInt();
-	m_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
-	m_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
-	m_startTime = definition.value(QStringLiteral("st")).toVariant().toReal();
-	m_blendMode = definition.value(QStringLiteral("bm")).toVariant().toInt();
-	m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
-	m_3dLayer = definition.value(QStringLiteral("ddd")).toBool();
-	m_stretch = definition.value(QStringLiteral("sr")).toVariant().toReal();
-	m_parentLayer = definition.value(QStringLiteral("parent")).toVariant().toInt();
-	m_td = definition.value(QStringLiteral("td")).toInt();
-	int clipMode = definition.value(QStringLiteral("tt")).toInt(-1);
+	m_layerIndex = definition.value("ind").toInt();
+	m_startFrame = definition.value("ip").toInt();
+	m_endFrame = definition.value("op").toInt();
+	m_startTime = definition.value("st").toDouble();
+	m_blendMode = definition.value("bm").toInt();
+	m_autoOrient = definition.value("ao").toBool();
+	m_3dLayer = definition.value("ddd").toBool();
+	m_stretch = definition.value("sr").toDouble();
+	m_parentLayer = definition.value("parent").toInt();
+	m_td = definition.value("td").toInt();
+	int clipMode = definition.value("tt").toInt(-1);
 	if (clipMode > -1 && clipMode < 5) {
 		m_clipMode = static_cast<MatteClipMode>(clipMode);
 	}
 
-	const auto trans = definition.value(QStringLiteral("ks")).toObject();
+	const auto trans = definition.value("ks").toObject();
 	m_layerTransform.parse(trans);
 
 	if (m_hidden) {
 		return;
 	}
 
-	const auto maskProps = definition.value(QStringLiteral("masksProperties")).toArray();
+	const auto maskProps = definition.value("masksProperties").toArray();
 	parseMasks(maskProps);
 
-	const auto effects = definition.value(QStringLiteral("ef")).toArray();
+	const auto effects = definition.value("ef").toArray();
 	parseEffects(effects);
 
 	if (m_td > 1) {
@@ -242,9 +237,9 @@ void BMLayer::renderEffects(Renderer &renderer, int frame) const {
 		}
 }
 
-void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
-	QJsonArray::const_iterator it = definition.constEnd();
-	while (it != definition.constBegin()) {
+void BMLayer::parseEffects(const JsonArray &definition, BMBase *effectRoot) {
+	auto it = definition.end();
+	while (it != definition.begin()) {
 		// Create effects container if at least one effect found
 		if (!m_effects) {
 			m_effects = new BMBase(this);
@@ -252,7 +247,7 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
 		}
 		it--;
 		const auto effect = (*it).toObject();
-		int type = effect.value(QStringLiteral("ty")).toInt();
+		int type = effect.value("ty").toInt();
 		switch (type) {
 		case 0: {
 			BMBase *slider = new BMBase(effectRoot);
@@ -261,11 +256,11 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
 		} break;
 
 		case 5: {
-			if (effect.value(QStringLiteral("en")).toInt()) {
+			if (effect.value("en").toInt()) {
 				BMBase *group = new BMBase(effectRoot);
 				group->parse(effect);
 				effectRoot->appendChild(group);
-				parseEffects(effect.value(QStringLiteral("ef")).toArray(), group);
+				parseEffects(effect.value("ef").toArray(), group);
 			}
 		} break;
 
@@ -281,17 +276,15 @@ void BMLayer::parseEffects(const QJsonArray &definition, BMBase *effectRoot) {
 	}
 }
 
-void BMLayer::parseMasks(const QJsonArray &definition) {
-	QJsonArray::const_iterator it = definition.constBegin();
-	while (it != definition.constEnd()) {
-		const auto mask = (*it).toObject();
-		if (mask.value(QStringLiteral("mode")).toString() != QStringLiteral("n")) {
+void BMLayer::parseMasks(const JsonArray &definition) {
+	for (const auto &element : definition) {
+		const auto mask = element.toObject();
+		if (mask.value("mode").toString() != "n") {
 			if (!m_masks) {
 				m_masks = new BMMasks(this);
 			}
 			m_masks->appendChild(new BMMaskShape(m_masks, mask));
 		}
-		++it;
 	}
 }
 

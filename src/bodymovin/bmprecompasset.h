@@ -36,7 +36,7 @@ class BMPreCompAsset : public BMAsset {
 public:
 	BMPreCompAsset(BMBase *parent);
 	BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other);
-	BMPreCompAsset(BMBase *parent, const QJsonObject &definition);
+	BMPreCompAsset(BMBase *parent, const JsonObject &definition);
 	~BMPreCompAsset() = default;
 
 	BMPreCompAsset *clone(BMBase *parent) const override;

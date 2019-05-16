@@ -40,17 +40,17 @@ public:
 
 	BMAsset *clone(BMBase *parent) const override;
 
-	static BMAsset *construct(BMBase *parent, QJsonObject definition);
+	static BMAsset *construct(BMBase *parent, JsonObject definition);
 
-	void parse(const QJsonObject &definition) override;
+	void parse(const JsonObject &definition) override;
 
 	void resolveAssets(
-		const std::function<BMAsset*(BMBase*, QString)> &resolver) override;
+		const std::function<BMAsset*(BMBase*, QByteArray)> &resolver) override;
 
-	QString id() const;
+	QByteArray id() const;
 
 private:
-	QString m_id;
+	QByteArray m_id;
 	bool m_resolved = false;
 
 };

@@ -37,7 +37,7 @@ class BMFill : public BMShape {
 public:
 	BMFill(BMBase *parent);
 	BMFill(BMBase *parent, const BMFill &other);
-	BMFill(BMBase *parent, const QJsonObject &definition);
+	BMFill(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 

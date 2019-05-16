@@ -39,11 +39,11 @@ class BMFillEffect : public BMBase {
 public:
 	BMFillEffect(BMBase *parent);
 	BMFillEffect(BMBase *parent, const BMFillEffect &other);
-	BMFillEffect(BMBase *parent, const QJsonObject &definition);
+	BMFillEffect(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const QJsonObject &definition);
+	void parse(const JsonObject &definition);
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

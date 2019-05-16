@@ -30,8 +30,6 @@
 
 #include "renderer.h"
 
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMBasicTransform::BMBasicTransform(BMBase *parent) : BMShape(parent) {
@@ -49,7 +47,7 @@ BMBasicTransform::BMBasicTransform(BMBase *parent, const BMBasicTransform &other
 , m_opacity(other.m_opacity) {
 }
 
-BMBasicTransform::BMBasicTransform(BMBase *parent, const QJsonObject &definition)
+BMBasicTransform::BMBasicTransform(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -58,35 +56,35 @@ BMBase *BMBasicTransform::clone(BMBase *parent) const {
 	return new BMBasicTransform(parent, *this);
 }
 
-void BMBasicTransform::parse(const QJsonObject &definition) {
+void BMBasicTransform::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 
-	const auto anchors = definition.value(QStringLiteral("a")).toObject();
+	const auto anchors = definition.value("a").toObject();
 	m_anchorPoint.construct(anchors);
 
-	if (definition.value(QStringLiteral("p")).toObject().contains(QStringLiteral("s"))) {
-		const auto posX = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("x")).toObject();
+	if (definition.value("p").toObject().contains("s")) {
+		const auto posX = definition.value("p").toObject().value("x").toObject();
 		m_xPos.construct(posX);
 
-		const auto posY = definition.value(QStringLiteral("p")).toObject().value(QStringLiteral("y")).toObject();
+		const auto posY = definition.value("p").toObject().value("y").toObject();
 		m_yPos.construct(posY);
 
 		m_splitPosition = true;
 	} else {
-		const auto position = definition.value(QStringLiteral("p")).toObject();
+		const auto position = definition.value("p").toObject();
 		m_position.construct(position);
 	}
 
-	const auto scale = definition.value(QStringLiteral("s")).toObject();
+	const auto scale = definition.value("s").toObject();
 	m_scale.construct(scale);
 
-	const auto rotation = definition.value(QStringLiteral("r")).toObject();
+	const auto rotation = definition.value("r").toObject();
 	m_rotation.construct(rotation);
 
 	// If this is the base class for BMRepeaterTransform,
 	// opacity is not present
-	if (definition.contains(QStringLiteral("o"))) {
-		const auto opacity = definition.value(QStringLiteral("o")).toObject();
+	if (definition.contains("o")) {
+		const auto opacity = definition.value("o").toObject();
 		m_opacity.construct(opacity);
 	}
 }

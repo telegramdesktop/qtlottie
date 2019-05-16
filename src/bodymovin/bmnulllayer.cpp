@@ -34,9 +34,6 @@
 #include "bmbasictransform.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
-
 namespace Lottie {
 
 BMNullLayer::BMNullLayer(BMBase *parent) : BMLayer(parent) {
@@ -46,7 +43,7 @@ BMNullLayer::BMNullLayer(BMBase *parent, const BMNullLayer &other)
 : BMLayer(parent, other) {
 }
 
-BMNullLayer::BMNullLayer(BMBase *parent, const QJsonObject &definition)
+BMNullLayer::BMNullLayer(BMBase *parent, const JsonObject &definition)
 : BMLayer(parent) {
 	m_type = BM_LAYER_NULL_IX;
 

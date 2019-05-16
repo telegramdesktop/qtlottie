@@ -40,9 +40,6 @@
 #include "bmfreeformshape.h"
 #include "bmrepeater.h"
 
-#include <QJsonArray>
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMShape::BMShape(BMBase *parent) : BMBase(parent) {
@@ -59,9 +56,9 @@ BMBase *BMShape::clone(BMBase *parent) const {
     return new BMShape(parent, *this);
 }
 
-BMShape *BMShape::construct(BMBase *parent, QJsonObject definition) {
+BMShape *BMShape::construct(BMBase *parent, const JsonObject &definition) {
     BMShape *shape = nullptr;
-    const QByteArray type = definition.value(QStringLiteral("ty")).toString().toLatin1();
+    const auto type = definition.value("ty").toString();
 
     if (Q_UNLIKELY(type.size() != 2)) {
 		qWarning() << "Unsupported shape type:" << type;

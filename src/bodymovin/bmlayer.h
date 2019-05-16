@@ -50,11 +50,11 @@ public:
 	BMLayer(BMBase *parent, const BMLayer &other);
 	~BMLayer() override;
 
-	static BMLayer *construct(BMBase *parent, QJsonObject definition);
+	static BMLayer *construct(BMBase *parent, JsonObject definition);
 
 	bool active(int frame) const override;
 
-	void parse(const QJsonObject &definition) override;
+	void parse(const JsonObject &definition) override;
 
 	void updateProperties(int frame) override;
 
@@ -89,8 +89,8 @@ protected:
 	bool m_updated = false;
 
 private:
-	void parseEffects(const QJsonArray &definition, BMBase *effectRoot = nullptr);
-	void parseMasks(const QJsonArray &definition);
+	void parseEffects(const JsonArray &definition, BMBase *effectRoot = nullptr);
+	void parseMasks(const JsonArray &definition);
 
 	BMLayer *m_linkedLayer = nullptr;
 

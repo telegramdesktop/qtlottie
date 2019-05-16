@@ -31,8 +31,6 @@
 #include "bmtrimpath.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMRound::BMRound(BMBase *parent) : BMShape(parent) {
@@ -44,7 +42,7 @@ BMRound::BMRound(BMBase *parent, const BMRound &other)
 , m_radius(other.m_radius) {
 }
 
-BMRound::BMRound(BMBase *parent, const QJsonObject &definition)
+BMRound::BMRound(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -53,16 +51,16 @@ BMBase *BMRound::clone(BMBase *parent) const {
 	return new BMRound(parent, *this);
 }
 
-void BMRound::parse(const QJsonObject &definition) {
+void BMRound::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto position = definition.value(QStringLiteral("p")).toObject();
+	const auto position = definition.value("p").toObject();
 	m_position.construct(position);
 
-	const auto radius = definition.value(QStringLiteral("r")).toObject();
+	const auto radius = definition.value("r").toObject();
 	m_radius.construct(radius);
 }
 

@@ -29,8 +29,7 @@
 #include "bmbase.h"
 
 #include "bmscene.h"
-
-#include <QJsonObject>
+#include "json.h"
 
 namespace Lottie {
 
@@ -40,8 +39,6 @@ BMBase::BMBase(BMBase *parent) : m_parent(parent) {
 BMBase::BMBase(BMBase *parent, const BMBase &other)
 : m_type(other.m_type)
 , m_hidden(other.m_hidden)
-, m_name(other.m_name)
-, m_matchName(other.m_matchName)
 , m_autoOrient(other.m_autoOrient)
 , m_parent(parent) {
 	for (BMBase *child : other.m_children) {
@@ -56,10 +53,6 @@ BMBase::~BMBase() {
 
 BMBase *BMBase::clone(BMBase *parent) const {
 	return new BMBase(parent, *this);
-}
-
-QString BMBase::name() const {
-	return m_name;
 }
 
 int BMBase::type() const {
@@ -98,7 +91,7 @@ void BMBase::render(Renderer &renderer, int frame) const {
 }
 
 void BMBase::resolveAssets(
-		const std::function<BMAsset*(BMBase*, QString)> &resolver) {
+		const std::function<BMAsset*(BMBase*, QByteArray)> &resolver) {
 	if (m_hidden) {
 		return;
 	}
@@ -122,11 +115,9 @@ BMScene *BMBase::topRoot() const {
 	return m_topRoot;
 }
 
-void BMBase::parse(const QJsonObject &definition) {
-	m_hidden = definition.value(QStringLiteral("hd")).toBool(false);
-	m_name = definition.value(QStringLiteral("nm")).toString();
-	m_matchName = definition.value(QStringLiteral("mn")).toString();
-	m_autoOrient = definition.value(QStringLiteral("ao")).toBool();
+void BMBase::parse(const JsonObject &definition) {
+	m_hidden = definition.value("hd").toBool();
+	m_autoOrient = definition.value("ao").toBool();
 
 	if (m_autoOrient) {
 		qWarning()

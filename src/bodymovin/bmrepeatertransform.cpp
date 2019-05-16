@@ -42,7 +42,7 @@ BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const BMRepeaterTransfo
 , m_opacities(other.m_opacities) {
 }
 
-BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const QJsonObject &definition)
+BMRepeaterTransform::BMRepeaterTransform(BMBase *parent, const JsonObject &definition)
 : BMBasicTransform(parent) {
 	parse(definition);
 }
@@ -51,16 +51,16 @@ BMBase *BMRepeaterTransform::clone(BMBase *parent) const {
 	return new BMRepeaterTransform(parent, *this);
 }
 
-void BMRepeaterTransform::parse(const QJsonObject &definition) {
+void BMRepeaterTransform::parse(const JsonObject &definition) {
 	BMBasicTransform::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto startOpacity = definition.value(QStringLiteral("so")).toObject();
+	const auto startOpacity = definition.value("so").toObject();
 	m_startOpacity.construct(startOpacity);
 
-	const auto endOpacity = definition.value(QStringLiteral("eo")).toObject();
+	const auto endOpacity = definition.value("eo").toObject();
 	m_endOpacity.construct(endOpacity);
 }
 

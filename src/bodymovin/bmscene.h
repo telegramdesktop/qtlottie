@@ -42,7 +42,7 @@ class BMScene : public BMBase {
 public:
 	BMScene(const BMScene &other) = delete;
 	BMScene &operator=(const BMScene &other) = delete;
-	explicit BMScene(const QJsonObject &definition);
+	explicit BMScene(const JsonObject &definition);
 	virtual ~BMScene();
 
 	BMBase *clone(BMBase *parent) const override;
@@ -60,7 +60,7 @@ protected:
 	BMScene *resolveTopRoot() const override;
 
 private:
-	void parse(const QJsonObject &definition);
+	void parse(const JsonObject &definition);
 	void resolveAllAssets();
 
 	std::vector<std::unique_ptr<BMAsset>> _assets;

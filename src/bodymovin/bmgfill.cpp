@@ -67,14 +67,14 @@ BMBase *BMGFill::clone(BMBase *parent) const {
 	return new BMGFill(parent, *this);
 }
 
-BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
+BMGFill::BMGFill(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	int type = definition.value(QStringLiteral("t")).toVariant().toInt();
+	int type = definition.value("t").toInt();
 	switch (type) {
 	case 1:
 		m_gradient = new QLinearGradient;
@@ -86,35 +86,35 @@ BMGFill::BMGFill(BMBase *parent, const QJsonObject &definition)
 		qWarning() << "Unknown gradient fill type";
 	}
 
-	const auto color = definition.value(QStringLiteral("g")).toObject();
-	const auto colorArr = color.value(QStringLiteral("k")).toObject().value(QStringLiteral("k")).toArray();
-	const auto elementCount = color.value(QStringLiteral("p")).toInt();
+	const auto color = definition.value("g").toObject();
+	const auto colorArr = color.value("k").toObject().value("k").toArray();
+	const auto elementCount = color.value("p").toInt();
 	for (int i = 0; i < (elementCount) * 4; i += 4) {
 		// p denotes the color stop percentage
 		QVector4D colorVec;
-		colorVec[0] = colorArr[i + 1].toVariant().toFloat();
-		colorVec[1] = colorArr[i + 2].toVariant().toFloat();
-		colorVec[2] = colorArr[i + 3].toVariant().toFloat();
+		colorVec[0] = colorArr.at(i + 1).toDouble();
+		colorVec[1] = colorArr.at(i + 2).toDouble();
+		colorVec[2] = colorArr.at(i + 3).toDouble();
 		// Set gradient stop position into w of the vector
-		colorVec[3] = colorArr[i + 0].toVariant().toFloat();
+		colorVec[3] = colorArr.at(i + 0).toDouble();
 		BMProperty<QVector4D> colorPos;
 		colorPos.setValue(colorVec);
 		m_colors.push_back(colorPos);
 	}
 
-	const auto opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value("o").toObject();
 	m_opacity.construct(opacity);
 
-	const auto startPoint = definition.value(QStringLiteral("s")).toObject();
+	const auto startPoint = definition.value("s").toObject();
 	m_startPoint.construct(startPoint);
 
-	const auto endPoint = definition.value(QStringLiteral("e")).toObject();
+	const auto endPoint = definition.value("e").toObject();
 	m_endPoint.construct(endPoint);
 
-	const auto highlight = definition.value(QStringLiteral("h")).toObject();
+	const auto highlight = definition.value("h").toObject();
 	m_highlightLength.construct(highlight);
 
-	const auto angle = definition.value(QStringLiteral("a")).toObject();
+	const auto angle = definition.value("a").toObject();
 	m_highlightAngle.construct(angle);
 
 	m_highlightAngle.setValue(0.0);

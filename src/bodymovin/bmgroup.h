@@ -41,11 +41,11 @@ class BMGroup : public BMShape {
 public:
 	BMGroup(BMBase *parent);
 	BMGroup(BMBase *parent, const BMGroup &other);
-	BMGroup(BMBase *parent, const QJsonObject &definition);
+	BMGroup(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const QJsonObject& definition);
+	void parse(const JsonObject &definition);
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

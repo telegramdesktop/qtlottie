@@ -29,13 +29,12 @@
 #include "bmfreeformshape.h"
 
 #include <QPainterPath>
-#include <QJsonObject>
 
 namespace Lottie {
 
-QPainterPath FreeFormShape::parse(const QJsonObject &definition) {
-	if (!definition.value(QStringLiteral("a")).toInt()) {
-		return buildShape(definition.value(QStringLiteral("k")).toObject());
+QPainterPath FreeFormShape::parse(const JsonObject &definition) {
+	if (!definition.value("a").toInt()) {
+		return buildShape(definition.value("k").toObject());
 	}
 	parseShapeKeyframes(definition);
 	return QPainterPath();
@@ -50,7 +49,7 @@ QPainterPath FreeFormShape::build(int frame) {
 	return buildShape(frame);
 }
 
-void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
+void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
 	struct Entry {
 		ConstructAnimatedData<QPointF> pos;
 		ConstructAnimatedData<QPointF> ci;
@@ -58,33 +57,33 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 	};
 	auto entries = std::vector<Entry>();
 
-	const auto vertexKeyframes = keyframes.value(QStringLiteral("k")).toArray();
-	for (int i = 0; i < vertexKeyframes.count(); i++) {
-		const auto keyframe = vertexKeyframes.at(i).toObject();
+	const auto vertexKeyframes = keyframes.value("k").toArray();
+	for (const auto &element : vertexKeyframes) {
+		const auto keyframe = element.toObject();
 
-		const auto hold = (keyframe.value(QStringLiteral("h")).toInt() == 1);
-		const auto startFrame = keyframe.value(QStringLiteral("t")).toVariant().toInt();
+		const auto hold = (keyframe.value("h").toInt() == 1);
+		const auto startFrame = keyframe.value("t").toInt();
 
-		const auto startValue = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject();
-		const auto endValue = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject();
-		const auto closedPathAtStart = keyframe.value(QStringLiteral("s")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
-		//const auto closedPathAtEnd = keyframe.value(QStringLiteral("e")).toArray().at(0).toObject().value(QStringLiteral("c")).toBool();
-		const auto startVertices = startValue.value(QStringLiteral("v")).toArray();
-		const auto startBezierIn = startValue.value(QStringLiteral("i")).toArray();
-		const auto startBezierOut = startValue.value(QStringLiteral("o")).toArray();
-		const auto endVertices = endValue.value(QStringLiteral("v")).toArray();
-		const auto endBezierIn = endValue.value(QStringLiteral("i")).toArray();
-		const auto endBezierOut = endValue.value(QStringLiteral("o")).toArray();
-		const auto easingIn = keyframe.value(QStringLiteral("i")).toObject();
-		const auto easingOut = keyframe.value(QStringLiteral("o")).toObject();
+		const auto startValue = keyframe.value("s").toArray().at(0).toObject();
+		const auto endValue = keyframe.value("e").toArray().at(0).toObject();
+		const auto closedPathAtStart = keyframe.value("s").toArray().at(0).toObject().value("c").toBool();
+		//const auto closedPathAtEnd = keyframe.value("e").toArray().at(0).toObject().value("c").toBool();
+		const auto startVertices = startValue.value("v").toArray();
+		const auto startBezierIn = startValue.value("i").toArray();
+		const auto startBezierOut = startValue.value("o").toArray();
+		const auto endVertices = endValue.value("v").toArray();
+		const auto endBezierIn = endValue.value("i").toArray();
+		const auto endBezierOut = endValue.value("o").toArray();
+		const auto easingIn = keyframe.value("i").toObject();
+		const auto easingOut = keyframe.value("o").toObject();
 
-		if (!startVertices.isEmpty()
+		if (!startVertices.empty()
 			&& !entries.empty()
 			&& startVertices.size() != entries.size()) {
 			qWarning() << "Bad data in shape.";
 			return;
 		}
-		const auto count = startVertices.isEmpty()
+		const auto count = startVertices.empty()
 			? int(entries.size())
 			: int(startVertices.size());
 		if (!count) {
@@ -102,7 +101,7 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 			pos.hold = ci.hold = co.hold = hold;
 			pos.startFrame = ci.startFrame = co.startFrame = startFrame;
 
-			if (!startVertices.isEmpty()) {
+			if (!startVertices.empty()) {
 				pos.easingIn = ci.easingIn = co.easingIn = ParseEasingInOut(easingIn);
 				pos.easingOut = ci.easingOut = co.easingOut = ParseEasingInOut(easingOut);
 
@@ -122,7 +121,7 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 		}
 		m_closedShape.insert(
 			startFrame,
-			!startVertices.isEmpty() && closedPathAtStart);
+			!startVertices.empty() && closedPathAtStart);
 	}
 
 	if (entries.empty()) {
@@ -138,16 +137,16 @@ void FreeFormShape::parseShapeKeyframes(const QJsonObject &keyframes) {
 	}
 }
 
-QPainterPath FreeFormShape::buildShape(const QJsonObject &shape) {
+QPainterPath FreeFormShape::buildShape(const JsonObject &shape) {
 	auto result = QPainterPath();
 
-	const auto needToClose = shape.value(QStringLiteral("c")).toBool();
-	const auto bezierIn = shape.value(QStringLiteral("i")).toArray();
-	const auto bezierOut = shape.value(QStringLiteral("o")).toArray();
-	const auto vertices = shape.value(QStringLiteral("v")).toArray();
+	const auto needToClose = shape.value("c").toBool();
+	const auto bezierIn = shape.value("i").toArray();
+	const auto bezierOut = shape.value("o").toArray();
+	const auto vertices = shape.value("v").toArray();
 
 	// If there are less than two vertices, cannot make a bezier curve
-	if (vertices.count() < 2) {
+	if (vertices.size() < 2) {
 		return result;
 	}
 
@@ -159,7 +158,7 @@ QPainterPath FreeFormShape::buildShape(const QJsonObject &shape) {
 	result.moveTo(s);
 	int i=0;
 
-	while (i < vertices.count() - 1) {
+	while (i < vertices.size() - 1) {
 		const auto v = QPointF(
 			vertices.at(i + 1).toArray().at(0).toDouble(),
 			vertices.at(i + 1).toArray().at(1).toDouble());

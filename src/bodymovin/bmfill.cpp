@@ -43,17 +43,17 @@ BMFill::BMFill(BMBase *parent, const BMFill &other)
 , m_opacity(other.m_opacity) {
 }
 
-BMFill::BMFill(BMBase *parent, const QJsonObject &definition)
+BMFill::BMFill(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto color = definition.value(QStringLiteral("c")).toObject();
+	const auto color = definition.value("c").toObject();
 	m_color.construct(color);
 
-	const auto opacity = definition.value(QStringLiteral("o")).toObject();
+	const auto opacity = definition.value("o").toObject();
 	m_opacity.construct(opacity);
 }
 

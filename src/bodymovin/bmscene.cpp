@@ -31,11 +31,9 @@
 #include "bmasset.h"
 #include "bmlayer.h"
 
-#include <QJsonArray>
-
 namespace Lottie {
 
-BMScene::BMScene(const QJsonObject &definition) : BMBase(nullptr) {
+BMScene::BMScene(const JsonObject &definition) : BMBase(nullptr) {
 	parse(definition);
 }
 
@@ -70,28 +68,16 @@ int BMScene::height() const {
 	return _height;
 }
 
-void BMScene::parse(const QJsonObject &definition) {
+void BMScene::parse(const JsonObject &definition) {
 	_parsing = true;
 
-	_startFrame = definition.value(QStringLiteral("ip")).toVariant().toInt();
-	_endFrame = definition.value(QStringLiteral("op")).toVariant().toInt();
-	_frameRate = definition.value(QStringLiteral("fr")).toVariant().toInt();
-	_width = definition.value(QStringLiteral("w")).toVariant().toInt();
-	_height = definition.value(QStringLiteral("h")).toVariant().toInt();
+	_startFrame = definition.value("ip").toInt();
+	_endFrame = definition.value("op").toInt();
+	_frameRate = definition.value("fr").toInt();
+	_width = definition.value("w").toInt();
+	_height = definition.value("h").toInt();
 
-	const auto markers = definition.value(QStringLiteral("markers")).toArray();
-	for (const auto &entry : markers) {
-		const auto object = entry.toObject();
-		const auto name = object.value(QStringLiteral("cm")).toString();
-		const auto frame = object.value(QStringLiteral("tm")).toInt();
-		_markers.insert(name, frame);
-
-		if (object.value(QStringLiteral("dr")).toInt()) {
-			_unsupported = true;
-		}
-	}
-
-	const auto assets = definition.value(QStringLiteral("assets")).toArray();
+	const auto assets = definition.value("assets").toArray();
 	for (const auto &entry : assets) {
 		if (const auto asset = BMAsset::construct(this, entry.toObject())) {
 			_assetIndexById.insert(asset->id(), _assets.size());
@@ -101,12 +87,12 @@ void BMScene::parse(const QJsonObject &definition) {
 		}
 	}
 
-	if (definition.value(QStringLiteral("chars")).toArray().count()) {
+	if (!definition.value("chars").toArray().empty()) {
 		_unsupported = true;
 	}
 
 	_blueprint = std::make_unique<BMBase>(this);
-	const auto layers = definition.value(QStringLiteral("layers")).toArray();
+	const auto layers = definition.value("layers").toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
 		if (const auto layer = BMLayer::construct(_blueprint.get(), entry.toObject())) {

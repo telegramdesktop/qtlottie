@@ -182,7 +182,6 @@ void RasterRenderer::render(const BMGFill & gradient) {
 		m_painter->setBrush(*gradient.value());
 	} else {
 		qWarning() << "Gradient:"
-			<< gradient.name()
 			<< "Cannot draw gradient fill";
 	}
 }

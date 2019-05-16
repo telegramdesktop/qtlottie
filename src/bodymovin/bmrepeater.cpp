@@ -39,7 +39,7 @@ BMRepeater::BMRepeater(BMBase *parent, const BMRepeater &other)
 , m_transform(this, other.m_transform) {
 }
 
-BMRepeater::BMRepeater(BMBase *parent, const QJsonObject &definition)
+BMRepeater::BMRepeater(BMBase *parent, const JsonObject &definition)
 : BMShape(parent)
 , m_transform(this) {
 	parse(definition);
@@ -49,19 +49,19 @@ BMBase *BMRepeater::clone(BMBase *parent) const {
 	return new BMRepeater(parent, *this);
 }
 
-void BMRepeater::parse(const QJsonObject &definition) {
+void BMRepeater::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto copies = definition.value(QStringLiteral("c")).toObject();
+	const auto copies = definition.value("c").toObject();
 	m_copies.construct(copies);
 
-	const auto offset = definition.value(QStringLiteral("o")).toObject();
+	const auto offset = definition.value("o").toObject();
 	m_offset.construct(offset);
 
-	m_transform.parse(definition.value(QStringLiteral("tr")).toObject());
+	m_transform.parse(definition.value("tr").toObject());
 }
 
 void BMRepeater::updateProperties(int frame) {

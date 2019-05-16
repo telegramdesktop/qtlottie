@@ -35,9 +35,6 @@
 #include "bmmasks.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
-
 namespace Lottie {
 
 BMShapeLayer::BMShapeLayer(BMBase *parent) : BMLayer(parent) {
@@ -48,7 +45,7 @@ BMShapeLayer::BMShapeLayer(BMBase *parent, const BMShapeLayer &other)
 , m_appliedTrim(other.m_appliedTrim) {
 }
 
-BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
+BMShapeLayer::BMShapeLayer(BMBase *parent, const JsonObject &definition)
 : BMLayer(parent) {
 	m_type = BM_LAYER_SHAPE_IX;
 
@@ -57,11 +54,10 @@ BMShapeLayer::BMShapeLayer(BMBase *parent, const QJsonObject &definition)
 		return;
 	}
 
-	const auto items = definition.value(QStringLiteral("shapes")).toArray();
-	QJsonArray::const_iterator itemIt = items.constEnd();
-	while (itemIt != items.constBegin()) {
-		itemIt--;
-		const auto shape = BMShape::construct(this, (*itemIt).toObject());
+	const auto items = definition.value("shapes").toArray();
+	auto it = items.end();
+	while (it != items.begin()) {
+		const auto shape = BMShape::construct(this, (*--it).toObject());
 		if (shape) {
 			appendChild(shape);
 		}

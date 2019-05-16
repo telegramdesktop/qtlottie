@@ -31,7 +31,6 @@
 #include "bmtrimpath.h"
 #include "renderer.h"
 
-#include <QJsonObject>
 #include <QRectF>
 
 namespace Lottie {
@@ -45,7 +44,7 @@ BMEllipse::BMEllipse(BMBase *parent, const BMEllipse &other)
 , m_size(other.m_size) {
 }
 
-BMEllipse::BMEllipse(BMBase *parent, const QJsonObject &definition)
+BMEllipse::BMEllipse(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -54,19 +53,19 @@ BMBase *BMEllipse::clone(BMBase *parent) const {
 	return new BMEllipse(parent, *this);
 }
 
-void BMEllipse::parse(const QJsonObject &definition) {
+void BMEllipse::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto position = definition.value(QStringLiteral("p")).toObject();
+	const auto position = definition.value("p").toObject();
 	m_position.construct(position);
 
-	const auto size = definition.value(QStringLiteral("s")).toObject();
+	const auto size = definition.value("s").toObject();
 	m_size.construct(size);
 
-	m_direction = definition.value(QStringLiteral("d")).toInt();
+	m_direction = definition.value("d").toInt();
 }
 
 bool BMEllipse::acceptsTrim() const {

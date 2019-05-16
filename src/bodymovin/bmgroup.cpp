@@ -34,9 +34,6 @@
 #include "bmbasictransform.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
-
 namespace Lottie {
 
 BMGroup::BMGroup(BMBase *parent) : BMShape(parent) {
@@ -46,7 +43,7 @@ BMGroup::BMGroup(BMBase *parent, const BMGroup &other)
 : BMShape(parent, other) {
 }
 
-BMGroup::BMGroup(BMBase *parent, const QJsonObject &definition)
+BMGroup::BMGroup(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -55,15 +52,15 @@ BMBase *BMGroup::clone(BMBase *parent) const {
 	return new BMGroup(parent, *this);
 }
 
-void BMGroup::parse(const QJsonObject &definition) {
+void BMGroup::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto groupItems = definition.value(QLatin1String("it")).toArray();
-	QJsonArray::const_iterator itemIt = groupItems.constEnd();
-	while (itemIt != groupItems.constBegin()) {
+	const auto groupItems = definition.value("it").toArray();
+	auto itemIt = groupItems.end();
+	while (itemIt != groupItems.begin()) {
 		itemIt--;
 		const auto shape = BMShape::construct(this, (*itemIt).toObject());
 		if (shape) {
@@ -138,9 +135,6 @@ void BMGroup::applyTrim(const BMTrimPath &trimmer) {
 	Q_ASSERT_X(!m_appliedTrim, "BMGroup", "A trim already assigned");
 
 	m_appliedTrim = static_cast<BMTrimPath*>(trimmer.clone(this));
-	// Setting a friendly name helps in testing
-	//m_appliedTrim->setName(QStringLiteral("Inherited from") + trimmer.name());
-
 	for (BMBase *child : children()) {
 		BMShape *shape = static_cast<BMShape*>(child);
 		if (shape->acceptsTrim()) {

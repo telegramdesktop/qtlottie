@@ -39,7 +39,7 @@ namespace Lottie {
 
 class FreeFormShape {
 public:
-	QPainterPath parse(const QJsonObject &definition);
+	QPainterPath parse(const JsonObject &definition);
 	QPainterPath build(int frame);
 
 private:
@@ -51,8 +51,8 @@ private:
 	QVector<VertexInfo> m_vertexList;
 	QMap<int, bool> m_closedShape;
 
-	void parseShapeKeyframes(const QJsonObject &keyframes);
-	QPainterPath buildShape(const QJsonObject &keyframe);
+	void parseShapeKeyframes(const JsonObject &keyframes);
+	QPainterPath buildShape(const JsonObject &keyframe);
 	QPainterPath buildShape(int frame);
 
 };

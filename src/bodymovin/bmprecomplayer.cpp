@@ -34,9 +34,6 @@
 #include "bmmasks.h"
 #include "renderer.h"
 
-#include <QJsonObject>
-#include <QJsonArray>
-
 namespace Lottie {
 
 BMPreCompLayer::BMPreCompLayer(BMBase *parent) : BMLayer(parent) {
@@ -49,7 +46,7 @@ BMPreCompLayer::BMPreCompLayer(BMBase *parent, const BMPreCompLayer &other)
 	}
 }
 
-BMPreCompLayer::BMPreCompLayer(BMBase *parent, const QJsonObject &definition)
+BMPreCompLayer::BMPreCompLayer(BMBase *parent, const JsonObject &definition)
 : BMLayer(parent) {
 	m_type = BM_LAYER_PRECOMP_IX;
 
@@ -58,7 +55,7 @@ BMPreCompLayer::BMPreCompLayer(BMBase *parent, const QJsonObject &definition)
 		return;
 	}
 
-	m_refId = definition.value(QStringLiteral("refId")).toString();
+	m_refId = definition.value("refId").toString();
 }
 
 BMPreCompLayer::~BMPreCompLayer() {
@@ -111,7 +108,8 @@ void BMPreCompLayer::render(Renderer &renderer, int frame) const {
 	renderer.restoreState();
 }
 
-void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) {
+void BMPreCompLayer::resolveAssets(
+		const std::function<BMAsset*(BMBase*, QByteArray)> &resolver) {
 	if (m_layers) {
 		return;
 	}
@@ -119,7 +117,7 @@ void BMPreCompLayer::resolveAssets(const std::function<BMAsset*(BMBase*, QString
 	if (!m_layers) {
 		qWarning()
 			<< "BM PreComp Layer: asset not found: "
-			<< m_refId;
+			<< QString::fromUtf8(m_refId);
 	}
 	BMLayer::resolveAssets(resolver);
 }

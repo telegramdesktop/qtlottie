@@ -30,8 +30,6 @@
 
 #include "renderer.h"
 
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMFreeFormShape::BMFreeFormShape(BMBase *parent) : BMShape(parent) {
@@ -42,7 +40,7 @@ BMFreeFormShape::BMFreeFormShape(BMBase *parent, const BMFreeFormShape &other)
 , m_shape(other.m_shape) {
 }
 
-BMFreeFormShape::BMFreeFormShape(BMBase *parent, const QJsonObject &definition)
+BMFreeFormShape::BMFreeFormShape(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	parse(definition);
 }
@@ -51,14 +49,14 @@ BMBase *BMFreeFormShape::clone(BMBase *parent) const {
 	return new BMFreeFormShape(parent, *this);
 }
 
-void BMFreeFormShape::parse(const QJsonObject &definition) {
+void BMFreeFormShape::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	m_direction = definition.value(QStringLiteral("d")).toVariant().toInt();
-	m_path = m_shape.parse(definition.value(QStringLiteral("ks")).toObject());
+	m_direction = definition.value("d").toInt();
+	m_path = m_shape.parse(definition.value("ks").toObject());
 	if (m_direction) {
 		m_path = m_path.toReversed();
 	}

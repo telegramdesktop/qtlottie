@@ -31,13 +31,12 @@
 #include <QList>
 #include <functional>
 
-class QJsonObject;
-
 namespace Lottie {
 
 class BMAsset;
 class BMScene;
 class Renderer;
+class JsonObject;
 
 class BMBase {
 public:
@@ -48,11 +47,9 @@ public:
 
 	virtual BMBase *clone(BMBase *parent) const;
 
-	QString name() const;
-
 	int type() const;
 	void setType(int type);
-	virtual void parse(const QJsonObject &definition);
+	virtual void parse(const JsonObject &definition);
 
 	virtual bool active(int frame) const;
 	bool hidden() const;
@@ -71,7 +68,7 @@ public:
 	virtual void render(Renderer &renderer, int frame) const;
 
 	virtual void resolveAssets(
-		const std::function<BMAsset*(BMBase*, QString)> &resolver);
+		const std::function<BMAsset*(BMBase*, QByteArray)> &resolver);
 
 protected:
 	virtual BMScene *resolveTopRoot() const;
@@ -80,8 +77,6 @@ protected:
 protected:
 	int m_type = 0;
 	bool m_hidden = false;
-	QString m_name;
-	QString m_matchName;
 	bool m_autoOrient = false;
 
 	friend class BMRasterRenderer;

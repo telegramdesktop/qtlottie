@@ -36,19 +36,19 @@ class BMPreCompLayer final : public BMLayer {
 public:
 	BMPreCompLayer(BMBase *parent);
 	BMPreCompLayer(BMBase *parent, const BMPreCompLayer &other);
-	BMPreCompLayer(BMBase *parent, const QJsonObject &definition);
+	BMPreCompLayer(BMBase *parent, const JsonObject &definition);
 	~BMPreCompLayer() override;
 
 	BMBase *clone(BMBase *parent) const override;
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;
-	void resolveAssets(const std::function<BMAsset*(BMBase*, QString)> &resolver) override;
+	void resolveAssets(const std::function<BMAsset*(BMBase*, QByteArray)> &resolver) override;
 
-	QString refId() const;
+	QByteArray refId() const;
 
 private:
-	QString m_refId;
+	QByteArray m_refId;
 	BMBase *m_layers = nullptr;
 	bool m_resolving = false;
 

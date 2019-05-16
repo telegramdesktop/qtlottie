@@ -30,30 +30,27 @@
 
 #include "bmlayer.h"
 
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
-
 namespace Lottie {
 
 BMPreCompAsset::BMPreCompAsset(BMBase *parent) : BMAsset(parent) {
 }
 
-BMPreCompAsset::BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other) : BMAsset(parent, other) {
+BMPreCompAsset::BMPreCompAsset(BMBase *parent, const BMPreCompAsset &other)
+: BMAsset(parent, other) {
 }
 
 BMPreCompAsset *BMPreCompAsset::clone(BMBase *parent) const {
 	return new BMPreCompAsset(parent, *this);
 }
 
-BMPreCompAsset::BMPreCompAsset(BMBase *parent, const QJsonObject &definition)
+BMPreCompAsset::BMPreCompAsset(BMBase *parent, const JsonObject &definition)
 : BMAsset(parent) {
 	BMAsset::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto layers = definition.value(QStringLiteral("layers")).toArray();
+	const auto layers = definition.value("layers").toArray();
 	for (auto i = layers.end(); i != layers.begin();) {
 		const auto &entry = *(--i);
 		if (const auto layer = BMLayer::construct(this, entry.toObject())) {

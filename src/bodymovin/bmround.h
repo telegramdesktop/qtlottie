@@ -37,11 +37,11 @@ class BMRound : public BMShape {
 public:
 	BMRound(BMBase *parent);
 	BMRound(BMBase *parent, const BMRound &other);
-	BMRound(BMBase *parent, const QJsonObject &definition);
+	BMRound(BMBase *parent, const JsonObject &definition);
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const QJsonObject &definition);
+	void parse(const JsonObject &definition);
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

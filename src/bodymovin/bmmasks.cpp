@@ -30,8 +30,6 @@
 
 #include "renderer.h"
 
-#include <QJsonObject>
-
 namespace Lottie {
 
 BMMasks::BMMasks(BMBase *parent) : BMBase(parent) {

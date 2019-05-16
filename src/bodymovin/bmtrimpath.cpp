@@ -41,7 +41,7 @@ BMTrimPath::BMTrimPath(BMBase *parent) : BMShape(parent) {
 	m_appliedTrim = this;
 }
 
-BMTrimPath::BMTrimPath(BMBase *parent, const QJsonObject &definition)
+BMTrimPath::BMTrimPath(BMBase *parent, const JsonObject &definition)
 : BMShape(parent) {
 	m_appliedTrim = this;
 	parse(definition);
@@ -59,24 +59,24 @@ BMBase *BMTrimPath::clone(BMBase *parent) const {
 	return new BMTrimPath(parent, *this);
 }
 
-void BMTrimPath::parse(const QJsonObject &definition) {
+void BMTrimPath::parse(const JsonObject &definition) {
 	BMBase::parse(definition);
 	if (m_hidden) {
 		return;
 	}
 
-	const auto start = definition.value(QStringLiteral("s")).toObject();
+	const auto start = definition.value("s").toObject();
 	m_start.construct(start);
 
-	const auto end = definition.value(QStringLiteral("e")).toObject();
+	const auto end = definition.value("e").toObject();
 	m_end.construct(end);
 
-	const auto offset = definition.value(QStringLiteral("o")).toObject();
+	const auto offset = definition.value("o").toObject();
 	m_offset.construct(offset);
 
 	int simultaneous = true;
-	if (definition.contains(QStringLiteral("m"))) {
-		simultaneous = definition.value(QStringLiteral("m")).toInt();
+	if (definition.contains("m")) {
+		simultaneous = definition.value("m").toInt();
 	}
 	m_simultaneous = (simultaneous == 1);
 
@@ -114,7 +114,6 @@ bool BMTrimPath::acceptsTrim() const {
 }
 
 void BMTrimPath::applyTrim(const BMTrimPath &other) {
-	m_name = m_name + QStringLiteral(" & ") + other.name();
 	qreal newStart = other.start() + (m_start.value() / 100.0) *
 			(other.end() - other.start());
 	qreal newEnd = other.start() + (m_end.value() / 100.0) *

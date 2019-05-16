@@ -38,7 +38,7 @@ class BMShapeLayer final : public BMLayer {
 public:
 	BMShapeLayer(BMBase *parent);
 	BMShapeLayer(BMBase *parent, const BMShapeLayer &other);
-	BMShapeLayer(BMBase *parent, const QJsonObject &definition);
+	BMShapeLayer(BMBase *parent, const JsonObject &definition);
 	~BMShapeLayer() override;
 
 	BMBase *clone(BMBase *parent) const override;
