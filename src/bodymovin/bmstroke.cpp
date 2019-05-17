@@ -170,14 +170,7 @@ QPen BMStroke::pen() const {
 }
 
 QColor BMStroke::getColor() const {
-	QVector4D cVec = m_color.value();
-	QColor color;
-	qreal r = static_cast<qreal>(cVec.x());
-	qreal g = static_cast<qreal>(cVec.y());
-	qreal b = static_cast<qreal>(cVec.z());
-	qreal a = static_cast<qreal>(cVec.w());
-	color.setRgbF(r, g, b, a);
-	return color;
+	return ColorFromVector(m_color.value());
 }
 
 qreal BMStroke::opacity() const {

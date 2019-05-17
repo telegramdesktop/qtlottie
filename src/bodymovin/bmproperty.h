@@ -34,10 +34,19 @@
 #include <QPointF>
 #include <QSizeF>
 #include <QVector4D>
+#include <QColor>
 #include <QtMath>
 #include <vector>
 
 namespace Lottie {
+
+inline QColor ColorFromVector(const QVector4D &value) {
+	return QColor::fromRgbF(
+		std::clamp(double(value.x()), 0., 1.),
+		std::clamp(double(value.y()), 0., 1.),
+		std::clamp(double(value.z()), 0., 1.),
+		std::clamp(double(value.w()), 0., 1.));
+}
 
 template <typename T>
 struct EasingSegmentBasic {
@@ -249,13 +258,7 @@ public:
 				qreal progress = ((adjustedFrame - easing->startFrame) * 1.0)
 					/ (easing->endFrame - easing->startFrame);
 				qreal easedValue = easing->easing.valueForProgress(progress);
-				if constexpr (std::is_same_v<QVector4D, T>) {
-					// For the time being, 4D vectors are used only for colors, and
-					// the value must be restricted to between [0, 1]
-					easedValue = qBound(qreal(0.0), easedValue, qreal(1.0));
-					m_value = easing->startValue + easedValue
-						* ((easing->endValue - easing->startValue));
-				} else if constexpr (std::is_same_v<QPointF, T>) {
+				if constexpr (std::is_same_v<QPointF, T>) {
 					if (easing->bezierPoints.empty()) {
 						m_value = easing->startValue + easedValue
 							* ((easing->endValue - easing->startValue));

@@ -43,11 +43,10 @@ namespace {
 }
 
 [[nodiscard]] QColor InterpolateColor(QColor a, QColor b, double percent) {
-	auto result = QColor();
-	result.setRedF(a.redF() + percent * (b.redF() - a.redF()));
-	result.setGreenF(a.greenF() + percent * (b.greenF() - a.greenF()));
-	result.setBlueF(a.blueF() + percent * (b.blueF() - a.blueF()));
-	return result;
+	return QColor::fromRgbF(
+		a.redF() + percent * (b.redF() - a.redF()),
+		a.greenF() + percent * (b.greenF() - a.greenF()),
+		a.blueF() + percent * (b.blueF() - a.blueF()));
 }
 
 [[nodiscard]] QColor InterpolateColor(
@@ -60,122 +59,198 @@ namespace {
 	return InterpolateColor(a.second, b.second, percent);
 }
 
-[[nodiscard]] QGradientStops ParseColorStops(
-		const JsonArray &data,
-		int colorPoints) {
-	auto result = QGradientStops();
-	result.reserve(colorPoints);
-	for (auto i = 0; i != colorPoints; ++i) {
-		auto color = QColor();
-		color.setRedF(ValueAt(data, i * 4 + 1));
-		color.setGreenF(ValueAt(data, i * 4 + 2));
-		color.setBlueF(ValueAt(data, i * 4 + 3));
+class StopsBuilder {
+public:
+	StopsBuilder(const JsonArray &data, int colorPoints);
+	StopsBuilder(
+		const QVector<BMProperty<QVector4D>> &colorStops,
+		const QVector<BMProperty<QSizeF>> &opacityStops);
+
+	QGradientStops result();
+
+private:
+	bool validateInput();
+
+	void parseColorStops(const JsonArray &data);
+	void computeColorStops(const QVector<BMProperty<QVector4D>> &stops);
+	void addOpacityStops(const JsonArray &data);
+	void addOpacityStops(const QVector<BMProperty<QSizeF>> &stops);
+
+	bool pushColorStop(QGradientStop stop);
+	void insertOpacityPoint(int index, double time, double opacity);
+	bool addOpacityPoint(double time, double opacity);
+	void interpolateAlphaTill(int till);
+
+	QGradientStops _result;
+	int _colorStops = 0;
+	int _opacityStops = 0;
+	int _alphaSetTill = -1;
+	bool _error = false;
+
+};
+
+StopsBuilder::StopsBuilder(const JsonArray &data, int colorPoints)
+: _colorStops(colorPoints)
+, _opacityStops((data.size() - 4 * colorPoints) / 2) {
+	if (data.size() < 4 * colorPoints) {
+		qWarning() << "Bad data in gradient points.";
+		_error = true;
+	} else if (validateInput()) {
+		parseColorStops(data);
+		addOpacityStops(data);
+	}
+}
+
+StopsBuilder::StopsBuilder(
+	const QVector<BMProperty<QVector4D>> &colorStops,
+	const QVector<BMProperty<QSizeF>> &opacityStops)
+: _colorStops(colorStops.size())
+, _opacityStops(opacityStops.size()) {
+	if (validateInput()) {
+		computeColorStops(colorStops);
+		addOpacityStops(opacityStops);
+	}
+}
+
+QGradientStops StopsBuilder::result() {
+	return _error ? QGradientStops() : std::move(_result);
+}
+
+bool StopsBuilder::validateInput() {
+	if (_colorStops <= 0 || _opacityStops < 0) {
+		qWarning() << "Bad data in gradient points.";
+		_error = true;
+		return false;
+	}
+	_result.reserve(_colorStops + _opacityStops);
+	return true;
+}
+
+void StopsBuilder::parseColorStops(const JsonArray &data) {
+	for (auto i = 0; i != _colorStops; ++i) {
+		const auto color = QColor::fromRgbF(
+			ValueAt(data, i * 4 + 1),
+			ValueAt(data, i * 4 + 2),
+			ValueAt(data, i * 4 + 3));
 		const auto time = ValueAt(data, i * 4);
-		if (i > 0 && result[i - 1].first > time) {
-			qWarning() << "Bad timing in gradient points.";
-			return QGradientStops();
-		}
-		result.push_back({ time, color });
-	}
-	return result;
-}
-
-[[nodiscard]] QGradientStops Pass(QGradientStops &list) {
-	return std::exchange(list, QGradientStops());
-}
-
-[[nodiscard]] QGradientStops InterpolateAlphaValues(
-		QGradientStops list,
-		int from,
-		int to) {
-	if (to == list.size() || from < 0) {
-		const auto value = (from >= 0)
-			? list[from].second.alphaF()
-			: (to < list.size())
-			? list[to].second.alphaF()
-			: 1.;
-		for (auto i = from + 1; i != to; ++i) {
-			list[i].second.setAlphaF(value);
-		}
-	} else {
-		const auto fromTime = list[from].first;
-		const auto fromAlpha = list[from].second.alphaF();
-		const auto toTime = list[to].first;
-		const auto toAlpha = list[to].second.alphaF();
-		for (auto i = from + 1; i != to; ++i) {
-			const auto percent = (toTime > fromTime)
-				? ((list[i].first - fromTime) / (toTime - fromTime))
-				: 1.;
-			list[i].second.setAlphaF(
-				fromAlpha + percent * (toAlpha - fromAlpha));
+		if (!pushColorStop({ time, color })) {
+			break;
 		}
 	}
-	return list;
 }
 
-QGradientStops AddOpacityStops(
-		QGradientStops list,
-		const JsonArray &data,
-		int colorPoints) {
-	const auto opacityPoints = (data.size() - colorPoints * 4) / 2;
-	if (!opacityPoints) {
-		return list;
-	}
-	list.reserve(colorPoints + opacityPoints);
-
-	auto alphaSetTill = -1;
-	const auto insertOpacityPoint = [&](
-			int index,
-			double time,
-			double opacity) {
-		auto color = (index == 0)
-			? list[index].second
-			: (index == list.size())
-			? list[index - 1].second
-			: InterpolateColor(list[index - 1], list[index], time);
-		color.setAlphaF(opacity);
-		list.insert(list.begin() + index, { time, color });
-		list = InterpolateAlphaValues(Pass(list), alphaSetTill, index);
-		alphaSetTill = index;
-	};
-	const auto addOpacityPoint = [&](double time, double opacity) {
-		for (auto i = 0; i != list.size(); ++i) {
-			if (alphaSetTill < i && qFuzzyCompare(list[i].first, time)) {
-				list[i].second.setAlphaF(opacity);
-				list = InterpolateAlphaValues(Pass(list), alphaSetTill, i);
-				alphaSetTill = i;
-				return;
-			} else if (list[i].first > time) {
-				insertOpacityPoint(i, time, opacity);
-				return;
-			}
+void StopsBuilder::computeColorStops(
+		const QVector<BMProperty<QVector4D>> &stops) {
+	for (const auto &stop : stops) {
+		const auto value = stop.value();
+		const auto color = QColor::fromRgbF(
+			std::clamp(double(value.x()), 0., 1.),
+			std::clamp(double(value.y()), 0., 1.),
+			std::clamp(double(value.z()), 0., 1.));
+		const auto time = std::clamp(double(value.w()), 0., 1.);
+		if (!pushColorStop({ time, color })) {
+			break;
 		}
-		insertOpacityPoint(list.size(), time, opacity);
-	};
-	const auto shift = colorPoints * 4;
-	for (auto i = 0; i != opacityPoints; ++i) {
+	}
+}
+
+void StopsBuilder::addOpacityStops(const JsonArray &data) {
+	if (!_opacityStops) {
+		return;
+	}
+	const auto shift = _colorStops * 4;
+	for (auto i = 0; i != _opacityStops; ++i) {
 		const auto time = ValueAt(data, shift + i * 2);
 		const auto opacity = ValueAt(data, shift + i * 2 + 1);
-		if (i > 0 && list[alphaSetTill].first > time) {
-			qWarning() << "Bad opacity timing in gradient points.";
-			return QGradientStops();
+		if (!addOpacityPoint(time, opacity)) {
+			break;
 		}
-		addOpacityPoint(time, opacity);
 	}
-	const auto size = list.size();
-	return InterpolateAlphaValues(Pass(list), alphaSetTill, size);
+	interpolateAlphaTill(_result.size());
 }
 
-QGradientStops ParseStaticGradient(const JsonArray &data, int colorPoints) {
-	if (colorPoints <= 0 || data.size() < colorPoints * 4) {
-		qWarning() << "Bad data in gradient points.";
-		return QGradientStops();
+void StopsBuilder::addOpacityStops(
+		const QVector<BMProperty<QSizeF>> &stops) {
+	for (const auto &stop : stops) {
+		const auto value = stop.value();
+		const auto time = std::clamp(value.width(), 0., 1.);
+		const auto opacity = std::clamp(value.height(), 0., 1.);
+		if (!addOpacityPoint(time, opacity)) {
+			break;
+		}
 	}
-	auto result = ParseColorStops(data, colorPoints);
-	if (result.isEmpty()) {
-		return QGradientStops();
+	interpolateAlphaTill(_result.size());
+}
+
+void StopsBuilder::insertOpacityPoint(
+		int index,
+		double time,
+		double opacity) {
+	auto color = (index == 0)
+		? _result[index].second
+		: (index == _result.size())
+		? _result[index - 1].second
+		: InterpolateColor(_result[index - 1], _result[index], time);
+	color.setAlphaF(opacity);
+	_result.insert(_result.begin() + index, { time, color });
+	interpolateAlphaTill(index);
+}
+
+bool StopsBuilder::addOpacityPoint(double time, double opacity) {
+	if (_alphaSetTill >= 0 && _result[_alphaSetTill].first > time) {
+		qWarning() << "Bad opacity timing in gradient points.";
+		_error = true;
+		return false;
 	}
-	return AddOpacityStops(Pass(result), data, colorPoints);
+	for (auto i = _alphaSetTill + 1; i != _result.size(); ++i) {
+		if (qFuzzyCompare(_result[i].first, time)) {
+			_result[i].second.setAlphaF(opacity);
+			interpolateAlphaTill(i);
+			return true;
+		} else if (_result[i].first > time) {
+			insertOpacityPoint(i, time, opacity);
+			return true;
+		}
+	}
+	insertOpacityPoint(_result.size(), time, opacity);
+	return true;
+}
+
+bool StopsBuilder::pushColorStop(QGradientStop stop) {
+	if (!_result.empty() && _result.back().first > stop.first) {
+		qWarning() << "Bad timing in gradient points.";
+		_error = true;
+		return false;
+	}
+	_result.push_back(stop);
+	return true;
+}
+
+void StopsBuilder::interpolateAlphaTill(int till) {
+	const auto from = _alphaSetTill;
+	if (from < 0 && till == _result.size()) {
+		// All values are 1. already.
+	} else if (from < 0 || till == _result.size()) {
+		const auto value = (from >= 0)
+			? _result[from].second.alphaF()
+			: _result[till].second.alphaF();
+		for (auto i = from + 1; i != till; ++i) {
+			_result[i].second.setAlphaF(value);
+		}
+	} else {
+		const auto fromTime = _result[from].first;
+		const auto fromAlpha = _result[from].second.alphaF();
+		const auto tillTime = _result[till].first;
+		const auto tillAlpha = _result[till].second.alphaF();
+		for (auto i = from + 1; i != till; ++i) {
+			const auto percent = (tillTime > fromTime)
+				? ((_result[i].first - fromTime) / (tillTime - fromTime))
+				: 1.;
+			_result[i].second.setAlphaF(
+				fromAlpha + percent * (tillAlpha - fromAlpha));
+		}
+	}
+	_alphaSetTill = till;
 }
 
 } // namespace
@@ -190,7 +265,8 @@ BMGFill::BMGFill(BMBase *parent, const BMGFill &other)
 , m_endPoint(other.m_endPoint)
 , m_highlightLength(other.m_highlightLength)
 , m_highlightAngle(other.m_highlightAngle)
-, m_colors(other.m_colors) {
+, m_colorStops(other.m_colorStops)
+, m_opacityStops(other.m_opacityStops) {
 	if (other.m_gradient) {
 		if (other.gradientType() == QGradient::LinearGradient) {
 			m_gradient = new QLinearGradient(*static_cast<QLinearGradient*>(other.m_gradient));
@@ -237,7 +313,7 @@ BMGFill::BMGFill(BMBase *parent, const JsonObject &definition)
 	} else if (data.at(0).isObject()) {
 		parseAnimatedGradient(data, colorPoints);
 	} else if (m_gradient) {
-		m_gradient->setStops(ParseStaticGradient(data, colorPoints));
+		m_gradient->setStops(StopsBuilder(data, colorPoints).result());
 	}
 
 	const auto opacity = definition.value("o").toObject();
@@ -259,23 +335,108 @@ BMGFill::BMGFill(BMBase *parent, const JsonObject &definition)
 }
 
 void BMGFill::parseAnimatedGradient(const JsonArray &data, int colorPoints) {
-	if (data.empty()) {
+	if (data.empty() || colorPoints <= 0) {
 		qWarning() << "Bad data in animated gradient points.";
 		return;
 	}
-	const auto start = data.at(0).toObject().value("s").toArray();
-	if (start.empty() || start.size() < colorPoints * 4) {
-		qWarning() << "Bad data in animated gradient points.";
-		return;
-	}
-	const auto opacityPoints = (start.size() - colorPoints * 4) / 2;
+	auto colors = std::vector<ConstructAnimatedData<QVector4D>>();
+	auto opacities = std::vector<ConstructAnimatedData<QSizeF>>();
 
+	for (const auto &element : data) {
+		const auto keyframe = element.toObject();
+
+		const auto hold = (keyframe.value("h").toInt() == 1);
+		const auto startFrame = keyframe.value("t").toInt();
+		const auto easingIn = ParseEasingInOut(keyframe.value("i").toObject());
+		const auto easingOut = ParseEasingInOut(keyframe.value("o").toObject());
+
+		const auto startValue = keyframe.value("s").toArray();
+		const auto endValue = keyframe.value("e").toArray();
+
+		if (!startValue.empty()
+			&& !colors.empty()
+			&& startValue.size() != colors.size() * 4 + opacities.size() * 2) {
+			qWarning() << "Bad data in animated gradient points.";
+			return;
+		}
+		const auto opacityPoints = startValue.empty()
+			? int(opacities.size())
+			: int((startValue.size() - 4 * colorPoints) / 2);
+		if (!startValue.empty()
+			&& startValue.size() < 4 * colorPoints) {
+			qWarning() << "Bad data in shape.";
+			return;
+		}
+		if (colors.empty()) {
+			colors.resize(colorPoints);
+			for (auto &color : colors) {
+				color.keyframes.reserve(data.size());
+			}
+		}
+		if (opacityPoints > 0 && opacities.empty()) {
+			opacities.resize(opacityPoints);
+			for (auto &opacity : opacities) {
+				opacity.keyframes.reserve(data.size());
+			}
+		}
+
+		for (auto i = 0; i != colorPoints; ++i) {
+			auto color = ConstructKeyframeData<QVector4D>();
+			color.hold = hold;
+			color.startFrame = startFrame;
+
+			if (!startValue.empty()) {
+				color.easingIn = easingIn;
+				color.easingOut = easingOut;
+				color.startValue = QVector4D(
+					startValue.at(i * 4 + 1).toDouble(), // time, r, g, b, ..
+					startValue.at(i * 4 + 2).toDouble(),
+					startValue.at(i * 4 + 3).toDouble(),
+					startValue.at(i * 4).toDouble());
+				color.endValue = QVector4D(
+					endValue.at(i * 4 + 1).toDouble(),
+					endValue.at(i * 4 + 2).toDouble(),
+					endValue.at(i * 4 + 3).toDouble(),
+					endValue.at(i * 4).toDouble());
+			}
+
+			colors[i].keyframes.push_back(std::move(color));
+		}
+
+		const auto shift = colorPoints * 4;
+		for (auto i = 0; i != opacityPoints; ++i) {
+			auto opacity = ConstructKeyframeData<QSizeF>();
+			opacity.hold = hold;
+			opacity.startFrame = startFrame;
+
+			if (!startValue.empty()) {
+				opacity.easingIn = easingIn;
+				opacity.easingOut = easingOut;
+				opacity.startValue = QSizeF(
+					startValue.at(shift + i * 2).toDouble(),
+					startValue.at(shift + i * 2 + 1).toDouble());
+				opacity.endValue = QSizeF(
+					endValue.at(shift + i * 2).toDouble(),
+					endValue.at(shift + i * 2 + 1).toDouble());
+			}
+
+			opacities[i].keyframes.push_back(std::move(opacity));
+		}
+	}
+	m_colorStops.reserve(colors.size());
+	for (const auto &color : colors) {
+		m_colorStops.push_back({});
+		m_colorStops.back().constructAnimated(color);
+	}
+	m_opacityStops.reserve(opacities.size());
+	for (const auto &opacity : opacities) {
+		m_opacityStops.push_back({});
+		m_opacityStops.back().constructAnimated(opacity);
+	}
 }
 
 void BMGFill::updateProperties(int frame) {
-	QGradient::Type type = gradientType();
-	if (type != QGradient::LinearGradient
-		&& type != QGradient::RadialGradient) {
+	if (!m_gradient) {
 		return;
 	}
 
@@ -284,12 +445,12 @@ void BMGFill::updateProperties(int frame) {
 	m_highlightLength.update(frame);
 	m_highlightAngle.update(frame);
 	m_opacity.update(frame);
-	QList<BMProperty<QVector4D>>::iterator colorIt = m_colors.begin();
-	while (colorIt != m_colors.end()) {
-		(*colorIt).update(frame);
-		++colorIt;
+	for (auto &stop : m_colorStops) {
+		stop.update(frame);
 	}
-
+	for (auto &stop : m_opacityStops) {
+		stop.update(frame);
+	}
 	setGradient();
 }
 
@@ -329,16 +490,25 @@ qreal BMGFill::opacity() const {
 	return m_opacity.value();
 }
 
+void BMGFill::setGradientStops() {
+	m_gradient->setStops(
+		StopsBuilder(m_colorStops, m_opacityStops).result());
+}
+
 void BMGFill::setGradient() {
+	if (!m_colorStops.empty()) {
+		setGradientStops();
+	}
+
 	switch (gradientType()) {
 	case QGradient::LinearGradient: {
-		QLinearGradient *g = static_cast<QLinearGradient*>(m_gradient);
+		const auto g = static_cast<QLinearGradient*>(m_gradient);
 		g->setStart(m_startPoint.value());
 		g->setFinalStop(m_endPoint.value());
 		break;
 	}
 	case QGradient::RadialGradient: {
-		QRadialGradient *g = static_cast<QRadialGradient*>(m_gradient);
+		const auto g = static_cast<QRadialGradient*>(m_gradient);
 		qreal dx = m_endPoint.value().x() - m_startPoint.value().x();
 		qreal dy = m_endPoint.value().y() - m_startPoint.value().y();
 		qreal radius = qSqrt(dx * dx +  dy * dy);

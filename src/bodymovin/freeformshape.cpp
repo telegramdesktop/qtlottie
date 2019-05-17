@@ -33,10 +33,12 @@
 namespace Lottie {
 
 QPainterPath FreeFormShape::parse(const JsonObject &definition) {
-	if (!definition.value("a").toInt()) {
-		return buildShape(definition.value("k").toObject());
+	const auto value = definition.value("k");
+	const auto animated = value.isArray();
+	if (!animated) {
+		return buildShape(value.toObject());
 	}
-	parseShapeKeyframes(definition);
+	parseShapeKeyframes(value.toArray());
 	return QPainterPath();
 }
 
@@ -49,7 +51,7 @@ QPainterPath FreeFormShape::build(int frame) {
 	return buildShape(frame);
 }
 
-void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
+void FreeFormShape::parseShapeKeyframes(const JsonArray &keyframes) {
 	struct Entry {
 		ConstructAnimatedData<QPointF> pos;
 		ConstructAnimatedData<QPointF> ci;
@@ -57,12 +59,13 @@ void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
 	};
 	auto entries = std::vector<Entry>();
 
-	const auto vertexKeyframes = keyframes.value("k").toArray();
-	for (const auto &element : vertexKeyframes) {
+	for (const auto &element : keyframes) {
 		const auto keyframe = element.toObject();
 
 		const auto hold = (keyframe.value("h").toInt() == 1);
 		const auto startFrame = keyframe.value("t").toInt();
+		const auto easingIn = ParseEasingInOut(keyframe.value("i").toObject());
+		const auto easingOut = ParseEasingInOut(keyframe.value("o").toObject());
 
 		const auto startValue = keyframe.value("s").toArray().at(0).toObject();
 		const auto endValue = keyframe.value("e").toArray().at(0).toObject();
@@ -74,8 +77,6 @@ void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
 		const auto endVertices = endValue.value("v").toArray();
 		const auto endBezierIn = endValue.value("i").toArray();
 		const auto endBezierOut = endValue.value("o").toArray();
-		const auto easingIn = keyframe.value("i").toObject();
-		const auto easingOut = keyframe.value("o").toObject();
 
 		if (!startVertices.empty()
 			&& !entries.empty()
@@ -92,6 +93,11 @@ void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
 		}
 		if (entries.empty()) {
 			entries.resize(count);
+			for (auto &entry : entries) {
+				entry.pos.keyframes.reserve(keyframes.size());
+				entry.ci.keyframes.reserve(keyframes.size());
+				entry.co.keyframes.reserve(keyframes.size());
+			}
 		}
 		for (auto i = 0; i != count; ++i) {
 			auto pos = ConstructKeyframeData<QPointF>();
@@ -102,8 +108,8 @@ void FreeFormShape::parseShapeKeyframes(const JsonObject &keyframes) {
 			pos.startFrame = ci.startFrame = co.startFrame = startFrame;
 
 			if (!startVertices.empty()) {
-				pos.easingIn = ci.easingIn = co.easingIn = ParseEasingInOut(easingIn);
-				pos.easingOut = ci.easingOut = co.easingOut = ParseEasingInOut(easingOut);
+				pos.easingIn = ci.easingIn = co.easingIn = easingIn;
+				pos.easingOut = ci.easingOut = co.easingOut = easingOut;
 
 				pos.startValue = ParseValue<QPointF>(startVertices.at(i).toArray());
 				pos.endValue = ParseValue<QPointF>(endVertices.at(i).toArray());

@@ -58,8 +58,7 @@ public:
 
 private:
 	void setGradient();
-
-protected:
+	void setGradientStops();
 	void parseAnimatedGradient(const JsonArray &data, int colorPoints);
 
 	BMProperty<qreal> m_opacity;
@@ -67,7 +66,11 @@ protected:
 	BMProperty<QPointF> m_endPoint;
 	BMProperty<qreal> m_highlightLength;
 	BMProperty<qreal> m_highlightAngle;
-	QList<BMProperty<QVector4D>> m_colors;
+	// Here x(),y(),z() hold color, w() holds time.
+	QVector<BMProperty<QVector4D>> m_colorStops;
+	// Use QSizeF so we won't try to parse / use spatial interpolations.
+	// Here width() holds time, height() holds opacity.
+	QVector<BMProperty<QSizeF>> m_opacityStops;
 	QGradient *m_gradient = nullptr;
 
 };

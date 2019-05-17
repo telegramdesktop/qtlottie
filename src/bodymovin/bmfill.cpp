@@ -71,14 +71,7 @@ void BMFill::render(Renderer &renderer, int frame) const {
 }
 
 QColor BMFill::color() const {
-	const auto cVec = m_color.value();
-	const auto r = static_cast<qreal>(cVec.x());
-	const auto g = static_cast<qreal>(cVec.y());
-	const auto b = static_cast<qreal>(cVec.z());
-	const auto a = static_cast<qreal>(cVec.w());
-	QColor color;
-	color.setRgbF(r, g, b, a);
-	return color;
+	return ColorFromVector(m_color.value());
 }
 
 qreal BMFill::opacity() const {

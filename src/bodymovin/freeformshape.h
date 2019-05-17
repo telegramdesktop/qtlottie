@@ -51,7 +51,7 @@ private:
 	QVector<VertexInfo> m_vertexList;
 	QMap<int, bool> m_closedShape;
 
-	void parseShapeKeyframes(const JsonObject &keyframes);
+	void parseShapeKeyframes(const JsonArray &keyframes);
 	QPainterPath buildShape(const JsonObject &keyframe);
 	QPainterPath buildShape(int frame);
 
