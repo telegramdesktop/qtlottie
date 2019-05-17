@@ -70,6 +70,8 @@ struct EasingSegment<QPointF> : EasingSegmentBasic<QPointF> {
 
 	double bezierLength = 0.;
 	QVector<BezierPoint> bezierPoints;
+	mutable double bezierCacheDistance = 0.;
+	mutable int bezierCacheIndex = 0;
 };
 
 template <typename T>
@@ -233,11 +235,11 @@ public:
 		}
 	}
 
-	void setValue(const T& value) {
+	void setValue(const T &value) {
 		m_value = value;
 	}
 
-	const T& value() const {
+	const T &value() const {
 		return m_value;
 	}
 
@@ -250,68 +252,85 @@ public:
 			return false;
 		}
 
-		int adjustedFrame = qBound(m_startFrame, frame, m_endFrame);
-		if (const EasingSegment<T> *easing = getEasingSegment(adjustedFrame)) {
-			if (easing->easing.isHold()) {
-				m_value = easing->startValue;
-			} else if (easing->endFrame > easing->startFrame) {
-				qreal progress = ((adjustedFrame - easing->startFrame) * 1.0)
-					/ (easing->endFrame - easing->startFrame);
-				qreal easedValue = easing->easing.valueForProgress(progress);
-				if constexpr (std::is_same_v<QPointF, T>) {
-					if (easing->bezierPoints.empty()) {
-						m_value = easing->startValue + easedValue
-							* ((easing->endValue - easing->startValue));
-					} else {
-						const auto distance = easedValue * easing->bezierLength;
-						auto segmentPerc = 0.;
-						auto addedLength = 0.;
-						const auto count = easing->bezierPoints.size();
-						for (auto j = 0; j != count; ++j) {
-							addedLength += easing->bezierPoints[j].length;
-							if (distance == 0. || easedValue == 0. || j == count - 1) {
-								m_value = easing->bezierPoints[j].point;
-								break;
-							} else if (distance >= addedLength && distance < addedLength + easing->bezierPoints[j + 1].length) {
-								segmentPerc = (distance - addedLength) / easing->bezierPoints[j + 1].length;
-								m_value = easing->bezierPoints[j].point + (easing->bezierPoints[j + 1].point - easing->bezierPoints[j].point) * segmentPerc;
-								break;
-							}
-						}
-					}
-				} else {
-					m_value = easing->startValue + easedValue
-						* ((easing->endValue - easing->startValue));
-				}
-			} else {
-				m_value = easing->endValue;
-			}
-			return true;
+		frame = std::clamp(frame, m_startFrame, m_endFrame);
+		const auto easing = getEasingSegment(frame);
+		if (!easing) {
+			return false;
 		}
-		return false;
+		m_value = getEasingValue(*easing, frame);
+		return true;
 	}
 
-protected:
-	const EasingSegment<T>* getEasingSegment(int frame) {
-		// TODO: Improve with a faster search algorithm
-		const EasingSegment<T> *easing = m_currentEasing;
-		if (!easing
-			|| easing->startFrame < frame
-			|| easing->endFrame > frame) {
-			for (int i=0; i < m_easingCurves.size(); i++) {
-				if (m_easingCurves.at(i).startFrame <= frame
-					&& m_easingCurves.at(i).endFrame >= frame) {
-					m_currentEasing = &m_easingCurves.at(i);
-					break;
-				}
+private:
+	const EasingSegment<T> *getEasingSegment(int frame) const {
+		const auto count = m_easingCurves.size();
+		//if (m_easingIndex >= count) {
+		//	qWarning()
+		//		<< "Property is animated but easing cannot be found";
+		//	return nullptr;
+		//}
+		const auto from = /*(m_easingCurves[m_easingIndex].startFrame <= frame)
+			? m_easingIndex
+			: */0;
+		for (auto i = from; i != count; ++i) {
+			const auto &segment = m_easingCurves[i];
+			if (segment.startFrame <= frame && segment.endFrame >= frame) {
+				//m_easingIndex = i;
+				return &segment;
 			}
 		}
+		qWarning()
+			<< "Property is animated but easing cannot be found";
+		return nullptr;
+	}
 
-		if (!m_currentEasing) {
-			qWarning()
-				<< "Property is animated but easing cannot be found";
+	T getEasingValue(const EasingSegment<T> &segment, int frame) const {
+		if (segment.easing.isHold()) {
+			return segment.startValue;
+		} else if (segment.endFrame <= segment.startFrame) {
+			return segment.endValue;
 		}
-		return m_currentEasing;
+		const auto progress = ((frame - segment.startFrame) * 1.0)
+			/ (segment.endFrame - segment.startFrame);
+		const auto percent = segment.easing.valueForProgress(progress);
+		if constexpr (std::is_same_v<QPointF, T>) {
+			if (!segment.bezierPoints.empty()) {
+				return getSpatialValue(segment, percent);
+			}
+		}
+		return segment.startValue
+			+ percent * (segment.endValue - segment.startValue);
+	}
+
+	T getSpatialValue(const EasingSegment<T> &segment, double value) const {
+		const auto count = segment.bezierPoints.size();
+		if (segment.bezierCacheIndex >= count) {
+			return segment.endValue;
+		}
+		const auto distance = value * segment.bezierLength;
+		const auto from = (segment.bezierCacheDistance <= distance)
+			? segment.bezierCacheIndex
+			: 0;
+		auto length = (segment.bezierCacheDistance <= distance)
+			? segment.bezierCacheDistance
+			: 0.;
+		for (auto i = from; i != count; ++i) {
+			const auto &point = segment.bezierPoints[i];
+			length += point.length;
+			if (distance == 0. || i == count - 1) {
+				segment.bezierCacheDistance = length;
+				segment.bezierCacheIndex = i;
+				return point.point;
+			}
+			const auto &next = segment.bezierPoints[i + 1];
+			if (distance >= length && distance < length + next.length) {
+				segment.bezierCacheDistance = length;
+				segment.bezierCacheIndex = i;
+				const auto percent = (distance - length) / next.length;
+				return point.point + percent * (next.point - point.point);
+			}
+		}
+		return segment.endValue;
 	}
 
 	EasingSegment<T> createEasing(
@@ -343,9 +362,21 @@ protected:
 			data.easingIn,
 			QPointF(1., 1.));
 		if constexpr (std::is_same_v<QPointF, T>) {
-			// TODO optimize case when they all are on one line.
-			if (data.tangentIn == QPointF()
-				&& data.tangentOut == QPointF()) {
+			const auto kPointOnLine = [](QPointF a, QPointF b, QPointF c) {
+				return (a == b) || (b == c) || qFuzzyCompare(
+					(a.x() * b.y()) + (a.y() * c.x()) + (b.x() * c.y()),
+					(c.x() * b.y()) + (c.y() * a.x()) + (b.x() * a.y()));
+			};
+			const auto linear = kPointOnLine(
+				QPointF(),
+				data.tangentOut,
+				result.endValue - result.startValue
+			) && kPointOnLine(
+				result.startValue - result.endValue,
+				data.tangentIn,
+				QPointF()
+			);
+			if (linear) {
 				return result;
 			}
 			const auto bezier = QBezier::fromPoints(
@@ -374,7 +405,8 @@ protected:
 protected:
 	bool m_animated = false;
 	QVector<EasingSegment<T>> m_easingCurves;
-	const EasingSegment<T> *m_currentEasing = nullptr;
+	// caching doesn't work, we clone easing each time.
+	//mutable int m_easingIndex = 0;
 	int m_startFrame = INT_MAX;
 	int m_endFrame = 0;
 	T m_value = T();

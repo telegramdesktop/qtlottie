@@ -40,6 +40,7 @@ public:
 		const QPointF &c2,
 		const QPointF &endPoint);
 	bool isHold() const;
+	bool isLinear() const;
 	qreal valueForProgress(qreal progress) const;
 
 private:

@@ -42,9 +42,14 @@ bool BezierEasing::isHold() const {
 	return (mBezier.y4 == 0.);
 }
 
+bool BezierEasing::isLinear() const {
+	return (mBezier.x2 == mBezier.y2) && (mBezier.x3 == mBezier.y3);
+}
+
 qreal BezierEasing::valueForProgress(qreal progress) const {
-	qreal res = mBezier.pointAt(tForX(progress)).y();
-	return qBound(qreal(0.0), res, qreal(1.0));
+	return isLinear()
+		? progress
+		: std::clamp(mBezier.pointAt(tForX(progress)).y(), 0., 1.);
 }
 
 qreal BezierEasing::tForX(qreal x) const {
