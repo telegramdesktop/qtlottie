@@ -178,6 +178,7 @@ void RasterRenderer::render(const BMGFill &gradient) {
 		return;
 	}
 
+	m_painter->setOpacity(m_painter->opacity() * gradient.opacity() / 100.);
 	if (gradient.value()) {
 		m_painter->setBrush(*gradient.value());
 	} else {

@@ -60,6 +60,8 @@ private:
 	void setGradient();
 
 protected:
+	void parseAnimatedGradient(const JsonArray &data, int colorPoints);
+
 	BMProperty<qreal> m_opacity;
 	BMProperty<QPointF> m_startPoint;
 	BMProperty<QPointF> m_endPoint;
