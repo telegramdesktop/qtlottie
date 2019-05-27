@@ -43,7 +43,7 @@ public:
 
 	BMBase *clone(BMBase *parent) const override;
 
-	void parse(const JsonObject &definition);
+	void parse(const JsonObject &definition) override;
 
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;

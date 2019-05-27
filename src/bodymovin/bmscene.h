@@ -60,7 +60,7 @@ protected:
 	BMScene *resolveTopRoot() const override;
 
 private:
-	void parse(const JsonObject &definition);
+	void parse(const JsonObject &definition) override;
 	void resolveAllAssets();
 
 	std::vector<std::unique_ptr<BMAsset>> _assets;
