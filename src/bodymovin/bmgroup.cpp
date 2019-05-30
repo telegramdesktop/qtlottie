@@ -128,7 +128,7 @@ void BMGroup::render(Renderer &renderer, int frame) const {
 }
 
 bool BMGroup::acceptsTrim() const {
-	return true;
+	return !m_appliedTrim;
 }
 
 void BMGroup::applyTrim(const BMTrimPath &trimmer) {
