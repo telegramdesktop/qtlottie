@@ -32,6 +32,12 @@
 #include "bmlayer.h"
 
 namespace Lottie {
+namespace {
+
+constexpr auto kMaxFrameRate = 120;
+constexpr auto kMaxSize = 3096;
+
+} // namespace
 
 BMScene::BMScene(const JsonObject &definition) : BMBase(nullptr) {
 	parse(definition);
@@ -46,6 +52,17 @@ BMBase *BMScene::clone(BMBase *parent) const {
 
 BMScene *BMScene::resolveTopRoot() const {
 	return const_cast<BMScene*>(this);
+}
+
+bool BMScene::isValid() const {
+	return (_blueprint != nullptr)
+		&& (_endFrame > _startFrame)
+		&& (_frameRate > 0)
+		&& (_frameRate <= kMaxFrameRate)
+		&& (_width > 0)
+		&& (_width <= kMaxSize)
+		&& (_height > 0)
+		&& (_height <= kMaxSize);
 }
 
 int BMScene::startFrame() const {

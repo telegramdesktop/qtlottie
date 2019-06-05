@@ -50,6 +50,7 @@ public:
 	void updateProperties(int frame) override;
 	void render(Renderer &renderer, int frame) const override;
 
+	bool isValid() const;
 	int startFrame() const;
 	int endFrame() const;
 	int frameRate() const;
@@ -71,7 +72,7 @@ private:
 
 	int _startFrame = 0;
 	int _endFrame = 0;
-	int _frameRate = 30;
+	int _frameRate = 0;
 	int _width = 0;
 	int _height = 0;
 	QHash<QString, int> _markers;
