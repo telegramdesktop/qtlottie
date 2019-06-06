@@ -316,7 +316,6 @@ private:
 			: 0.;
 		for (auto i = from; i != count; ++i) {
 			const auto &point = segment.bezierPoints[i];
-			length += point.length;
 			if (distance == 0. || i == count - 1) {
 				segment.bezierCacheDistance = length;
 				segment.bezierCacheIndex = i;
@@ -329,6 +328,7 @@ private:
 				const auto percent = (distance - length) / next.length;
 				return point.point + percent * (next.point - point.point);
 			}
+			length += next.length;
 		}
 		return segment.endValue;
 	}
