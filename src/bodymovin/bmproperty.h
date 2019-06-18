@@ -263,25 +263,17 @@ public:
 
 private:
 	const EasingSegment<T> *getEasingSegment(int frame) const {
-		const auto count = m_easingCurves.size();
-		//if (m_easingIndex >= count) {
-		//	qWarning()
-		//		<< "Property is animated but easing cannot be found";
-		//	return nullptr;
-		//}
-		const auto from = /*(m_easingCurves[m_easingIndex].startFrame <= frame)
-			? m_easingIndex
-			: */0;
-		for (auto i = from; i != count; ++i) {
-			const auto &segment = m_easingCurves[i];
-			if (segment.startFrame <= frame && segment.endFrame >= frame) {
-				//m_easingIndex = i;
+		if (m_easingCurves.empty()) {
+			qWarning()
+				<< "Property is animated but easing cannot be found";
+			return nullptr;
+		}
+		for (const auto &segment : m_easingCurves) {
+			if (frame < segment.endFrame) {
 				return &segment;
 			}
 		}
-		qWarning()
-			<< "Property is animated but easing cannot be found";
-		return nullptr;
+		return &m_easingCurves.back();
 	}
 
 	T getEasingValue(const EasingSegment<T> &segment, int frame) const {
